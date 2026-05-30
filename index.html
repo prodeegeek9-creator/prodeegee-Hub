@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prodeegee Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070a07; --bg2: #0c110c; --bg3: #111611; --bg4: #171f17;
+    --border: #1a231a; --border2: #223022;
+    --green: #16a34a; --green-dim: #14532d; --green-glow: rgba(22,163,74,0.1);
+    --green-bright: #22c55e;
+    --text: #e2f0e2; --text2: #8fa88f; --text3: #4a5e4a;
+    --amber: #d97706; --red: #dc2626;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  /* AUTH PAGE */
+  .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; overflow: hidden; }
+  .auth-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(22,163,74,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(22,163,74,0.04) 0%, transparent 50%); pointer-events: none; }
+  .auth-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.4; pointer-events: none; }
+  .auth-card { width: 100%; max-width: 420px; background: var(--bg2); border: 1px solid var(--border2); border-radius: 12px; padding: 40px; position: relative; z-index: 1; }
+  .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .auth-logo-mark { width: 32px; height: 32px; background: var(--green); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 14px; font-weight: 600; color: #fff; }
+  .auth-logo-text { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--text); }
+  .auth-logo-text span { color: var(--green); }
+  .auth-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .auth-sub { font-size: 13px; color: var(--text3); margin-bottom: 28px; }
+  .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg3); border-radius: 6px; padding: 3px; }
+  .auth-tab { flex: 1; padding: 7px; border-radius: 4px; border: none; background: transparent; color: var(--text2); font-family: var(--mono); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .auth-tab.active { background: var(--bg4); color: var(--green); }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-family: var(--mono); font-size: 11px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; display: block; }
+  .form-input { width: 100%; background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 10px 12px; color: var(--text); font-family: var(--sans); font-size: 14px; outline: none; transition: border-color 0.15s; }
+  .form-input:focus { border-color: var(--green); }
+  .form-input::placeholder { color: var(--text3); }
+  .btn-primary { width: 100%; padding: 11px; background: var(--green); border: none; border-radius: 6px; color: #fff; font-family: var(--mono); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-top: 8px; }
+  .btn-primary:hover { background: var(--green-bright); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-error { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); border-radius: 6px; padding: 10px 12px; font-family: var(--mono); font-size: 12px; color: #f87171; margin-bottom: 16px; display: none; }
+
+  /* APP LAYOUT */
+  .app { display: none; min-height: 100vh; flex-direction: column; }
+  .app.visible { display: flex; }
+
+  /* TOPNAV */
+  .topnav { height: 52px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 16px; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
+  .topnav-brand { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .topnav-brand-mark { width: 22px; height: 22px; background: var(--green); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: 700; }
+  .topnav-sep { width: 1px; height: 20px; background: var(--border2); }
+  .topnav-links { display: flex; gap: 2px; flex: 1; }
+  .topnav-link { font-family: var(--mono); font-size: 11px; padding: 5px 12px; border-radius: 4px; color: var(--text2); text-decoration: none; border: 1px solid transparent; cursor: pointer; background: none; transition: all 0.15s; }
+  .topnav-link:hover { color: var(--text); background: var(--bg4); }
+  .topnav-link.active { color: var(--green); background: var(--green-glow); border-color: var(--green-dim); }
+  .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .user-chip { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; padding: 4px 12px 4px 4px; }
+  .user-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10px; font-weight: 600; color: #fff; }
+  .user-name { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+  .btn-logout { font-family: var(--mono); font-size: 11px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+  .btn-logout:hover { color: var(--red); }
+
+  /* MAIN CONTENT */
+  .main-content { flex: 1; padding: 28px 24px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+  /* PAGE HEADER */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+  .page-title { font-size: 22px; font-weight: 600; color: var(--text); }
+  .page-sub { font-size: 13px; color: var(--text3); margin-top: 4px; font-family: var(--mono); }
+  .btn-action { display: flex; align-items: center; gap: 7px; padding: 9px 16px; background: var(--green); border: none; border-radius: 6px; color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-action:hover { background: var(--green-bright); }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-value { font-family: var(--mono); font-size: 24px; font-weight: 600; color: var(--text); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.red { color: var(--red); }
+
+  /* PROJECTS GRID */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
+  .project-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--green); opacity: 0; transition: opacity 0.15s; }
+  .project-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .project-card:hover::before { opacity: 1; }
+  .project-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .project-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .project-status { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 3px; font-weight: 600; letter-spacing: 0.06em; }
+  .status-active { background: var(--green-glow); color: var(--green); border: 1px solid var(--green-dim); }
+  .status-paused { background: rgba(217,119,6,0.1); color: var(--amber); border: 1px solid rgba(217,119,6,0.2); }
+  .status-done { background: var(--bg4); color: var(--text3); border: 1px solid var(--border2); }
+  .project-desc { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 14px; }
+  .project-meta { display: flex; gap: 16px; }
+  .project-meta-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .project-members { display: flex; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); align-items: center; justify-content: space-between; }
+  .member-avatars { display: flex; }
+  .member-avatar { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--bg2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; font-weight: 600; color: #fff; margin-left: -6px; }
+  .member-avatar:first-child { margin-left: 0; }
+  .project-date { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+  /* EMPTY STATE */
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; gap: 12px; color: var(--text3); font-family: var(--mono); font-size: 12px; text-align: center; }
+  .empty-icon { font-size: 40px; opacity: 0.2; margin-bottom: 8px; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(2px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 12px; width: 100%; max-width: 500px; padding: 28px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+  .modal-close { background: none; border: none; color: var(--text3); font-size: 18px; cursor: pointer; padding: 4px; line-height: 1; }
+  .modal-close:hover { color: var(--text); }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .btn-ghost { padding: 9px 16px; background: none; border: 1px solid var(--border2); border-radius: 6px; color: var(--text2); font-family: var(--mono); font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .btn-ghost:hover { border-color: var(--border); color: var(--text); }
+  .btn-submit { padding: 9px 20px; background: var(--green); border: none; border-radius: 6px; color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-submit:hover { background: var(--green-bright); }
+  select.form-input { cursor: pointer; }
+
+  /* PROJECT DETAIL */
+  .project-detail { display: none; }
+  .project-detail.visible { display: block; }
+  .back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: var(--text3); font-family: var(--mono); font-size: 12px; cursor: pointer; margin-bottom: 20px; padding: 0; }
+  .back-btn:hover { color: var(--text); }
+  .project-detail-header { margin-bottom: 24px; }
+  .project-detail-title { font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .project-detail-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  .detail-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .detail-tab { font-family: var(--mono); font-size: 12px; padding: 8px 16px; border: none; background: none; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .detail-tab:hover { color: var(--text); }
+  .detail-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* TASKS */
+  .task-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .task-col { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .task-col-title { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .task-col-count { background: var(--bg4); color: var(--text3); padding: 1px 6px; border-radius: 3px; font-size: 10px; }
+  .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+  .task-card:hover { border-color: var(--border2); }
+  .task-card-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+  .task-priority { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+  .priority-high { background: rgba(220,38,38,0.1); color: #f87171; }
+  .priority-medium { background: rgba(217,119,6,0.1); color: var(--amber); }
+  .priority-low { background: var(--green-glow); color: var(--green); }
+  .task-assigned { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 8px; }
+  .add-task-btn { width: 100%; padding: 8px; background: none; border: 1px dashed var(--border); border-radius: 6px; color: var(--text3); font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
+  .add-task-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* SQL REQUESTS */
+  .sql-request-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; }
+  .sql-request-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .sql-request-title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; }
+  .sql-status { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 3px; font-weight: 600; }
+  .sql-pending { background: rgba(217,119,6,0.1); color: var(--amber); border: 1px solid rgba(217,119,6,0.2); }
+  .sql-progress { background: rgba(37,99,235,0.1); color: #60a5fa; border: 1px solid rgba(37,99,235,0.2); }
+  .sql-done { background: var(--green-glow); color: var(--green); border: 1px solid var(--green-dim); }
+  .sql-code { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-family: var(--mono); font-size: 11px; color: var(--text2); margin-bottom: 10px; overflow-x: auto; white-space: pre; }
+  .sql-meta { display: flex; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .sql-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-pick { padding: 6px 14px; background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.3); border-radius: 4px; color: #60a5fa; font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .btn-pick:hover { background: rgba(37,99,235,0.25); }
+  .btn-done { padding: 6px 14px; background: var(--green-glow); border: 1px solid var(--green-dim); border-radius: 4px; color: var(--green); font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .btn-done:hover { background: rgba(22,163,74,0.2); }
+
+  /* MEMBERS */
+  .members-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .member-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+  .member-card-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 14px; font-weight: 600; color: #fff; flex-shrink: 0; }
+  .member-card-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .member-card-email { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .member-card-role { font-family: var(--mono); font-size: 10px; color: var(--green); margin-top: 4px; }
+
+  /* ADMIN BADGE */
+  .admin-badge { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 3px; background: rgba(217,119,6,0.15); color: var(--amber); border: 1px solid rgba(217,119,6,0.3); margin-left: 6px; }
+
+  /* LOADING */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state { display: flex; align-items: center; justify-content: center; padding: 40px; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--text3); }
+
+  /* COMMENTS */
+  .comments-section { margin-top: 16px; }
+  .comment-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .comment-input { flex: 1; background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 10px 12px; color: var(--text); font-family: var(--sans); font-size: 13px; outline: none; resize: none; }
+  .comment-input:focus { border-color: var(--green); }
+  .comment-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+  .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .comment-author { font-family: var(--mono); font-size: 11px; color: var(--green); font-weight: 600; }
+  .comment-time { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+  .comment-body { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 16px; font-family: var(--mono); font-size: 12px; color: var(--text); z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error { border-left: 3px solid var(--red); }
+
+  textarea.form-input { resize: vertical; min-height: 80px; }
+</style>
+</head>
+<body>
+
+<!-- AUTH PAGE -->
+<div class="auth-page" id="authPage">
+  <div class="auth-bg"></div>
+  <div class="auth-grid"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">P</div>
+      <div class="auth-logo-text">Prodeegee<span>Hub</span></div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <div id="authError" class="auth-error"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="handleLogin()" id="loginBtn">Sign In</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" id="regName" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="regPassword" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="handleRegister()" id="registerBtn">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <nav class="topnav">
+    <a class="topnav-brand" href="#">
+      <div class="topnav-brand-mark">P</div>
+      ProdeegeeHub
+    </a>
+    <div class="topnav-sep"></div>
+    <div class="topnav-links">
+      <button class="topnav-link active" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="topnav-link" id="adminNavLink" style="display:none" onclick="showPage('admin')">Admin</button>
+    </div>
+    <div class="topnav-right">
+      <div class="user-chip">
+        <div class="user-avatar" id="navAvatar">?</div>
+        <span class="user-name" id="navName">—</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">logout</button>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD PAGE -->
+  <div class="main-content" id="dashboardPage">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Projects <span id="adminBadge" style="display:none" class="admin-badge">ADMIN</span></div>
+        <div class="page-sub" id="dashSub">loading…</div>
+      </div>
+      <button class="btn-action" id="newProjectBtn" style="display:none" onclick="openNewProjectModal()">+ New Project</button>
+    </div>
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-label">Total Projects</div><div class="stat-value" id="statTotal">—</div></div>
+      <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value green" id="statActive">—</div></div>
+      <div class="stat-card"><div class="stat-label">My Projects</div><div class="stat-value" id="statMine">—</div></div>
+      <div class="stat-card"><div class="stat-label">Pending SQL</div><div class="stat-value amber" id="statSQL">—</div></div>
+    </div>
+    <div id="projectsContainer">
+      <div class="loading-state"><div class="spinner"></div> Loading projects…</div>
+    </div>
+  </div>
+
+  <!-- PROJECT DETAIL PAGE -->
+  <div class="main-content project-detail" id="projectDetailPage">
+    <button class="back-btn" onclick="showPage('dashboard')">← Back to Dashboard</button>
+    <div class="project-detail-header">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div class="project-detail-title" id="detailTitle">—</div>
+        <span id="detailStatus" class="project-status"></span>
+      </div>
+      <div class="project-detail-desc" id="detailDesc">—</div>
+    </div>
+    <div class="detail-tabs">
+      <button class="detail-tab active" onclick="switchDetailTab('tasks')">Tasks</button>
+      <button class="detail-tab" onclick="switchDetailTab('sql')">SQL Requests</button>
+      <button class="detail-tab" onclick="switchDetailTab('members')">Members</button>
+      <button class="detail-tab" onclick="switchDetailTab('comments')">Comments</button>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <!-- ADMIN PAGE -->
+  <div class="main-content" id="adminPage" style="display:none">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Admin Panel</div>
+        <div class="page-sub">Manage projects and members</div>
+      </div>
+      <button class="btn-action" onclick="openNewProjectModal()">+ New Project</button>
+    </div>
+    <div id="adminContent">
+      <div class="loading-state"><div class="spinner"></div> Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Project</div>
+      <button class="modal-close" onclick="closeModal('newProjectModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Project Name</label>
+      <input type="text" class="form-input" id="newProjectName" placeholder="e.g. PrepBeta v2">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="newProjectDesc" placeholder="What is this project about?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newProjectModal')">Cancel</button>
+      <button class="btn-submit" onclick="createProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW TASK MODAL -->
+<div class="modal-overlay" id="newTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New Task</div>
+      <button class="modal-close" onclick="closeModal('newTaskModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="newTaskTitle" placeholder="Task title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="newTaskDesc" placeholder="Details…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Priority</label>
+      <select class="form-input" id="newTaskPriority">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Assign To</label>
+      <select class="form-input" id="newTaskAssignee"><option value="">Unassigned</option></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newTaskModal')">Cancel</button>
+      <button class="btn-submit" onclick="createTask()">Create Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW SQL REQUEST MODAL -->
+<div class="modal-overlay" id="newSQLModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">New SQL Request</div>
+      <button class="modal-close" onclick="closeModal('newSQLModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="newSQLTitle" placeholder="What do you need?">
+    </div>
+    <div class="form-group">
+      <label class="form-label">SQL Query</label>
+      <textarea class="form-input" id="newSQLQuery" placeholder="SELECT * FROM users WHERE..." style="min-height:120px;font-family:var(--mono);font-size:12px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input" id="newSQLNotes" placeholder="Context or expected outcome…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newSQLModal')">Cancel</button>
+      <button class="btn-submit" onclick="createSQLRequest()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPA_URL = 'https://twpkuntxvlkuqjmyfjlf.supabase.co';
+const ANON_KEY = 'sb_publishable_6d3dbk0DK1_cIGtY310TWw_Db7hWk6e';
+const HEADERS = { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json' };
+
+let currentUser = null;
+let isAdmin = false;
+let currentProject = null;
+let currentDetailTab = 'tasks';
+let newTaskStatus = 'todo';
+
+// ─── SUPABASE HELPERS ────────────────────────────────────────────
+async function db(path, opts = {}) {
+  const res = await fetch(SUPA_URL + path, { headers: { ...HEADERS, ...(opts.headers||{}) }, ...opts });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'Request failed'); }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function dbInsert(table, data, returning = true) {
+  return db('/rest/v1/' + table, {
+    method: 'POST',
+    headers: returning ? { 'Prefer': 'return=representation' } : {},
+    body: JSON.stringify(data)
+  });
+}
+
+async function dbUpdate(table, data, filter) {
+  return db('/rest/v1/' + table + '?' + filter, {
+    method: 'PATCH',
+    headers: { 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+}
+
+async function dbSelect(table, query = '') {
+  return db('/rest/v1/' + table + '?select=*' + (query ? '&' + query : ''));
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('authError').style.display = 'none';
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthError('Please fill in all fields');
+  document.getElementById('loginBtn').disabled = true;
+  document.getElementById('loginBtn').textContent = 'Signing in…';
+  try {
+    const users = await dbSelect('hub_users', 'email=eq.' + encodeURIComponent(email) + '&password=eq.' + encodeURIComponent(password));
+    if (!users || !users.length) throw new Error('Invalid email or password');
+    await initSession(users[0]);
+  } catch(e) {
+    showAuthError(e.message);
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'Sign In';
+  }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  if (!name || !email || !password) return showAuthError('Please fill in all fields');
+  if (password.length < 6) return showAuthError('Password must be at least 6 characters');
+  document.getElementById('registerBtn').disabled = true;
+  document.getElementById('registerBtn').textContent = 'Creating account…';
+  try {
+    const colors = ['#16a34a','#2563eb','#d97706','#dc2626','#7c3aed','#0891b2'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const result = await dbInsert('hub_users', { name, email, password, avatar_color: color });
+    if (!result || !result.length) throw new Error('Registration failed');
+    await initSession(result[0]);
+  } catch(e) {
+    showAuthError(e.message.includes('duplicate') ? 'Email already registered' : e.message);
+    document.getElementById('registerBtn').disabled = false;
+    document.getElementById('registerBtn').textContent = 'Create Account';
+  }
+}
+
+async function initSession(user) {
+  currentUser = user;
+  localStorage.setItem('hub_user', JSON.stringify(user));
+  const admins = await dbSelect('hub_admins', 'user_id=eq.' + user.id);
+  isAdmin = admins && admins.length > 0;
+  localStorage.setItem('hub_admin', isAdmin ? '1' : '0');
+  showApp();
+}
+
+function handleLogout() {
+  currentUser = null;
+  isAdmin = false;
+  localStorage.removeItem('hub_user');
+  localStorage.removeItem('hub_admin');
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('authPage').style.display = 'flex';
+  switchAuthTab('login');
+}
+
+// ─── APP INIT ────────────────────────────────────────────────────
+async function showApp() {
+  document.getElementById('authPage').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('navName').textContent = currentUser.name;
+  document.getElementById('navAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  document.getElementById('navAvatar').style.background = currentUser.avatar_color || '#16a34a';
+  if (isAdmin) {
+    document.getElementById('adminNavLink').style.display = 'block';
+    document.getElementById('adminBadge').style.display = 'inline';
+    document.getElementById('newProjectBtn').style.display = 'flex';
+  }
+  showPage('dashboard');
+}
+
+function showPage(page) {
+  document.getElementById('dashboardPage').style.display = page === 'dashboard' ? 'block' : 'none';
+  document.getElementById('projectDetailPage').classList.toggle('visible', page === 'project');
+  document.getElementById('adminPage').style.display = page === 'admin' ? 'block' : 'none';
+  document.querySelectorAll('.topnav-link').forEach(el => el.classList.remove('active'));
+  if (page === 'dashboard') { document.querySelectorAll('.topnav-link')[0].classList.add('active'); loadDashboard(); }
+  if (page === 'admin') { document.querySelectorAll('.topnav-link')[1]?.classList.add('active'); loadAdmin(); }
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────────
+async function loadDashboard() {
+  document.getElementById('dashSub').textContent = 'loading…';
+  try {
+    let projects;
+    if (isAdmin) {
+      projects = await dbSelect('hub_projects', 'order=created_at.desc');
+    } else {
+      const memberships = await dbSelect('hub_project_members', 'user_id=eq.' + currentUser.id);
+      const ids = memberships.map(m => m.project_id);
+      if (!ids.length) { projects = []; }
+      else { projects = await db('/rest/v1/hub_projects?select=*&id=in.(' + ids.join(',') + ')&order=created_at.desc'); }
+    }
+    const sqlReqs = await dbSelect('hub_sql_requests', 'status=eq.pending');
+    document.getElementById('statTotal').textContent = projects.length;
+    document.getElementById('statActive').textContent = projects.filter(p => p.status === 'active').length;
+    document.getElementById('statMine').textContent = projects.length;
+    document.getElementById('statSQL').textContent = sqlReqs ? sqlReqs.length : 0;
+    document.getElementById('dashSub').textContent = projects.length + ' project' + (projects.length !== 1 ? 's' : '');
+    renderProjects(projects);
+  } catch(e) {
+    document.getElementById('dashSub').textContent = 'error loading';
+    document.getElementById('projectsContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠</div><div>' + e.message + '</div></div>';
+  }
+}
+
+function renderProjects(projects) {
+  if (!projects.length) {
+    document.getElementById('projectsContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">◈</div><div>' + (isAdmin ? 'No projects yet. Create one to get started.' : 'You haven\'t been added to any projects yet.') + '</div></div>';
+    return;
+  }
+  const colors = ['#16a34a','#2563eb','#d97706','#7c3aed','#0891b2','#dc2626'];
+  const html = '<div class="projects-grid">' + projects.map((p, i) => `
+    <div class="project-card" onclick="openProject('${p.id}')">
+      <div class="project-card-header">
+        <div class="project-name">${p.name}</div>
+        <span class="project-status status-${p.status}">${p.status}</span>
+      </div>
+      <div class="project-desc">${p.description || 'No description provided.'}</div>
+      <div class="project-meta">
+        <span class="project-meta-item">◈ ${timeAgo(p.created_at)}</span>
+      </div>
+      <div class="project-members">
+        <div class="member-avatars">
+          <div class="member-avatar" style="background:${colors[i % colors.length]}">${p.name.charAt(0)}</div>
+        </div>
+        <span class="project-date">${formatDate(p.created_at)}</span>
+      </div>
+    </div>
+  `).join('') + '</div>';
+  document.getElementById('projectsContainer').innerHTML = html;
+}
+
+// ─── PROJECT DETAIL ──────────────────────────────────────────────
+async function openProject(projectId) {
+  showPage('project');
+  try {
+    const projects = await db('/rest/v1/hub_projects?id=eq.' + projectId);
+    currentProject = projects[0];
+    document.getElementById('detailTitle').textContent = currentProject.name;
+    document.getElementById('detailDesc').textContent = currentProject.description || '';
+    const statusEl = document.getElementById('detailStatus');
+    statusEl.textContent = currentProject.status;
+    statusEl.className = 'project-status status-' + currentProject.status;
+    switchDetailTab('tasks');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function switchDetailTab(tab) {
+  currentDetailTab = tab;
+  document.querySelectorAll('.detail-tab').forEach((el, i) => {
+    const tabs = ['tasks','sql','members','comments'];
+    el.classList.toggle('active', tabs[i] === tab);
+  });
+  if (tab === 'tasks') loadTasks();
+  if (tab === 'sql') loadSQLRequests();
+  if (tab === 'members') loadMembers();
+  if (tab === 'comments') loadComments();
+}
+
+// ─── TASKS ───────────────────────────────────────────────────────
+async function loadTasks() {
+  document.getElementById('detailContent').innerHTML = '<div class="loading-state"><div class="spinner"></div> Loading tasks…</div>';
+  try {
+    const tasks = await dbSelect('hub_tasks', 'project_id=eq.' + currentProject.id + '&order=created_at.desc');
+    const users = await dbSelect('hub_users');
+    const userMap = {};
+    users.forEach(u => userMap[u.id] = u);
+    const cols = { todo: [], in_progress: [], done: [] };
+    tasks.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
+    const colLabels = { todo: 'To Do', in_progress: 'In Progress', done: 'Done' };
+    let html = '<div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="btn-action" onclick="openNewTaskModal(\'todo\')">+ Add Task</button></div>';
+    html += '<div class="task-columns">';
+    Object.entries(cols).forEach(([status, items]) => {
+      html += `<div class="task-col">
+        <div class="task-col-title">${colLabels[status]} <span class="task-col-count">${items.length}</span></div>`;
+      items.forEach(t => {
+        const assignee = t.assigned_to ? userMap[t.assigned_to] : null;
+        html += `<div class="task-card">
+          <div class="task-card-title">${t.title}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="task-priority priority-${t.priority}">${t.priority}</span>
+          </div>
+          ${assignee ? `<div class="task-assigned">→ ${assignee.name}</div>` : ''}
+        </div>`;
+      });
+      html += `<button class="add-task-btn" onclick="openNewTaskModal('${status}')">+ add task</button></div>`;
+    });
+    html += '</div>';
+    document.getElementById('detailContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('detailContent').innerHTML = '<div class="empty-state"><div>' + e.message + '</div></div>';
+  }
+}
+
+function openNewTaskModal(status) {
+  newTaskStatus = status;
+  document.getElementById('newTaskTitle').value = '';
+  document.getElementById('newTaskDesc').value = '';
+  loadProjectMembersForSelect();
+  document.getElementById('newTaskModal').classList.add('open');
+}
+
+async function loadProjectMembersForSelect() {
+  try {
+    const members = await dbSelect('hub_project_members', 'project_id=eq.' + currentProject.id);
+    const ids = members.map(m => m.user_id);
+    if (!ids.length) return;
+    const users = await db('/rest/v1/hub_users?id=in.(' + ids.join(',') + ')');
+    const sel = document.getElementById('newTaskAssignee');
+    sel.innerHTML = '<option value="">Unassigned</option>' + users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+  } catch(e) {}
+}
+
+async function createTask() {
+  const title = document.getElementById('newTaskTitle').value.trim();
+  if (!title) return showToast('Title is required', 'error');
+  try {
+    await dbInsert('hub_tasks', {
+      project_id: currentProject.id,
+      title,
+      description: document.getElementById('newTaskDesc').value.trim(),
+      priority: document.getElementById('newTaskPriority').value,
+      assigned_to: document.getElementById('newTaskAssignee').value || null,
+      created_by: currentUser.id,
+      status: newTaskStatus
+    });
+    closeModal('newTaskModal');
+    showToast('Task created', 'success');
+    loadTasks();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── SQL REQUESTS ────────────────────────────────────────────────
+async function loadSQLRequests() {
+  document.getElementById('detailContent').innerHTML = '<div class="loading-state"><div class="spinner"></div> Loading SQL requests…</div>';
+  try {
+    const reqs = await dbSelect('hub_sql_requests', 'project_id=eq.' + currentProject.id + '&order=created_at.desc');
+    const users = await dbSelect('hub_users');
+    const userMap = {};
+    users.forEach(u => userMap[u.id] = u);
+    let html = '<div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button class="btn-action" onclick="document.getElementById(\'newSQLModal\').classList.add(\'open\')">+ New SQL Request</button></div>';
+    if (!reqs.length) {
+      html += '<div class="empty-state"><div class="empty-icon">⌗</div><div>No SQL requests yet</div></div>';
+    } else {
+      reqs.forEach(r => {
+        const requester = r.requested_by ? userMap[r.requested_by] : null;
+        const picker = r.picked_by ? userMap[r.picked_by] : null;
+        html += `<div class="sql-request-card">
+          <div class="sql-request-header">
+            <div class="sql-request-title">${r.title}</div>
+            <span class="sql-status sql-${r.status}">${r.status.replace('_',' ')}</span>
+          </div>
+          <div class="sql-code">${r.sql_query}</div>
+          <div class="sql-meta">
+            <span>By: ${requester ? requester.name : '—'}</span>
+            ${picker ? '<span>Picked by: ' + picker.name + '</span>' : ''}
+            <span>${timeAgo(r.created_at)}</span>
+          </div>
+          ${r.notes ? `<div style="font-size:12px;color:var(--text2);margin-top:8px">${r.notes}</div>` : ''}
+          <div class="sql-actions">
+            ${r.status === 'pending' ? `<button class="btn-pick" onclick="pickSQLRequest('${r.id}')">Pick Up</button>` : ''}
+            ${r.status === 'in_progress' && r.picked_by === currentUser.id ? `<button class="btn-done" onclick="completeSQLRequest('${r.id}')">Mark Done</button>` : ''}
+          </div>
+        </div>`;
+      });
+    }
+    document.getElementById('detailContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('detailContent').innerHTML = '<div class="empty-state"><div>' + e.message + '</div></div>';
+  }
+}
+
+async function createSQLRequest() {
+  const title = document.getElementById('newSQLTitle').value.trim();
+  const sql = document.getElementById('newSQLQuery').value.trim();
+  if (!title || !sql) return showToast('Title and SQL are required', 'error');
+  try {
+    await dbInsert('hub_sql_requests', {
+      project_id: currentProject.id,
+      title,
+      sql_query: sql,
+      notes: document.getElementById('newSQLNotes').value.trim(),
+      requested_by: currentUser.id,
+      status: 'pending'
+    });
+    closeModal('newSQLModal');
+    showToast('SQL request submitted', 'success');
+    loadSQLRequests();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function pickSQLRequest(id) {
+  try {
+    await dbUpdate('hub_sql_requests', { status: 'in_progress', picked_by: currentUser.id, picked_at: new Date().toISOString() }, 'id=eq.' + id);
+    showToast('Request picked up', 'success');
+    loadSQLRequests();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function completeSQLRequest(id) {
+  try {
+    await dbUpdate('hub_sql_requests', { status: 'done', completed_at: new Date().toISOString() }, 'id=eq.' + id);
+    showToast('Marked as done', 'success');
+    loadSQLRequests();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── MEMBERS ─────────────────────────────────────────────────────
+async function loadMembers() {
+  document.getElementById('detailContent').innerHTML = '<div class="loading-state"><div class="spinner"></div> Loading members…</div>';
+  try {
+    const members = await dbSelect('hub_project_members', 'project_id=eq.' + currentProject.id);
+    const ids = members.map(m => m.user_id);
+    const roleMap = {};
+    members.forEach(m => roleMap[m.user_id] = m.role);
+    let users = [];
+    if (ids.length) users = await db('/rest/v1/hub_users?id=in.(' + ids.join(',') + ')');
+    const colors = ['#16a34a','#2563eb','#d97706','#7c3aed','#0891b2','#dc2626'];
+    let html = '';
+    if (isAdmin) {
+      html += `<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn-action" onclick="openAddMemberModal()">+ Add Member</button>
+      </div>`;
+    }
+    if (!users.length) {
+      html += '<div class="empty-state"><div class="empty-icon">👥</div><div>No members yet</div></div>';
+    } else {
+      html += '<div class="members-list">' + users.map((u, i) => `
+        <div class="member-card">
+          <div class="member-card-avatar" style="background:${u.avatar_color || colors[i%colors.length]}">${u.name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="member-card-name">${u.name}</div>
+            <div class="member-card-email">${u.email}</div>
+            <div class="member-card-role">${roleMap[u.id] || 'member'}</div>
+          </div>
+        </div>
+      `).join('') + '</div>';
+    }
+    document.getElementById('detailContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('detailContent').innerHTML = '<div class="empty-state"><div>' + e.message + '</div></div>';
+  }
+}
+
+// ─── COMMENTS ────────────────────────────────────────────────────
+async function loadComments() {
+  document.getElementById('detailContent').innerHTML = '<div class="loading-state"><div class="spinner"></div> Loading comments…</div>';
+  try {
+    const comments = await dbSelect('hub_comments', 'project_id=eq.' + currentProject.id + '&reference_type=eq.project&order=created_at.asc');
+    const users = await dbSelect('hub_users');
+    const userMap = {};
+    users.forEach(u => userMap[u.id] = u);
+    let html = `<div class="comments-section">
+      <div class="comment-input-row">
+        <textarea class="comment-input" id="commentInput" placeholder="Write a comment…" rows="2"></textarea>
+        <button class="btn-action" onclick="postComment()">Post</button>
+      </div>`;
+    if (!comments.length) {
+      html += '<div class="empty-state"><div>No comments yet. Start the conversation.</div></div>';
+    } else {
+      comments.forEach(c => {
+        const author = userMap[c.author_id];
+        html += `<div class="comment-card">
+          <div class="comment-header">
+            <span class="comment-author">${author ? author.name : 'Unknown'}</span>
+            <span class="comment-time">${timeAgo(c.created_at)}</span>
+          </div>
+          <div class="comment-body">${c.content}</div>
+        </div>`;
+      });
+    }
+    html += '</div>';
+    document.getElementById('detailContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('detailContent').innerHTML = '<div class="empty-state"><div>' + e.message + '</div></div>';
+  }
+}
+
+async function postComment() {
+  const content = document.getElementById('commentInput').value.trim();
+  if (!content) return;
+  try {
+    await dbInsert('hub_comments', {
+      project_id: currentProject.id,
+      reference_id: currentProject.id,
+      reference_type: 'project',
+      content,
+      author_id: currentUser.id
+    });
+    loadComments();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── ADMIN ───────────────────────────────────────────────────────
+async function loadAdmin() {
+  try {
+    const projects = await dbSelect('hub_projects', 'order=created_at.desc');
+    const users = await dbSelect('hub_users', 'order=created_at.desc');
+    let html = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div class="page-title" style="font-size:16px;margin-bottom:16px">All Projects (${projects.length})</div>`;
+    projects.forEach(p => {
+      html += `<div class="sql-request-card" style="cursor:pointer" onclick="openProject('${p.id}')">
+        <div class="sql-request-header">
+          <div class="sql-request-title">${p.name}</div>
+          <span class="project-status status-${p.status}">${p.status}</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text3)">${formatDate(p.created_at)}</div>
+        ${isAdmin ? `<div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn-pick" onclick="event.stopPropagation();assignMember('${p.id}')">+ Assign Member</button>
+          <button class="btn-done" onclick="event.stopPropagation();archiveProject('${p.id}')">Archive</button>
+        </div>` : ''}
+      </div>`;
+    });
+    html += `</div><div>
+      <div class="page-title" style="font-size:16px;margin-bottom:16px">All Users (${users.length})</div>`;
+    const colors = ['#16a34a','#2563eb','#d97706','#7c3aed'];
+    users.forEach((u, i) => {
+      html += `<div class="member-card" style="margin-bottom:8px">
+        <div class="member-card-avatar" style="background:${u.avatar_color || colors[i%colors.length]}">${u.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="member-card-name">${u.name}</div>
+          <div class="member-card-email">${u.email}</div>
+          <div class="member-card-role">${timeAgo(u.created_at)}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div></div>';
+    document.getElementById('adminContent').innerHTML = html;
+  } catch(e) {
+    document.getElementById('adminContent').innerHTML = '<div class="empty-state"><div>' + e.message + '</div></div>';
+  }
+}
+
+async function assignMember(projectId) {
+  const email = prompt('Enter user email to add to this project:');
+  if (!email) return;
+  try {
+    const users = await db('/rest/v1/hub_users?email=eq.' + encodeURIComponent(email));
+    if (!users.length) return showToast('User not found', 'error');
+    await dbInsert('hub_project_members', { project_id: projectId, user_id: users[0].id, role: 'member' }, false);
+    showToast(users[0].name + ' added to project', 'success');
+    loadAdmin();
+  } catch(e) { showToast(e.message.includes('duplicate') ? 'User already in project' : e.message, 'error'); }
+}
+
+async function archiveProject(id) {
+  if (!confirm('Archive this project?')) return;
+  try {
+    await dbUpdate('hub_projects', { status: 'done' }, 'id=eq.' + id);
+    showToast('Project archived', 'success');
+    loadAdmin();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── CREATE PROJECT ──────────────────────────────────────────────
+function openNewProjectModal() { document.getElementById('newProjectModal').classList.add('open'); }
+
+async function createProject() {
+  const name = document.getElementById('newProjectName').value.trim();
+  if (!name) return showToast('Project name is required', 'error');
+  try {
+    const result = await dbInsert('hub_projects', {
+      name,
+      description: document.getElementById('newProjectDesc').value.trim(),
+      created_by: currentUser.id,
+      status: 'active'
+    });
+    await dbInsert('hub_project_members', { project_id: result[0].id, user_id: currentUser.id, role: 'lead' }, false);
+    closeModal('newProjectModal');
+    showToast('Project created', 'success');
+    loadDashboard();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function timeAgo(v) {
+  try {
+    const diff = Date.now() - new Date(v).getTime();
+    const s = Math.floor(diff/1000);
+    if (s < 60) return s + 's ago';
+    const m = Math.floor(s/60); if (m < 60) return m + 'm ago';
+    const h = Math.floor(m/60); if (h < 24) return h + 'h ago';
+    const d = Math.floor(h/24); return d + 'd ago';
+  } catch(e) { return ''; }
+}
+
+function formatDate(v) {
+  try { return new Date(v).toLocaleDateString('en-NG', { day:'2-digit', month:'short', year:'numeric' }); }
+  catch(e) { return v; }
+}
+
+// ─── BOOT ────────────────────────────────────────────────────────
+(async function boot() {
+  const saved = localStorage.getItem('hub_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      isAdmin = localStorage.getItem('hub_admin') === '1';
+      await showApp();
+    } catch(e) { localStorage.removeItem('hub_user'); }
+  }
+})();
+</script>
+</body>
+</html>
