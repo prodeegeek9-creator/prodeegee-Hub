@@ -695,7 +695,7 @@ const PRODEEGEE_DOMAIN = 'prodeegee.com';
 // INIT SUPABASE
 // ════════════════════════════════════════════════
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
 
 // ════════════════════════════════════════════════
 // STATE
@@ -1789,9 +1789,12 @@ async function setInitialPassword() {
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
+// Read hash immediately before anything can clear it
+const _rawHash = window.location.hash;
+
 (async () => {
   // Parse hash params — Supabase puts tokens and errors here
-  const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+  const hashStr = _rawHash.startsWith('#') ? _rawHash.slice(1) : '';
   const hashParams = new URLSearchParams(hashStr);
   const linkType    = hashParams.get('type');
   const accessToken = hashParams.get('access_token');
