@@ -1793,50 +1793,64 @@ async function setInitialPassword() {
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
+
+// Step 1: Read hash synchronously right now, before anything clears it
+const _rawHash = window.location.hash;
+const _hp = new URLSearchParams(_rawHash.startsWith('#') ? _rawHash.slice(1) : '');
+const _linkType = _hp.get('type');
+const _hashError = _hp.get('error');
+
+// Step 2: If invite/reset link, store flag in sessionStorage before any redirect
+if ((_linkType === 'invite' || _linkType === 'recovery') && _hp.get('access_token')) {
+  sessionStorage.setItem('pending_pwd_set', '1');
+}
+if (_hashError) {
+  const desc = _hp.get('error_description') || _hashError;
+  sessionStorage.setItem('auth_link_error', decodeURIComponent(desc.replace(/[+]/g, ' ')));
+  history.replaceState(null, '', window.location.pathname);
+}
+
 (async () => {
-  // Use hash captured synchronously at page load (before Supabase/browser clears it)
-  const hashStr = (window._initHash || '').startsWith('#') ? (window._initHash).slice(1) : '';
-  const hashParams = new URLSearchParams(hashStr);
-  const linkType    = hashParams.get('type');
-  const accessToken = hashParams.get('access_token');
-  const refreshToken = hashParams.get('refresh_token');
-  const hashError   = hashParams.get('error');
-  const hashErrorDesc = hashParams.get('error_description');
-  const isInviteOrReset = (linkType === 'invite' || linkType === 'recovery') && accessToken;
-
-  if (hashError) {
-    history.replaceState(null, '', window.location.pathname);
+  // Show any stored link error
+  const linkError = sessionStorage.getItem('auth_link_error');
+  if (linkError) {
+    sessionStorage.removeItem('auth_link_error');
     const errEl = document.getElementById('authError');
-    const msg = hashErrorDesc ? decodeURIComponent(hashErrorDesc.replace(/[+]/g, ' ')) : hashError;
-    errEl.textContent = msg + ' — please request a new invite link.';
+    errEl.textContent = linkError + ' — please request a new invite link.';
     errEl.style.display = 'block';
+  }
 
-  } else if (isInviteOrReset) {
-    history.replaceState(null, '', window.location.pathname);
+  // Check session — Supabase will have already processed the hash by now
+  const { data: { session } } = await sb.auth.getSession();
+  const pendingPwd = sessionStorage.getItem('pending_pwd_set') === '1';
+
+  if (pendingPwd && session) {
+    // Invite/reset: session is set, show password panel
+    sessionStorage.removeItem('pending_pwd_set');
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
-    const { data: sessionData, error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-    document.getElementById('authSuccess').textContent += ' | setSession:' + (error ? 'ERR:'+error.message : 'OK') + ' user:' + (sessionData?.session?.user?.email || 'none');
-    if (error) {
-      const errEl = document.getElementById('authError');
-      errEl.textContent = 'Invite link error: ' + error.message;
-      errEl.style.display = 'block';
-    } else {
-      showSetPasswordPanel();
-    }
-
-  } else {
-    // Normal load — check for existing session
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) await initApp(session);
+    showSetPasswordPanel();
+  } else if (pendingPwd && !session) {
+    // Flag set but session not ready yet — wait for onAuthStateChange
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('hubApp').style.display = 'none';
+  } else if (session) {
+    await initApp(session);
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
-      // Only load app if set-password panel is not active
-      if (document.getElementById('setPasswordPanel').style.display === 'block') return;
-      if (isInviteOrReset) return;
-      await initApp(session);
+      const pending = sessionStorage.getItem('pending_pwd_set') === '1';
+      if (pending) {
+        sessionStorage.removeItem('pending_pwd_set');
+        document.getElementById('authScreen').style.display = 'flex';
+        document.getElementById('hubApp').style.display = 'none';
+        showSetPasswordPanel();
+      } else if (document.getElementById('setPasswordPanel').style.display === 'block') {
+        return;
+      } else {
+        await initApp(session);
+      }
     } else if (event === 'SIGNED_OUT') {
       document.getElementById('hubApp').style.display = 'none';
       document.getElementById('authScreen').style.display = 'flex';
