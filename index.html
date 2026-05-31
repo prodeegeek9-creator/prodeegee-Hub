@@ -118,6 +118,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 /* ── PROJECTS ── */
 .kanban-wrap{display:flex;gap:12px;padding:16px;overflow-x:auto;height:100%;align-items:flex-start}
+.project-card{background:var(--surface);border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .15s;position:relative}
+.project-card:hover{border-color:var(--orange);background:rgba(255,107,43,.04)}
+.project-card-name{font-size:13px;color:var(--orange);margin-bottom:6px;font-weight:600}
+.project-card-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.project-card-meta{display:flex;gap:8px;font-size:10px;color:var(--muted)}
+.project-card-status{padding:2px 6px;border:1px solid var(--border);font-size:9px;letter-spacing:.5px}
+.project-card-status.active{border-color:var(--green);color:var(--green)}
+.project-sub-badge{font-size:9px;color:#4fc3f7;border:1px solid #4fc3f7;padding:1px 5px;position:absolute;top:8px;right:8px}
 .kol{background:var(--surface);border:1px solid var(--border);width:220px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
 .kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
 .kol-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
@@ -409,12 +417,28 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         </div>
       </div>
 
-      <!-- PROJECTS -->
-      <div class="section" id="section-projects" style="overflow:hidden">
+      <!-- PROJECTS GRID -->
+      <div class="section" id="section-projects" style="overflow-y:auto">
         <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-          <span style="font-size:11px;color:var(--green)">◈ Project Board</span>
+          <span style="font-size:11px;color:var(--green)">◈ Projects</span>
           <div style="display:flex;gap:6px">
             <span id="newProjectBtn" style="display:none"><button class="btn sm" onclick="openNewProjectModal()">+ New Project</button></span>
+          </div>
+        </div>
+        <div id="projectsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:16px">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- PROJECT TASKS BOARD -->
+      <div class="section" id="section-project-tasks" style="overflow:hidden;display:none">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="switchSection('projects')">← Projects</span>
+            <span style="font-size:11px;color:var(--green)" id="activeProjectName">Project</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <span id="newSubProjectBtn" style="display:none"><button class="btn sm" onclick="openNewSubProjectModal()">+ Sub-project</button></span>
             <button class="btn sm primary" onclick="openTaskModal()">+ New Task</button>
           </div>
         </div>
@@ -582,6 +606,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
           </select>
         </div>
       </div>
+      <input type="hidden" id="taskProjectId" value="" />
       <div class="field-grid">
         <div class="field-group">
           <div class="field-label">Status</div>
@@ -598,6 +623,40 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         </div>
       </div>
       <button class="btn primary" onclick="createTask()" style="width:100%;padding:10px">Create Task →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <div class="modal-title">◈ New Project</div>
+      <button class="modal-close" onclick="closeModal('projectModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label">Project Name</div>
+        <input class="field-input" id="projectName" placeholder="e.g. Website Redesign" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <textarea class="field-input" id="projectDesc" rows="2" placeholder="What is this project about?"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Status</div>
+        <select class="field-input" id="projectStatus">
+          <option value="active">Active</option>
+          <option value="on_hold">On Hold</option>
+          <option value="completed">Completed</option>
+        </select>
+      </div>
+      <div class="field-group" id="projectMembersField">
+        <div class="field-label">Add Members</div>
+        <div id="projectMembersList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+      </div>
+      <input type="hidden" id="projectParentId" value="" />
+      <button class="btn primary" onclick="createProject()" style="width:100%;padding:10px;margin-top:4px">Create Project →</button>
     </div>
   </div>
 </div>
@@ -828,7 +887,11 @@ async function loadChannelNav() {
     nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No channels yet</div>';
     return;
   }
-  nav.innerHTML = channels.map(ch => {
+  // Members only see default channels
+  const visible = isAdmin() || isTeamLead()
+    ? channels
+    : channels.filter(ch => DEFAULT_CHANNELS.includes(ch.name));
+  nav.innerHTML = visible.map(ch => {
     const isDefault = DEFAULT_CHANNELS.includes(ch.name);
     const label = isDefault ? `# ${ch.name}` : ch.name.toUpperCase();
     const style = isDefault ? '' : 'color:var(--orange);font-size:10px;letter-spacing:1px';
@@ -836,6 +899,9 @@ async function loadChannelNav() {
       ${label} <span class="badge" id="chbadge-${ch.name}" style="display:none">0</span>
     </div>`;
   }).join('');
+  // Show Add channel only for admins/team leads
+  const addChBtn = document.querySelector('[onclick="openNewChannelModal()"]');
+  if (addChBtn) addChBtn.style.display = canManageProjects() ? '' : 'none';
 }
 
 function renderMembers() {
@@ -901,7 +967,7 @@ function switchSection(id) {
   };
   document.getElementById('topbarTitle').textContent = titles[id] || id.toUpperCase();
   if (id === 'notifications') loadNotifications();
-  if (id === 'projects') loadTasks();
+  if (id === 'projects') loadProjects();
   if (id === 'email') loadInbox();
   if (id === 'home') loadFeed();
   if (id === 'profile') loadProfileSection();
@@ -1016,7 +1082,7 @@ function buildMsgEl(m) {
       <div class="msg-header">
         <span class="msg-name" style="${isMe ? 'color:var(--orange)' : ''}">${escHtml(name)}</span>
         <span class="msg-time">${time}</span>
-        <span class="btn sm" style="margin-left:auto;font-size:9px;cursor:pointer" onclick="openThread('${m.id}','${escHtml(m.body.slice(0,40))}')">↗ Thread</span>
+        <span class="btn sm" style="margin-left:auto;font-size:9px;cursor:pointer" onclick="openThread('${m.id}','${escHtml(m.body.slice(0,40))}')">↗ Reply Thread</span>
       </div>
       <div class="msg-text">${formatMsgBody(escHtml(m.body))}</div>
     </div>`;
@@ -1078,28 +1144,20 @@ async function loadDMMessages(toUserId) {
 
 function subscribeToDM(toUserId) {
   dmSubscription = sb.channel('dm-' + [currentUser.id, toUserId].sort().join('-'))
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
+    .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'chat_messages',
+        filter: `dm_to=eq.${currentUser.id}`
+      },
       payload => {
         const msg = payload.new;
         if (msg.channel_id || msg.parent_id) return;
-        const relevantIds = [currentUser.id, toUserId];
-        if (!relevantIds.includes(msg.sender_id) || !relevantIds.includes(msg.dm_to)) return;
-        msg.profiles = allProfiles.find(p => p.id === msg.sender_id) || (msg.sender_id === currentUser.id ? currentProfile : null);
+        if (msg.sender_id !== toUserId) return; // only for current DM partner
+        msg.profiles = allProfiles.find(p => p.id === msg.sender_id) || null;
         const list = document.getElementById('dmList');
         const empty = list.querySelector('.empty-state');
         if (empty) empty.remove();
         list.appendChild(buildMsgEl(msg));
         list.scrollTop = list.scrollHeight;
-        // Badge on DM nav if not currently viewing this DM
-        if (msg.sender_id !== currentUser.id) {
-          const dmNav = document.querySelector(`[onclick*="openDM('${msg.sender_id}'"]`);
-          if (dmNav) {
-            let badge = dmNav.querySelector('.badge');
-            if (!badge) { badge = document.createElement('span'); badge.className = 'badge'; dmNav.appendChild(badge); }
-            badge.textContent = parseInt(badge.textContent || 0) + 1;
-            badge.style.display = 'inline-flex';
-          }
-        }
       })
     .subscribe();
 }
@@ -1374,13 +1432,73 @@ function switchEmailTab(tab) {
 // TASKS / KANBAN
 // ════════════════════════════════════════════════
 let tasksCache = [];
+let projectsCache = [];
+let activeProjectId = null;
+
+// ── Projects Grid ─────────────────────────────────
+async function loadProjects() {
+  const grid = document.getElementById('projectsGrid');
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  let query = sb.from('hub_projects').select('*, hub_project_members(user_id)').order('created_at', { ascending: false });
+  const { data, error } = await query;
+  if (error) { grid.innerHTML = `<div style="color:#ef5350;padding:20px;font-size:11px">${error.message}</div>`; return; }
+  let projects = data || [];
+  // Members only see projects they belong to
+  if (!isAdmin()) {
+    projects = projects.filter(p =>
+      p.hub_project_members?.some(m => m.user_id === currentUser.id) ||
+      p.created_by === currentUser.id
+    );
+  }
+  projectsCache = projects;
+  if (!projects.length) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:20px">No projects yet' + (canManageProjects() ? ' — click + New Project to create one' : '') + '</div>';
+    return;
+  }
+  // Show top-level projects only (no parent_id), sub-projects shown inside
+  const topLevel = projects.filter(p => !p.parent_id);
+  grid.innerHTML = topLevel.map(p => {
+    const subs = projects.filter(s => s.parent_id === p.id);
+    const memberCount = p.hub_project_members?.length || 0;
+    return `<div class="project-card" onclick="openProject('${p.id}','${escHtml(p.name)}')">
+      <div class="project-card-name">◈ ${escHtml(p.name)}</div>
+      <div class="project-card-desc">${escHtml(p.description || 'No description')}</div>
+      <div class="project-card-meta">
+        <span class="project-card-status ${p.status === 'active' ? 'active' : ''}">${(p.status||'active').replace('_',' ').toUpperCase()}</span>
+        <span>${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
+        ${subs.length ? `<span style="color:#4fc3f7">${subs.length} sub</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  // Update stats
+  document.getElementById('statTasks').textContent = projects.length;
+}
+
+function openProject(projectId, projectName) {
+  activeProjectId = projectId;
+  document.getElementById('activeProjectName').textContent = projectName;
+  // Show sub-project button for team leads/admins
+  const subBtn = document.getElementById('newSubProjectBtn');
+  if (subBtn) subBtn.style.display = canManageProjects() ? 'inline' : 'none';
+  // Switch to task board view
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-project-tasks').classList.remove('active');
+  document.getElementById('section-project-tasks').style.display = '';
+  document.getElementById('section-project-tasks').classList.add('active');
+  loadTasks();
+}
 
 async function loadTasks() {
-  let query = sb.from('tasks').select('*, profiles(full_name)').order('position', { ascending: true });
+  if (!activeProjectId) return;
+  let query = sb.from('hub_tasks').select('*').eq('project_id', activeProjectId).order('created_at', { ascending: true });
   // Members only see tasks assigned to them
-  if (!canManageProjects()) query = query.eq('assignee_id', currentUser.id);
+  if (!canManageProjects()) query = query.eq('assigned_to', currentUser.id);
   const { data } = await query;
-  tasksCache = data || [];
+  tasksCache = (data || []).map(t => ({
+    ...t,
+    assignee_id: t.assigned_to,
+    profiles: allProfiles.find(p => p.id === t.assigned_to) || (t.assigned_to === currentUser.id ? currentProfile : null)
+  }));
   renderKanban();
   const active = tasksCache.filter(t => t.status !== 'Done').length;
   document.getElementById('statTasks').textContent = active;
@@ -1445,14 +1563,14 @@ function showTaskDetail(taskId) {
 }
 
 async function moveTask(taskId, newStatus) {
-  await sb.from('tasks').update({ status: newStatus }).eq('id', taskId);
+  await sb.from('hub_tasks').update({ status: newStatus }).eq('id', taskId);
   showToast(`Moved to ${newStatus}`);
   await loadTasks();
 }
 
 async function deleteTask(taskId) {
   if (!confirm('Delete this task?')) return;
-  await sb.from('tasks').delete().eq('id', taskId);
+  await sb.from('hub_tasks').delete().eq('id', taskId);
   document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px">Task deleted</div>';
   await loadTasks();
 }
@@ -1463,18 +1581,21 @@ function openTaskModalWithStatus(status) {
 }
 
 async function createTask() {
+  if (!activeProjectId) { showToast('Open a project first', 'error'); return; }
   const title = document.getElementById('taskTitle').value.trim();
   if (!title) { showToast('Enter a task title', 'error'); return; }
   const assigneeId = canManageProjects()
     ? document.getElementById('taskAssignee').value
-    : currentUser.id; // members can only assign to themselves
+    : currentUser.id;
   const priority = document.getElementById('taskPriority').value;
   const status = document.getElementById('taskStatus').value;
   const due = document.getElementById('taskDue').value || null;
   const desc = document.getElementById('taskDesc').value.trim();
 
-  const { error } = await sb.from('tasks').insert({
-    title, description: desc, assignee_id: assigneeId, priority, status, due_date: due, position: Date.now()
+  const { error } = await sb.from('hub_tasks').insert({
+    project_id: activeProjectId,
+    title, description: desc, assigned_to: assigneeId,
+    priority, status, due_date: due, created_by: currentUser.id
   });
   if (error) { showToast('Failed: ' + error.message, 'error'); return; }
 
@@ -1486,7 +1607,6 @@ async function createTask() {
   if (assigneeId !== currentUser.id) {
     await addNotification('task_assigned', `Task assigned to you: "${title}"`, null, assigneeId);
   }
-  switchSection('projects');
 }
 
 // ════════════════════════════════════════════════
@@ -1601,7 +1721,7 @@ async function loadFeed() {
     .is('parent_id', null)
     .order('created_at', { ascending: false })
     .limit(5);
-  const { data: tasks } = await sb.from('tasks')
+  const { data: tasks } = await sb.from('hub_tasks')
     .select('*, profiles(full_name)')
     .neq('status', 'Done')
     .order('created_at', { ascending: false })
@@ -1769,41 +1889,60 @@ function stringToColor(str) {
 // ════════════════════════════════════════════════
 // PROJECT MANAGEMENT (admin/team lead only)
 // ════════════════════════════════════════════════
-function openNewProjectModal() {
+function openNewProjectModal(parentId) {
   if (!canManageProjects()) { showToast('Only admins and team leads can create projects', 'error'); return; }
-  const name = prompt('Project name:');
-  if (!name) return;
-  const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  sb.from('channels').insert({ name: slug, created_by: currentUser.id }).then(async ({ error }) => {
-    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
-    // Insert preset messages from Prodeegee Hub system account
-    const presets = [
-      { emoji: '👋', title: 'Welcome', body: `Welcome to the ${name} project channel! This is your space to collaborate, share updates, and get things done.` },
-      { emoji: '📋', title: 'Guide', body: `How to use this channel:
-• Post updates and progress here
-• Use @mentions to get someone's attention
-• Click ↗ Thread to reply to a specific message
-• Assign tasks via the Projects board` },
-      { emoji: '📌', title: 'Rules', body: `Channel rules:
-1. Keep discussions relevant to ${name}
-2. Be respectful and professional
-3. Update your task status regularly
-4. Tag the team lead for blockers` }
-    ];
-    for (const p of presets) {
-      await sb.from('chat_messages').insert({
-        channel_id: slug,
-        sender_id: currentUser.id,
-        body: `${p.emoji} *${p.title}*
+  document.getElementById('projectName').value = '';
+  document.getElementById('projectDesc').value = '';
+  document.getElementById('projectStatus').value = 'active';
+  document.getElementById('projectParentId').value = parentId || '';
+  document.querySelector('#projectModal .modal-title').textContent = parentId ? '◈ New Sub-project' : '◈ New Project';
+  const membersList = document.getElementById('projectMembersList');
+  const allPeople = [currentProfile, ...allProfiles];
+  membersList.innerHTML = allPeople.map(p => `
+    <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:4px">
+      <input type="checkbox" value="${p.id}" ${p.id === currentUser.id ? 'checked' : ''} />
+      ${escHtml(p.full_name || p.email)}
+    </label>`).join('');
+  openModal('projectModal');
+}
 
-${p.body}`,
-      });
-    }
-    showToast(`Project "${name}" created ✓`);
-    await loadChannelNav();
-    openChannel(slug);
-    switchSection('channels');
-  });
+function openNewSubProjectModal() {
+  if (!activeProjectId) return;
+  openNewProjectModal(activeProjectId);
+}
+
+async function createProject() {
+  const name = document.getElementById('projectName').value.trim();
+  if (!name) { showToast('Enter a project name', 'error'); return; }
+  const desc = document.getElementById('projectDesc').value.trim();
+  const status = document.getElementById('projectStatus').value;
+  const parentId = document.getElementById('projectParentId').value || null;
+
+  const { data: proj, error } = await sb.from('hub_projects').insert({
+    name, description: desc, status,
+    parent_id: parentId,
+    created_by: currentUser.id
+  }).select().single();
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+
+  // Add selected members
+  const checked = [...document.querySelectorAll('#projectMembersList input[type=checkbox]:checked')];
+  if (checked.length) {
+    const memberInserts = checked.map(cb => ({
+      project_id: proj.id,
+      user_id: cb.value,
+      role: cb.value === currentUser.id ? 'lead' : 'member'
+    }));
+    await sb.from('hub_project_members').insert(memberInserts);
+  }
+
+  closeModal('projectModal');
+  showToast(`Project "${name}" created ✓`);
+  await loadProjects();
+  if (parentId) {
+    const parent = projectsCache.find(p => p.id === parentId);
+    if (parent) openProject(parentId, parent.name);
+  }
 }
 
 // ════════════════════════════════════════════════
