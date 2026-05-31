@@ -1809,14 +1809,15 @@ async function setInitialPassword() {
     errEl.style.display = 'block';
     history.replaceState(null, '', window.location.pathname);
   } else if (isInviteOrReset) {
-    // Show auth screen and wait — but also check if session already exists
-    // (Supabase JS may have already processed the hash before we got here)
+    // Sign out any existing session so the invite user isn't blocked
+    await sb.auth.signOut();
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      showSetPasswordPanel();
-    }
+    // Give Supabase JS a moment to process the hash token, then check session
+    setTimeout(async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) showSetPasswordPanel();
+    }, 500);
   } else {
     const { data: { session } } = await sb.auth.getSession();
     if (session) await initApp(session);
