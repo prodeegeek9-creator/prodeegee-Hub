@@ -216,16 +216,151 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:11px;line-height:1.8}
 .empty-state .big{font-size:28px;margin-bottom:8px}
 
+/* ── MOBILE BOTTOM NAV ── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--panel);border-top:1px solid var(--border);z-index:100;grid-template-columns:repeat(5,1fr)}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);transition:color .15s;font-size:9px;letter-spacing:.5px;position:relative;padding:8px 0}
+.mob-nav-item.active{color:var(--orange)}
+.mob-nav-icon{font-size:20px;line-height:1}
+.mob-nav-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--orange);color:#000;font-size:8px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px;display:none}
+
+/* ── MOBILE SIDEBAR DRAWER ── */
+.mob-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:150;opacity:0;transition:opacity .25s}
+.mob-drawer-overlay.open{opacity:1}
+.mob-drawer{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--sidebar);z-index:160;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding-bottom:80px}
+.mob-drawer.open{transform:translateX(0)}
+.mob-drawer-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 8px}
+
+/* ── NOTIFICATION TOAST (beautiful) ── */
+.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:400;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
+.notif-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.notif-toast-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(255,107,43,.15);border:1px solid rgba(255,107,43,.3)}
+.notif-toast-body{flex:1;min-width:0}
+.notif-toast-title{font-size:11px;color:var(--orange);font-weight:600;margin-bottom:2px;letter-spacing:.5px}
+.notif-toast-msg{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif-toast-time{font-size:9px;color:var(--muted);margin-top:2px}
+.notif-toast-close{color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px}
+@keyframes notifPulse{0%,100%{box-shadow:0 8px 32px rgba(0,0,0,.5)}50%{box-shadow:0 8px 32px rgba(255,107,43,.3)}}
+.notif-toast.show{animation:notifPulse 2s ease 0.4s}
+
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-  .hub{grid-template-columns:1fr}
+  body{overflow:hidden;height:100dvh}
+  .hub{grid-template-columns:1fr;height:100dvh}
   .sidebar{display:none}
-  .main{grid-template-columns:1fr}
+  .main{grid-template-columns:1fr;height:100dvh}
   .right-panel{display:none}
+  .center{height:calc(100dvh - 60px);padding-bottom:0}
+  .topbar{height:52px;padding:0 12px}
+  .topbar-title{font-size:11px}
+  .topbar-actions .btn{padding:4px 8px;font-size:10px}
+  .mobile-nav{display:grid}
+
+  /* Email mobile */
+  .email-wrap{flex-direction:column}
+  .email-list-col{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:40vh}
+
+  /* Kanban mobile - horizontal scroll */
+  .kanban-wrap{padding:10px}
+  .kol{width:180px}
+
+  /* Projects grid mobile */
+  #projectsGrid{grid-template-columns:1fr 1fr !important;gap:10px;padding:10px}
+
+  /* Modals mobile */
+  .modal{width:calc(100vw - 32px) !important;margin:16px;max-height:85vh;overflow-y:auto}
+  .modal-overlay{align-items:flex-end;padding-bottom:0}
+  .modal{border-radius:16px 16px 0 0 !important;margin:0 !important;width:100% !important;max-height:85vh;padding-bottom:env(safe-area-inset-bottom)}
+
+  /* Auth mobile */
+  .auth-card{width:calc(100vw - 32px);padding:28px 20px;border-radius:12px}
+
+  /* Toast mobile */
+  .toast{bottom:80px;left:16px;right:16px;max-width:none}
+
+  /* Messages */
+  .msg-input-area{padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+
+  /* Profile section */
+  #section-profile{padding:16px !important}
+  #section-profile>div{max-width:none !important}
+}
+
+@media(max-width:480px){
+  #projectsGrid{grid-template-columns:1fr !important}
+  .topbar-actions .btn:not(.primary){display:none}
 }
 </style>
 </head>
 <body>
+
+<!-- ════ MOBILE BOTTOM NAV ════ -->
+<nav class="mobile-nav" id="mobileNav">
+  <div class="mob-nav-item active" id="mobnav-home" onclick="mobNav('home')">
+    <span class="mob-nav-icon">⌂</span><span>Home</span>
+  </div>
+  <div class="mob-nav-item" id="mobnav-channels" onclick="mobNav('channels')">
+    <span class="mob-nav-icon">#</span><span>Chat</span>
+    <span class="mob-nav-badge" id="mobbadge-channels">0</span>
+  </div>
+  <div class="mob-nav-item" id="mobnav-projects" onclick="mobNav('projects')">
+    <span class="mob-nav-icon">◈</span><span>Projects</span>
+  </div>
+  <div class="mob-nav-item" id="mobnav-email" onclick="mobNav('email')">
+    <span class="mob-nav-icon">✉</span><span>Email</span>
+    <span class="mob-nav-badge" id="mobbadge-email">0</span>
+  </div>
+  <div class="mob-nav-item" id="mobnav-menu" onclick="openMobDrawer()">
+    <span class="mob-nav-icon">☰</span><span>Menu</span>
+    <span class="mob-nav-badge" id="mobbadge-notif">0</span>
+  </div>
+</nav>
+
+<!-- ════ MOBILE DRAWER ════ -->
+<div class="mob-drawer-overlay" id="mobDrawerOverlay" onclick="closeMobDrawer()"></div>
+<div class="mob-drawer" id="mobDrawer">
+  <div class="mob-drawer-handle"></div>
+  <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="avatar" id="mobAvatar" style="width:40px;height:40px;font-size:14px"></div>
+      <div>
+        <div style="font-size:13px;color:var(--text);font-weight:500" id="mobName">—</div>
+        <div style="font-size:10px;color:var(--green)" id="mobEmail">—</div>
+        <div style="font-size:9px;color:var(--orange);letter-spacing:1px;margin-top:2px" id="mobRole">MEMBER</div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:8px 0">
+    <div style="padding:8px 20px;font-size:10px;color:var(--muted);letter-spacing:1px">NAVIGATE</div>
+    <div class="nav-item" onclick="mobNav('dm');closeMobDrawer()"><span class="nav-icon">◎</span> Direct Messages</div>
+    <div class="nav-item" onclick="mobNav('notifications');closeMobDrawer()">
+      <span class="nav-icon">◉</span> Notifications
+      <span class="badge" id="mobNotifBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="mobNav('profile');closeMobDrawer()"><span class="nav-icon">⚙</span> Profile</div>
+  </div>
+  <div style="padding:8px 0">
+    <div style="padding:8px 20px;font-size:10px;color:var(--muted);letter-spacing:1px">CHANNELS</div>
+    <div id="mobChannelList"></div>
+  </div>
+  <div style="padding:8px 0">
+    <div style="padding:8px 20px;font-size:10px;color:var(--muted);letter-spacing:1px">DIRECT MESSAGES</div>
+    <div id="mobDMList"></div>
+  </div>
+  <div style="padding:16px 20px;border-top:1px solid var(--border);margin-top:8px">
+    <button class="btn" style="width:100%;color:#ef5350;border-color:#ef5350;padding:10px" onclick="signOut()">Sign Out</button>
+  </div>
+</div>
+
+<!-- ════ NOTIFICATION TOAST ════ -->
+<div class="notif-toast" id="notifToast">
+  <div class="notif-toast-icon" id="notifToastIcon">◉</div>
+  <div class="notif-toast-body">
+    <div class="notif-toast-title" id="notifToastTitle">Notification</div>
+    <div class="notif-toast-msg" id="notifToastMsg"></div>
+    <div class="notif-toast-time" id="notifToastTime"></div>
+  </div>
+  <div class="notif-toast-close" onclick="hideNotifToast()">✕</div>
+</div>
 
 <!-- ════ HUB APP ════ -->
 <div class="hub" id="hubApp">
@@ -864,6 +999,20 @@ function setUserUI() {
   // Show/hide New Project button
   const projBtn = document.getElementById('newProjectBtn');
   if (projBtn) projBtn.style.display = canManageProjects() ? 'inline' : 'none';
+  // Sync mobile drawer profile
+  const mobAv = document.getElementById('mobAvatar');
+  if (mobAv) {
+    mobAv.innerHTML = p.avatar_url
+      ? `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+      : initials;
+    mobAv.style.background = p.avatar_url ? 'transparent' : stringToColor(currentUser.id);
+  }
+  const mobName = document.getElementById('mobName');
+  const mobEmail = document.getElementById('mobEmail');
+  const mobRole = document.getElementById('mobRole');
+  if (mobName) mobName.textContent = name;
+  if (mobEmail) mobEmail.textContent = prodeegeeEmail;
+  if (mobRole) { mobRole.textContent = (p.role||'member').replace('_',' ').toUpperCase(); }
 }
 
 // ════════════════════════════════════════════════
@@ -902,6 +1051,9 @@ async function loadChannelNav() {
   // Show Add channel only for admins/team leads
   const addChBtn = document.querySelector('[onclick="openNewChannelModal()"]');
   if (addChBtn) addChBtn.style.display = canManageProjects() ? '' : 'none';
+  // Sync mobile drawer
+  const mobCh = document.getElementById('mobChannelList');
+  if (mobCh) mobCh.innerHTML = nav.innerHTML;
 }
 
 function renderMembers() {
@@ -933,6 +1085,8 @@ function renderDMNav() {
       <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
     </div>
   `).join('');
+  const mobDM = document.getElementById('mobDMList');
+  if (mobDM) mobDM.innerHTML = nav.innerHTML;
 }
 
 function populateAssigneeDropdown() {
@@ -1676,9 +1830,17 @@ function subscribeToNotifications() {
       event: 'INSERT', schema: 'public', table: 'notifications',
       filter: `user_id=eq.${currentUser.id}`
     }, payload => {
+      const n = payload.new;
       unreadNotifs++;
       updateNotifBadge(unreadNotifs);
+      document.getElementById('unreadNotifCount').textContent = unreadNotifs;
       loadNotifications();
+      // Beautiful toast
+      const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
+      showNotifToast(titles[n.type] || 'Notification', n.message || '', n.type);
+      // Mobile badge
+      const mobBadge = document.getElementById('mobNotifBadge');
+      if (mobBadge) { mobBadge.textContent = unreadNotifs; mobBadge.style.display = 'inline-flex'; }
     })
     .subscribe();
 }
@@ -1686,6 +1848,11 @@ function subscribeToNotifications() {
 async function addNotification(type, message, refId, targetUserId) {
   const userId = targetUserId || currentUser.id;
   await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
+  // Show toast for notifications targeting current user
+  if (!targetUserId || targetUserId === currentUser.id) {
+    const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
+    showNotifToast(titles[type] || 'Notification', message, type);
+  }
 }
 
 async function markNotifRead(notifId) {
@@ -1944,6 +2111,121 @@ async function createProject() {
     const parent = projectsCache.find(p => p.id === parentId);
     if (parent) openProject(parentId, parent.name);
   }
+}
+
+// ════════════════════════════════════════════════
+// MOBILE NAV & DRAWER
+// ════════════════════════════════════════════════
+function mobNav(section) {
+  // Update bottom nav active state
+  document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('mobnav-' + section);
+  if (navEl) navEl.classList.add('active');
+  // Clear badge on nav
+  const badge = document.getElementById('mobbadge-' + section);
+  if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
+  switchSection(section);
+}
+
+function openMobDrawer() {
+  const overlay = document.getElementById('mobDrawerOverlay');
+  const drawer  = document.getElementById('mobDrawer');
+  overlay.style.display = 'block';
+  drawer.style.display  = 'block';
+  requestAnimationFrame(() => {
+    overlay.classList.add('open');
+    drawer.classList.add('open');
+  });
+  // Sync drawer channel/dm lists
+  syncMobDrawer();
+}
+
+function closeMobDrawer() {
+  const overlay = document.getElementById('mobDrawerOverlay');
+  const drawer  = document.getElementById('mobDrawer');
+  overlay.classList.remove('open');
+  drawer.classList.remove('open');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    drawer.style.display  = 'none';
+  }, 300);
+}
+
+function syncMobDrawer() {
+  // Sync profile info
+  if (currentProfile) {
+    const name = currentProfile.full_name || '';
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+    const av = document.getElementById('mobAvatar');
+    if (av) av.innerHTML = currentProfile.avatar_url
+      ? `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+      : initials;
+    const mobName = document.getElementById('mobName');
+    const mobEmail = document.getElementById('mobEmail');
+    const mobRole = document.getElementById('mobRole');
+    if (mobName) mobName.textContent = name;
+    if (mobEmail) mobEmail.textContent = currentProfile.prodeegee_email || '';
+    if (mobRole) mobRole.textContent = (currentProfile.role || 'member').replace('_',' ').toUpperCase();
+  }
+  // Sync channels
+  const chList = document.getElementById('mobChannelList');
+  if (chList) {
+    const chNav = document.getElementById('channelNavList');
+    if (chNav) chList.innerHTML = chNav.innerHTML;
+  }
+  // Sync DMs
+  const dmList = document.getElementById('mobDMList');
+  if (dmList) {
+    const dmNav = document.getElementById('dmNavList');
+    if (dmNav) dmList.innerHTML = dmNav.innerHTML;
+  }
+}
+
+// ── Beautiful notification toast ──────────────────
+let notifToastTimer = null;
+const notifIcons = {
+  mention: '💬', dm: '◎', email_sent: '✉', task_assigned: '◈',
+  deadline: '⚡', project_update: '◈', default: '◉'
+};
+
+function showNotifToast(title, message, type) {
+  const toast = document.getElementById('notifToast');
+  const iconEl = document.getElementById('notifToastIcon');
+  const titleEl = document.getElementById('notifToastTitle');
+  const msgEl   = document.getElementById('notifToastMsg');
+  const timeEl  = document.getElementById('notifToastTime');
+
+  iconEl.textContent  = notifIcons[type] || notifIcons.default;
+  titleEl.textContent = title;
+  msgEl.textContent   = message;
+  timeEl.textContent  = 'Just now';
+
+  // Color by type
+  const colors = { mention: '#4fc3f7', dm: 'var(--green)', task_assigned: 'var(--orange)', default: 'var(--orange)' };
+  const col = colors[type] || colors.default;
+  iconEl.parentElement.style.background = col.replace(')', ',.15)').replace('(', 'a(').replace('vara', 'var');
+  iconEl.parentElement.style.borderColor = col.replace(')', ',.3)').replace('(', 'a(').replace('vara', 'var');
+  titleEl.style.color = col;
+
+  // Show with spring animation
+  toast.classList.remove('show');
+  void toast.offsetWidth; // force reflow
+  toast.classList.add('show');
+
+  // Auto-hide after 4s
+  clearTimeout(notifToastTimer);
+  notifToastTimer = setTimeout(hideNotifToast, 4000);
+
+  // Update mobile notif badge
+  const mobBadge = document.getElementById('mobbadge-notif');
+  if (mobBadge) {
+    mobBadge.textContent = parseInt(mobBadge.textContent || 0) + 1;
+    mobBadge.style.display = 'flex';
+  }
+}
+
+function hideNotifToast() {
+  document.getElementById('notifToast').classList.remove('show');
 }
 
 // ════════════════════════════════════════════════
