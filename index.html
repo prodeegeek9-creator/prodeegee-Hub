@@ -1722,7 +1722,7 @@ async function loadFeed() {
     .order('created_at', { ascending: false })
     .limit(5);
   const { data: tasks } = await sb.from('hub_tasks')
-    .select('*, profiles(full_name)')
+    .select('*')
     .neq('status', 'Done')
     .order('created_at', { ascending: false })
     .limit(5);
@@ -1747,7 +1747,8 @@ async function loadFeed() {
         </div></div>`;
     } else {
       const t = item.data;
-      const name = t.profiles?.full_name || 'Someone';
+      const assignee = allProfiles.find(p => p.id === t.assigned_to);
+      const name = assignee?.full_name || (t.assigned_to === currentUser.id ? currentProfile.full_name : 'Unassigned');
       return `<div class="feed-item" onclick="switchSection('projects')">
         <div class="feed-icon">◈</div>
         <div class="feed-body">
