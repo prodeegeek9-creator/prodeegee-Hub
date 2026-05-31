@@ -1792,16 +1792,32 @@ async function setInitialPassword() {
 // ════════════════════════════════════════════════
 (async () => {
   // Supabase puts invite/reset tokens in the hash: #access_token=...&type=invite
+  // or errors: #error=access_denied&error_code=otp_expired...
   const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
   const hashParams = new URLSearchParams(hashStr);
   const linkType = hashParams.get('type');
+  const hashError = hashParams.get('error');
+  const hashErrorDesc = hashParams.get('error_description');
   const isInviteOrReset = linkType === 'invite' || linkType === 'recovery';
 
-  if (isInviteOrReset) {
-    // Keep auth screen visible — onAuthStateChange will fire SIGNED_IN shortly
-    // after Supabase JS processes the hash token automatically
+  if (hashError) {
+    // Show error on login screen (e.g. expired link)
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
+    const errEl = document.getElementById('authError');
+    const msg = hashErrorDesc ? decodeURIComponent(hashErrorDesc.replace(/\+/g, ' ')) : hashError;
+    errEl.textContent = msg + ' — please request a new invite link.';
+    errEl.style.display = 'block';
+    history.replaceState(null, '', window.location.pathname);
+  } else if (isInviteOrReset) {
+    // Show auth screen and wait — but also check if session already exists
+    // (Supabase JS may have already processed the hash before we got here)
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('hubApp').style.display = 'none';
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      showSetPasswordPanel();
+    }
   } else {
     const { data: { session } } = await sb.auth.getSession();
     if (session) await initApp(session);
@@ -1814,10 +1830,8 @@ async function setInitialPassword() {
       showSetPasswordPanel();
     } else if (event === 'SIGNED_IN' && session) {
       if (isInviteOrReset) {
-        // Came via invite/reset — show set-password form instead of app
         showSetPasswordPanel();
       } else if (document.getElementById('setPasswordPanel').style.display === 'block') {
-        // Already showing set-password panel — don't redirect
         return;
       } else {
         await initApp(session);
