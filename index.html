@@ -401,7 +401,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
             <span id="sendingStatus" style="font-size:10px;color:var(--muted)"></span>
           </div>
           <div style="font-size:10px;color:var(--muted);line-height:1.8;margin-top:4px">
-            Sends via Gmail API · OAuth token · Recipient sees <span style="color:var(--green)" id="composeFromNote">you@prodeegee.com</span>
+            Sends via Resend · Recipient sees <span style="color:var(--green)" id="composeFromNote">you@prodeegee.com</span>
           </div>
         </div>
 
@@ -549,7 +549,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         <button class="btn sm" onclick="closeModal('composeModal')">Cancel</button>
         <span id="modalSendStatus" style="font-size:10px;color:var(--muted)"></span>
       </div>
-      <div style="font-size:10px;color:var(--muted)">Gmail API · recipient sees @prodeegee.com</div>
+      <div style="font-size:10px;color:var(--muted)">Sends via Resend · recipient sees @prodeegee.com</div>
     </div>
   </div>
 </div>
@@ -1208,12 +1208,12 @@ async function doSendEmail(to, subject, body, statusElId) {
     const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: fromAddr, fromName, to, subject, body })
+      body: JSON.stringify({ from: fromAddr, fromName, to, subject, body, text: body })
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const errBody = await res.text().catch(() => '');
       if (status) status.textContent = '';
-      showToast('Send failed: ' + (err.error || res.status), 'error');
+      showToast('Send failed: ' + (errBody || res.status), 'error');
       return false;
     }
     showToast(`Sent from ${fromAddr} ✓`);
