@@ -224,35 +224,37 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
   <div class="auth-card">
     <div class="auth-logo">PRODEEGEE</div>
     <div class="auth-sub">// TEAM HUB v1.0</div>
+    <div class="auth-desc">Sign in with your Prodeegee email.</div>
 
-    <!-- STEP 1: Email input -->
-    <div id="authStep1">
-      <div class="auth-desc">Enter your Prodeegee email to continue.</div>
-      <div style="display:flex;border:1px solid var(--border);margin-bottom:12px">
-        <input id="authEmailPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" />
-        <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface)">@prodeegee.com</span>
-      </div>
-      <button class="btn primary" style="width:100%;padding:10px" onclick="verifyStaffEmail()">Continue →</button>
-      <div id="authEmailError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
+    <div style="display:flex;border:1px solid var(--border);margin-bottom:12px">
+      <input id="authEmailPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" onkeydown="if(event.key==='Enter')signIn()" />
+      <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap">@prodeegee.com</span>
     </div>
 
-    <!-- STEP 2: Google sign in (shown after verification) -->
-    <div id="authStep2" style="display:none">
-      <div class="auth-desc">
-        Verified: <span style="color:var(--green)" id="authVerifiedEmail"></span><br>
-        Sign in with the Google account linked to this address.
+    <div style="position:relative;margin-bottom:12px">
+      <input id="authPassword" type="password" class="msg-input" placeholder="Password" style="width:100%;box-sizing:border-box;padding-right:36px" onkeydown="if(event.key==='Enter')signIn()" />
+      <span onclick="togglePasswordVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:13px" id="passToggleIcon">👁</span>
+    </div>
+
+    <button class="btn primary" style="width:100%;padding:10px" onclick="signIn()" id="signInBtn">Sign In →</button>
+
+    <div style="margin-top:10px;text-align:right">
+      <span style="color:var(--orange);font-size:11px;cursor:pointer" onclick="showForgotPassword()">Forgot password?</span>
+    </div>
+
+    <div id="authError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
+    <div id="authSuccess" style="color:var(--green);font-size:11px;margin-top:8px;display:none"></div>
+
+    <!-- Forgot password panel -->
+    <div id="forgotPanel" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
+      <div class="auth-desc" style="margin-bottom:8px">Enter your prefix to receive a reset link.</div>
+      <div style="display:flex;border:1px solid var(--border);margin-bottom:8px">
+        <input id="resetPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" />
+        <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap">@prodeegee.com</span>
       </div>
-      <button class="btn-google" onclick="signInWithGoogle()">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Sign in with Google
-      </button>
-      <div style="margin-top:12px;font-size:10px;color:var(--muted)">
-        <span style="color:var(--orange);cursor:pointer" onclick="resetAuthStep()">← Use a different email</span>
+      <button class="btn sm" style="width:100%" onclick="sendResetEmail()">Send Reset Link</button>
+      <div style="margin-top:8px;font-size:11px">
+        <span style="color:var(--orange);cursor:pointer" onclick="hideForgotPassword()">← Back to sign in</span>
       </div>
     </div>
 
@@ -311,6 +313,9 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
       <div class="nav-item" id="ch-social" onclick="openChannel('social')">
         <span class="nav-icon">#</span> social
+      </div>
+      <div class="nav-item" id="nav-profile" onclick="switchSection('profile')">
+        ⚙ Profile
       </div>
       <div class="nav-item" onclick="openNewChannelModal()" style="color:var(--muted)">
         <span class="nav-icon">+</span> Add channel
@@ -473,6 +478,48 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         </div>
       </div>
 
+      <!-- PROFILE SECTION -->
+      <div class="section" id="section-profile" style="display:none;padding:24px;overflow-y:auto">
+        <div style="max-width:420px">
+          <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">⚙ Profile Settings</div>
+
+          <!-- Identity -->
+          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Identity</div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+              <div class="avatar" id="profileAvatar" style="width:44px;height:44px;font-size:16px"></div>
+              <div>
+                <div style="font-size:13px;color:var(--text)" id="profileName">—</div>
+                <div style="font-size:11px;color:var(--green)" id="profileEmail">—</div>
+              </div>
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Display Name</div>
+              <input id="profileNameInput" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Your full name" />
+            </div>
+            <button class="btn sm primary" onclick="updateDisplayName()">Save Name</button>
+          </div>
+
+          <!-- Change Password -->
+          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Change Password</div>
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">New Password</div>
+              <input id="newPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="New password" />
+            </div>
+            <div style="margin-bottom:12px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Confirm Password</div>
+              <input id="confirmPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Confirm password" />
+            </div>
+            <button class="btn sm primary" onclick="changePassword()">Update Password</button>
+            <div id="passwordMsg" style="font-size:11px;margin-top:8px;display:none"></div>
+          </div>
+
+          <!-- Sign Out -->
+          <button class="btn sm" style="width:100%;color:#ef5350;border-color:#ef5350" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+
     </div><!-- end .center -->
 
     <!-- RIGHT PANEL -->
@@ -625,14 +672,9 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 // ════════════════════════════════════════════════
 const SUPABASE_URL = 'https://twpkuntxvlkuqjmyfjlf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6d3dbk0DK1_cIGtY310TWw_Db7hWk6e';
-const GOOGLE_CLIENT_ID = '1013299075649-r29e2138u9lbngqnqev2fr9mqkraglo8.apps.googleusercontent.com'; // from Google Cloud Console
 const PRODEEGEE_DOMAIN = 'prodeegee.com';
 
-// Gmail API scopes
-const GMAIL_SCOPES = [
-  'https://www.googleapis.com/auth/gmail.readonly',
-  'https://www.googleapis.com/auth/gmail.send'
-].join(' ');
+// No Gmail scopes needed — inbox via Cloudflare, send via Resend
 
 // ════════════════════════════════════════════════
 // INIT SUPABASE
@@ -645,7 +687,6 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ════════════════════════════════════════════════
 let currentUser = null;
 let currentProfile = null;
-let gmailToken = null;
 let activeChannel = 'general';
 let activeDMUserId = null;
 let activeDMUserName = '';
@@ -658,54 +699,58 @@ let unreadNotifs = 0;
 let unreadEmails = 0;
 let sentEmailsCache = [];
 
-  // ════════════════════════════════════════════════
-// STAFF EMAIL GATE
 // ════════════════════════════════════════════════
-const ALLOWED_STAFF = ['oluwafemi', 'admin']; // add prefixes here
-
-function verifyStaffEmail() {
-  const prefix = document.getElementById('authEmailPrefix').value.trim().toLowerCase();
-  const errEl = document.getElementById('authEmailError');
-
-  if (!prefix) {
-    errEl.textContent = 'Enter your email prefix.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  if (!ALLOWED_STAFF.includes(prefix)) {
-    errEl.textContent = 'This email is not authorised. Contact admin.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  sessionStorage.setItem('prodeegee_prefix', prefix);
-  errEl.style.display = 'none';
-  document.getElementById('authVerifiedEmail').textContent = prefix + '@prodeegee.com';
-  document.getElementById('authStep1').style.display = 'none';
-  document.getElementById('authStep2').style.display = 'block';
+// AUTH — email/password
+// ════════════════════════════════════════════════
+function togglePasswordVis() {
+  const el = document.getElementById('authPassword');
+  const icon = document.getElementById('passToggleIcon');
+  if (el.type === 'password') { el.type = 'text'; icon.textContent = '🙈'; }
+  else { el.type = 'password'; icon.textContent = '👁'; }
 }
 
-function resetAuthStep() {
-  document.getElementById('authStep1').style.display = 'block';
-  document.getElementById('authStep2').style.display = 'none';
-  document.getElementById('authEmailPrefix').value = '';
-  document.getElementById('authEmailError').style.display = 'none';
+function showForgotPassword() {
+  document.getElementById('forgotPanel').style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
 }
 
-// ════════════════════════════════════════════════
-// AUTH
-// ════════════════════════════════════════════════
-async function signInWithGoogle() {
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      scopes: GMAIL_SCOPES,
-      queryParams: { access_type: 'offline', prompt: 'consent' },
-      redirectTo: 'https://hub.prodeegee.com'
-    }
+function hideForgotPassword() {
+  document.getElementById('forgotPanel').style.display = 'none';
+}
+
+async function sendResetEmail() {
+  const prefix = document.getElementById('resetPrefix').value.trim().toLowerCase();
+  const errEl  = document.getElementById('authError');
+  const okEl   = document.getElementById('authSuccess');
+  if (!prefix) { errEl.textContent = 'Enter your prefix.'; errEl.style.display = 'block'; return; }
+  const email = `${prefix}@${PRODEEGEE_DOMAIN}`;
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://hub.prodeegee.com'
   });
-  if (error) showToast('Auth error: ' + error.message, 'error');
+  if (error) {
+    errEl.textContent = error.message; errEl.style.display = 'block';
+  } else {
+    errEl.style.display = 'none';
+    okEl.textContent = `Reset link sent to ${email}`; okEl.style.display = 'block';
+    hideForgotPassword();
+  }
+}
+
+async function signIn() {
+  const prefix   = document.getElementById('authEmailPrefix').value.trim().toLowerCase();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  const btn      = document.getElementById('signInBtn');
+
+  errEl.style.display = 'none';
+  if (!prefix)   { errEl.textContent = 'Enter your email prefix.'; errEl.style.display = 'block'; return; }
+  if (!password) { errEl.textContent = 'Enter your password.'; errEl.style.display = 'block'; return; }
+
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  const email = `${prefix}@${PRODEEGEE_DOMAIN}`;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.textContent = 'Sign In →'; btn.disabled = false;
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
 }
 
 async function signOut() {
@@ -715,12 +760,12 @@ async function signOut() {
   await sb.auth.signOut();
   document.getElementById('hubApp').style.display = 'none';
   document.getElementById('authScreen').style.display = 'flex';
-  currentUser = null; gmailToken = null;
+  currentUser = null;
+  currentProfile = null;
 }
 
 async function initApp(session) {
   currentUser = session.user;
-  gmailToken = session.provider_token || null;
 
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('hubApp').style.display = 'grid';
@@ -744,21 +789,76 @@ async function initApp(session) {
 
 async function upsertProfile() {
   const meta = currentUser.user_metadata || {};
-  const savedPrefix = sessionStorage.getItem('prodeegee_prefix');
-  const first = savedPrefix || (meta.full_name || meta.name || '').split(' ')[0].toLowerCase();
-  const prodeegeeEmail = first ? `${first}@${PRODEEGEE_DOMAIN}` : currentUser.email;
-  sessionStorage.removeItem('prodeegee_prefix');
-
+  // prodeegee_email is the auth email itself (admin@prodeegee.com)
+  const prodeegeeEmail = currentUser.email;
   const profileData = {
     id: currentUser.id,
-    full_name: meta.full_name || meta.name || currentUser.email,
+    full_name: meta.full_name || meta.name || currentUser.email.split('@')[0],
     email: currentUser.email,
-    avatar_url: meta.avatar_url || meta.picture || null,
+    avatar_url: meta.avatar_url || null,
     prodeegee_email: prodeegeeEmail
   };
   const { data, error } = await sb.from('profiles').upsert(profileData, { onConflict: 'id' }).select().single();
   if (!error) currentProfile = data;
   else currentProfile = profileData;
+}
+
+// ════════════════════════════════════════════════
+// PROFILE SECTION
+// ════════════════════════════════════════════════
+function loadProfileSection() {
+  if (!currentProfile) return;
+  const name = currentProfile.full_name || '';
+  const email = currentProfile.prodeegee_email || currentUser.email;
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileEmail').textContent = email;
+  document.getElementById('profileNameInput').value = name;
+
+  const av = document.getElementById('profileAvatar');
+  if (currentProfile.avatar_url) {
+    av.innerHTML = `<img src="${currentProfile.avatar_url}" alt="${name}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    av.textContent = initials;
+    av.style.background = stringToColor(currentUser.id);
+  }
+}
+
+async function updateDisplayName() {
+  const name = document.getElementById('profileNameInput').value.trim();
+  if (!name) { showToast('Enter a display name', 'error'); return; }
+  const { error } = await sb.from('profiles').update({ full_name: name }).eq('id', currentUser.id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  currentProfile.full_name = name;
+  document.getElementById('profileName').textContent = name;
+  setUserUI();
+  showToast('Name updated');
+}
+
+async function changePassword() {
+  const np = document.getElementById('newPassword').value;
+  const cp = document.getElementById('confirmPassword').value;
+  const msg = document.getElementById('passwordMsg');
+
+  if (!np || np.length < 6) {
+    msg.textContent = 'Password must be at least 6 characters.';
+    msg.style.color = '#ef5350'; msg.style.display = 'block'; return;
+  }
+  if (np !== cp) {
+    msg.textContent = 'Passwords do not match.';
+    msg.style.color = '#ef5350'; msg.style.display = 'block'; return;
+  }
+  const { error } = await sb.auth.updateUser({ password: np });
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.color = '#ef5350'; msg.style.display = 'block';
+  } else {
+    msg.textContent = 'Password updated successfully.';
+    msg.style.color = 'var(--green)'; msg.style.display = 'block';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+  }
 }
 
 function setUserUI() {
@@ -842,13 +942,15 @@ function switchSection(id) {
   if (nav) nav.classList.add('active');
   const titles = {
     home: '⌂ HOME FEED', channels: '# CHANNELS', dm: '◎ DIRECT MESSAGES',
-    email: '✉ EMAIL INBOX', projects: '◈ PROJECTS', notifications: '◉ NOTIFICATIONS'
+    email: '✉ EMAIL INBOX', projects: '◈ PROJECTS', notifications: '◉ NOTIFICATIONS',
+    profile: '⚙ PROFILE'
   };
   document.getElementById('topbarTitle').textContent = titles[id] || id.toUpperCase();
   if (id === 'notifications') loadNotifications();
   if (id === 'projects') loadTasks();
   if (id === 'email') loadInbox();
   if (id === 'home') loadFeed();
+  if (id === 'profile') loadProfileSection();
 }
 
 // ════════════════════════════════════════════════
@@ -1193,37 +1295,21 @@ async function sendModalEmail() {
 }
 
 async function doSendEmail(to, subject, body, statusElId) {
-  if (!gmailToken) { showToast('Not authenticated with Gmail', 'error'); return false; }
   const fromAddr = currentProfile.prodeegee_email || currentProfile.email;
   const fromName = currentProfile.full_name || '';
   const status = document.getElementById(statusElId);
   if (status) status.textContent = 'Sending...';
 
-  const emailRaw = [
-    `From: ${fromName} <${fromAddr}>`,
-    `To: ${to}`,
-    `Subject: ${subject}`,
-    'Content-Type: text/plain; charset=utf-8',
-    '',
-    body
-  ].join('\r\n');
-
-  const encoded = btoa(unescape(encodeURIComponent(emailRaw)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
   try {
-    const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+    const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${gmailToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ raw: encoded })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: fromAddr, fromName, to, subject, body })
     });
     if (!res.ok) {
-      const err = await res.json();
+      const err = await res.json().catch(() => ({}));
       if (status) status.textContent = '';
-      showToast('Send failed: ' + (err.error?.message || res.status), 'error');
+      showToast('Send failed: ' + (err.error || res.status), 'error');
       return false;
     }
     showToast(`Sent from ${fromAddr} ✓`);
