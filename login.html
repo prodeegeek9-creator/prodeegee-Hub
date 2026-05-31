@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prodeegee Hub — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;--panel:#111;--surface:#161616;--border:#1e1e1e;
+  --orange:#ff6b2b;--green:#00ff9d;--text:#e0e0e0;--muted:#555;
+  --font:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;font-size:13px}
+.card{border:1px solid var(--border);padding:40px;width:380px;background:var(--panel)}
+.logo{color:var(--orange);font-size:26px;letter-spacing:4px;margin-bottom:4px;font-family:'Share Tech Mono',monospace;text-align:center}
+.sub{color:var(--green);font-size:11px;letter-spacing:2px;margin-bottom:28px;text-align:center}
+.desc{color:var(--muted);font-size:11px;margin-bottom:20px;line-height:1.7;text-align:center}
+.input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:var(--font);font-size:12px;outline:none;transition:border-color .15s;box-sizing:border-box}
+.input:focus{border-color:var(--orange)}
+.input::placeholder{color:var(--muted)}
+.prefix-wrap{display:flex;border:1px solid var(--border);margin-bottom:12px}
+.prefix-wrap .input{border:none;flex:1}
+.prefix-wrap .suffix{padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap;display:flex;align-items:center}
+.pw-wrap{position:relative;margin-bottom:12px}
+.pw-wrap .input{padding-right:36px}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:13px;background:none;border:none;font-family:var(--font)}
+.btn{width:100%;padding:10px;background:var(--orange);border:1px solid var(--orange);color:#000;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.5px;transition:all .2s}
+.btn:hover{background:#e55a1f}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange);background:transparent}
+.link{color:var(--orange);font-size:11px;cursor:pointer;background:none;border:none;font-family:var(--font)}
+.link:hover{text-decoration:underline}
+.err{color:#ef5350;font-size:11px;margin-top:8px;display:none}
+.ok{color:var(--green);font-size:11px;margin-top:8px;display:none;text-align:center}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.panel{display:none}
+.panel.active{display:block}
+.label{font-size:10px;color:var(--muted);margin-bottom:4px;text-align:left}
+.field{margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">PRODEEGEE</div>
+  <div class="sub">// TEAM HUB v1.0</div>
+
+  <!-- ── SIGN IN ── -->
+  <div id="panelLogin" class="panel active">
+    <div class="desc">Sign in with your Prodeegee email.</div>
+    <div class="prefix-wrap">
+      <input id="loginPrefix" class="input" placeholder="yourname" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
+      <span class="suffix">@prodeegee.com</span>
+    </div>
+    <div class="pw-wrap">
+      <input id="loginPassword" type="password" class="input" placeholder="Password" onkeydown="if(event.key==='Enter')signIn()" />
+      <button class="pw-toggle" onclick="togglePw('loginPassword',this)">👁</button>
+    </div>
+    <button class="btn" id="loginBtn" onclick="signIn()">Sign In →</button>
+    <div style="margin-top:10px;text-align:right">
+      <button class="link" onclick="show('panelForgot')">Forgot password?</button>
+    </div>
+    <div id="loginErr" class="err"></div>
+  </div>
+
+  <!-- ── SET PASSWORD (invite / reset) ── -->
+  <div id="panelSetPassword" class="panel">
+    <div class="desc">Welcome! Set a password for your Prodeegee account.</div>
+    <div class="field">
+      <div class="label">New Password</div>
+      <div class="pw-wrap" style="margin-bottom:0">
+        <input id="newPw" type="password" class="input" placeholder="Choose a password" onkeydown="if(event.key==='Enter')document.getElementById('confirmPw').focus()" />
+        <button class="pw-toggle" onclick="togglePw('newPw',this)">👁</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="label">Confirm Password</div>
+      <div class="pw-wrap" style="margin-bottom:0">
+        <input id="confirmPw" type="password" class="input" placeholder="Confirm password" onkeydown="if(event.key==='Enter')setPassword()" />
+        <button class="pw-toggle" onclick="togglePw('confirmPw',this)">👁</button>
+      </div>
+    </div>
+    <button class="btn" id="setPwBtn" onclick="setPassword()" style="margin-top:4px">Set Password & Enter Hub →</button>
+    <div id="setPwErr" class="err"></div>
+  </div>
+
+  <!-- ── FORGOT PASSWORD ── -->
+  <div id="panelForgot" class="panel">
+    <div class="desc">Enter your prefix and we'll send a reset link.</div>
+    <div class="prefix-wrap">
+      <input id="resetPrefix" class="input" placeholder="yourname" onkeydown="if(event.key==='Enter')sendReset()" />
+      <span class="suffix">@prodeegee.com</span>
+    </div>
+    <button class="btn" id="resetBtn" onclick="sendReset()">Send Reset Link</button>
+    <div style="margin-top:10px;text-align:center">
+      <button class="link" onclick="show('panelLogin')">← Back to sign in</button>
+    </div>
+    <div id="resetErr" class="err"></div>
+    <div id="resetOk" class="ok"></div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL  = 'https://twpkuntxvlkuqjmyfjlf.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_6d3dbk0DK1_cIGtY310TWw_Db7hWk6e';
+const DOMAIN        = 'prodeegee.com';
+const HUB_URL       = 'https://hub.prodeegee.com';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { detectSessionInUrl: false }
+});
+
+// ── Helpers ──────────────────────────────────────
+function show(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+function togglePw(inputId, btn) {
+  const el = document.getElementById(inputId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function hideErr(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+// ── Boot ─────────────────────────────────────────
+(async () => {
+  // Read hash before anything clears it
+  const hash = window.location.hash;
+  const hp   = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : '');
+  const type = hp.get('type');
+  const accessToken  = hp.get('access_token');
+  const refreshToken = hp.get('refresh_token');
+  const hashError    = hp.get('error');
+  const hashErrDesc  = hp.get('error_description');
+
+  // Clean hash from URL immediately
+  history.replaceState(null, '', window.location.pathname);
+
+  if (hashError) {
+    const msg = hashErrDesc ? decodeURIComponent(hashErrDesc.replace(/[+]/g, ' ')) : hashError;
+    showErr('loginErr', msg + ' — please request a new invite link.');
+    return;
+  }
+
+  if ((type === 'invite' || type === 'recovery') && accessToken) {
+    // Set session from the invite/reset tokens
+    const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    if (error) {
+      showErr('loginErr', 'Link error: ' + error.message);
+    } else {
+      show('panelSetPassword');
+      document.getElementById('newPw').focus();
+    }
+    return;
+  }
+
+  // Check if already logged in — send straight to hub
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    window.location.href = HUB_URL;
+  }
+})();
+
+// ── Sign In ───────────────────────────────────────
+async function signIn() {
+  const prefix = document.getElementById('loginPrefix').value.trim().toLowerCase();
+  const pw     = document.getElementById('loginPassword').value;
+  const btn    = document.getElementById('loginBtn');
+  hideErr('loginErr');
+
+  if (!prefix) { showErr('loginErr', 'Enter your email prefix.'); return; }
+  if (!pw)     { showErr('loginErr', 'Enter your password.'); return; }
+
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  const { error } = await sb.auth.signInWithPassword({
+    email: `${prefix}@${DOMAIN}`,
+    password: pw
+  });
+  btn.textContent = 'Sign In →'; btn.disabled = false;
+
+  if (error) {
+    showErr('loginErr', error.message);
+  } else {
+    window.location.href = HUB_URL;
+  }
+}
+
+// ── Set Password ──────────────────────────────────
+async function setPassword() {
+  const np  = document.getElementById('newPw').value;
+  const cp  = document.getElementById('confirmPw').value;
+  const btn = document.getElementById('setPwBtn');
+  hideErr('setPwErr');
+
+  if (!np || np.length < 6) { showErr('setPwErr', 'Password must be at least 6 characters.'); return; }
+  if (np !== cp)             { showErr('setPwErr', 'Passwords do not match.'); return; }
+
+  btn.textContent = 'Setting password...'; btn.disabled = true;
+  const { error } = await sb.auth.updateUser({ password: np });
+  btn.textContent = 'Set Password & Enter Hub →'; btn.disabled = false;
+
+  if (error) {
+    showErr('setPwErr', error.message);
+  } else {
+    window.location.href = HUB_URL;
+  }
+}
+
+// ── Forgot Password ───────────────────────────────
+async function sendReset() {
+  const prefix = document.getElementById('resetPrefix').value.trim().toLowerCase();
+  const btn    = document.getElementById('resetBtn');
+  hideErr('resetErr');
+  document.getElementById('resetOk').style.display = 'none';
+
+  if (!prefix) { showErr('resetErr', 'Enter your prefix.'); return; }
+
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  const { error } = await sb.auth.resetPasswordForEmail(`${prefix}@${DOMAIN}`, {
+    redirectTo: `${HUB_URL}/login.html`
+  });
+  btn.textContent = 'Send Reset Link'; btn.disabled = false;
+
+  if (error) {
+    showErr('resetErr', error.message);
+  } else {
+    const ok = document.getElementById('resetOk');
+    ok.textContent = `Reset link sent to ${prefix}@${DOMAIN}`;
+    ok.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

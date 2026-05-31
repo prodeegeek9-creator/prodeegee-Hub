@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-// Capture hash synchronously before anything can clear it
-window._initHash = window.location.hash || '';
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prodeegee Hub</title>
@@ -222,63 +218,6 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </style>
 </head>
 <body>
-
-<!-- ════ AUTH SCREEN ════ -->
-<div class="auth-screen" id="authScreen">
-  <div class="auth-card">
-    <div class="auth-logo">PRODEEGEE</div>
-    <div class="auth-sub">// TEAM HUB v1.0</div>
-    <div class="auth-desc" id="authDesc">Sign in with your Prodeegee email.</div>
-
-    <div id="authPrefixWrap" style="display:flex;border:1px solid var(--border);margin-bottom:12px">
-      <input id="authEmailPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" onkeydown="if(event.key==='Enter')signIn()" />
-      <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap">@prodeegee.com</span>
-    </div>
-
-    <div id="authPasswordWrap" style="position:relative;margin-bottom:12px">
-      <input id="authPassword" type="password" class="msg-input" placeholder="Password" style="width:100%;box-sizing:border-box;padding-right:36px" onkeydown="if(event.key==='Enter')signIn()" />
-      <span onclick="togglePasswordVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:13px" id="passToggleIcon">👁</span>
-    </div>
-
-    <button class="btn primary" style="width:100%;padding:10px" onclick="signIn()" id="signInBtn">Sign In →</button>
-
-    <div id="authForgotWrap" style="margin-top:10px;text-align:right">
-      <span style="color:var(--orange);font-size:11px;cursor:pointer" onclick="showForgotPassword()">Forgot password?</span>
-    </div>
-
-    <div id="authError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
-    <div id="authSuccess" style="color:var(--green);font-size:11px;margin-top:8px;display:none"></div>
-
-    <!-- Set password panel (shown when arriving via invite/reset link) -->
-    <div id="setPasswordPanel" style="display:none">
-      <div class="auth-desc" style="margin-bottom:12px">Welcome! Set a password for your account.</div>
-      <div style="margin-bottom:8px">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">New Password</div>
-        <input id="setNewPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Choose a password" onkeydown="if(event.key==='Enter')setInitialPassword()" />
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Confirm Password</div>
-        <input id="setConfirmPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Confirm password" onkeydown="if(event.key==='Enter')setInitialPassword()" />
-      </div>
-      <button class="btn primary" style="width:100%;padding:10px" onclick="setInitialPassword()" id="setPasswordBtn">Set Password & Sign In →</button>
-      <div id="setPasswordError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
-    </div>
-
-    <!-- Forgot password panel -->
-    <div id="forgotPanel" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
-      <div class="auth-desc" style="margin-bottom:8px">Enter your prefix to receive a reset link.</div>
-      <div style="display:flex;border:1px solid var(--border);margin-bottom:8px">
-        <input id="resetPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" />
-        <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap">@prodeegee.com</span>
-      </div>
-      <button class="btn sm" style="width:100%" onclick="sendResetEmail()">Send Reset Link</button>
-      <div style="margin-top:8px;font-size:11px">
-        <span style="color:var(--orange);cursor:pointer" onclick="hideForgotPassword()">← Back to sign in</span>
-      </div>
-    </div>
-
-  </div>
-</div>
 
 <!-- ════ HUB APP ════ -->
 <div class="hub" id="hubApp">
@@ -777,10 +716,9 @@ async function signOut() {
   if (dmSubscription) dmSubscription.unsubscribe();
   if (notifSubscription) notifSubscription.unsubscribe();
   await sb.auth.signOut();
-  document.getElementById('hubApp').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'flex';
   currentUser = null;
   currentProfile = null;
+  window.location.href = '/login.html';
 }
 
 async function initApp(session) {
@@ -1793,67 +1731,19 @@ async function setInitialPassword() {
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
-
-// Step 1: Read hash synchronously right now, before anything clears it
-const _rawHash = window.location.hash;
-const _hp = new URLSearchParams(_rawHash.startsWith('#') ? _rawHash.slice(1) : '');
-const _linkType = _hp.get('type');
-const _hashError = _hp.get('error');
-
-// Step 2: If invite/reset link, store flag in sessionStorage before any redirect
-if ((_linkType === 'invite' || _linkType === 'recovery') && _hp.get('access_token')) {
-  sessionStorage.setItem('pending_pwd_set', '1');
-}
-if (_hashError) {
-  const desc = _hp.get('error_description') || _hashError;
-  sessionStorage.setItem('auth_link_error', decodeURIComponent(desc.replace(/[+]/g, ' ')));
-  history.replaceState(null, '', window.location.pathname);
-}
-
 (async () => {
-  // Show any stored link error
-  const linkError = sessionStorage.getItem('auth_link_error');
-  if (linkError) {
-    sessionStorage.removeItem('auth_link_error');
-    const errEl = document.getElementById('authError');
-    errEl.textContent = linkError + ' — please request a new invite link.';
-    errEl.style.display = 'block';
-  }
-
-  // Check session — Supabase will have already processed the hash by now
   const { data: { session } } = await sb.auth.getSession();
-  const pendingPwd = sessionStorage.getItem('pending_pwd_set') === '1';
-
-  if (pendingPwd && session) {
-    // Invite/reset: session is set, show password panel
-    sessionStorage.removeItem('pending_pwd_set');
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('hubApp').style.display = 'none';
-    showSetPasswordPanel();
-  } else if (pendingPwd && !session) {
-    // Flag set but session not ready yet — wait for onAuthStateChange
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('hubApp').style.display = 'none';
-  } else if (session) {
+  if (session) {
     await initApp(session);
+  } else {
+    window.location.href = '/login.html';
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
-      const pending = sessionStorage.getItem('pending_pwd_set') === '1';
-      if (pending) {
-        sessionStorage.removeItem('pending_pwd_set');
-        document.getElementById('authScreen').style.display = 'flex';
-        document.getElementById('hubApp').style.display = 'none';
-        showSetPasswordPanel();
-      } else if (document.getElementById('setPasswordPanel').style.display === 'block') {
-        return;
-      } else {
-        await initApp(session);
-      }
+      await initApp(session);
     } else if (event === 'SIGNED_OUT') {
-      document.getElementById('hubApp').style.display = 'none';
-      document.getElementById('authScreen').style.display = 'flex';
+      window.location.href = '/login.html';
     }
   });
 })();
