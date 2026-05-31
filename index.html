@@ -245,6 +245,21 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
     <div id="authError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
     <div id="authSuccess" style="color:var(--green);font-size:11px;margin-top:8px;display:none"></div>
 
+    <!-- Set password panel (shown when arriving via invite/reset link) -->
+    <div id="setPasswordPanel" style="display:none">
+      <div class="auth-desc" style="margin-bottom:12px">Welcome! Set a password for your account.</div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">New Password</div>
+        <input id="setNewPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Choose a password" onkeydown="if(event.key==='Enter')setInitialPassword()" />
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Confirm Password</div>
+        <input id="setConfirmPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Confirm password" onkeydown="if(event.key==='Enter')setInitialPassword()" />
+      </div>
+      <button class="btn primary" style="width:100%;padding:10px" onclick="setInitialPassword()" id="setPasswordBtn">Set Password & Sign In →</button>
+      <div id="setPasswordError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
+    </div>
+
     <!-- Forgot password panel -->
     <div id="forgotPanel" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px">
       <div class="auth-desc" style="margin-bottom:8px">Enter your prefix to receive a reset link.</div>
@@ -1728,6 +1743,51 @@ function stringToColor(str) {
 }
 
 // ════════════════════════════════════════════════
+// PASSWORD RECOVERY (invite / reset link)
+// ════════════════════════════════════════════════
+function showSetPasswordPanel() {
+  // Hide normal login fields, show set-password panel
+  document.getElementById('authEmailPrefix').closest('div[style*="flex"]').style.display = 'none';
+  document.getElementById('authPassword').parentElement.style.display = 'none';
+  document.getElementById('signInBtn').style.display = 'none';
+  document.querySelector('[onclick="showForgotPassword()"]').style.display = 'none';
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+  document.getElementById('forgotPanel').style.display = 'none';
+  document.getElementById('setPasswordPanel').style.display = 'block';
+  document.getElementById('setNewPassword').focus();
+}
+
+async function setInitialPassword() {
+  const np  = document.getElementById('setNewPassword').value;
+  const cp  = document.getElementById('setConfirmPassword').value;
+  const err = document.getElementById('setPasswordError');
+  const btn = document.getElementById('setPasswordBtn');
+
+  if (!np || np.length < 6) {
+    err.textContent = 'Password must be at least 6 characters.';
+    err.style.display = 'block'; return;
+  }
+  if (np !== cp) {
+    err.textContent = 'Passwords do not match.';
+    err.style.display = 'block'; return;
+  }
+
+  btn.textContent = 'Setting password...'; btn.disabled = true;
+  const { data, error } = await sb.auth.updateUser({ password: np });
+  btn.textContent = 'Set Password & Sign In →'; btn.disabled = false;
+
+  if (error) {
+    err.textContent = error.message; err.style.display = 'block';
+  } else {
+    // Password set — session is already active, go straight into app
+    err.style.display = 'none';
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await initApp(session);
+  }
+}
+
+// ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
@@ -1737,7 +1797,14 @@ function stringToColor(str) {
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    if (event === 'PASSWORD_RECOVERY') {
+      // User arrived via invite or reset link — show set-password form
+      document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('hubApp').style.display = 'none';
+      showSetPasswordPanel();
+    } else if (event === 'SIGNED_IN' && session) {
+      // Only go to app if we're not in password-recovery mode
+      if (document.getElementById('setPasswordPanel').style.display === 'block') return;
       await initApp(session);
     } else if (event === 'SIGNED_OUT') {
       document.getElementById('hubApp').style.display = 'none';
