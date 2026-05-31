@@ -673,9 +673,8 @@ async function initApp(session) {
   await upsertProfile();
   setUserUI();
   setConnStatus(true);
-  await loadAllProfiles();
+  await loadAllProfiles(); // loads profiles + channel nav first
   await Promise.all([
-    loadChannelMessages('general'),
     loadNotifications(),
     loadTasks(),
     loadSentEmails(),
@@ -685,6 +684,8 @@ async function initApp(session) {
   subscribeToChannel('general');
   subscribeToNotifications();
   updateStats();
+  // Load channel messages after profiles are ready
+  loadChannelMessages('general');
 }
 
 async function upsertProfile() {
@@ -817,6 +818,8 @@ async function loadAllProfiles() {
   await loadChannelNav();
 }
 
+const DEFAULT_CHANNELS = ['general', 'projects', 'social'];
+
 async function loadChannelNav() {
   const { data: channels } = await sb.from('channels').select('*').order('created_at', { ascending: true });
   const nav = document.getElementById('channelNavList');
@@ -824,10 +827,14 @@ async function loadChannelNav() {
     nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No channels yet</div>';
     return;
   }
-  nav.innerHTML = channels.map(ch => `
-    <div class="nav-item" id="ch-${ch.name}" onclick="openChannel('${escHtml(ch.name)}')">
-      <span class="nav-icon">#</span> ${escHtml(ch.name)}
-    </div>`).join('');
+  nav.innerHTML = channels.map(ch => {
+    const isDefault = DEFAULT_CHANNELS.includes(ch.name);
+    const label = isDefault ? `# ${ch.name}` : ch.name.toUpperCase();
+    const style = isDefault ? '' : 'color:var(--orange);font-size:10px;letter-spacing:1px';
+    return `<div class="nav-item" id="ch-${ch.name}" onclick="openChannel('${escHtml(ch.name)}')" style="${style}">
+      ${label} <span class="badge" id="chbadge-${ch.name}" style="display:none">0</span>
+    </div>`;
+  }).join('');
 }
 
 function renderMembers() {
@@ -904,7 +911,10 @@ function switchSection(id) {
 function openChannel(ch) {
   activeChannel = ch;
   switchSection('channels');
-  document.getElementById('activeChannelName').textContent = ch;
+  document.getElementById('activeChannelName').textContent = DEFAULT_CHANNELS.includes(ch) ? ch : ch.toUpperCase();
+  // Clear badge when opening channel
+  const badge = document.getElementById('chbadge-' + ch);
+  if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
   document.getElementById('msgInput').placeholder = `Message #${ch}...`;
   document.querySelectorAll('[id^="ch-"]').forEach(el => el.classList.remove('active'));
   const chEl = document.getElementById('ch-' + ch);
@@ -915,7 +925,10 @@ function openChannel(ch) {
 }
 
 async function loadChannelMessages(channel) {
-  document.getElementById('msgLoading').style.display = 'flex';
+  const loading = document.getElementById('msgLoading');
+  const list = document.getElementById('msgList');
+  if (!list) return; // section not in DOM yet
+  if (loading) loading.style.display = 'flex';
   const { data } = await sb.from('chat_messages')
     .select('*')
     .eq('channel_id', channel)
@@ -923,8 +936,7 @@ async function loadChannelMessages(channel) {
     .is('parent_id', null)
     .order('created_at', { ascending: true })
     .limit(50);
-  document.getElementById('msgLoading').style.display = 'none';
-  const list = document.getElementById('msgList');
+  if (loading) loading.style.display = 'none';
   list.innerHTML = '';
   if (data && data.length) {
     // Attach profiles from allProfiles cache
@@ -945,7 +957,7 @@ function subscribeToChannel(channel) {
       async payload => {
         const msg = payload.new;
         if (msg.dm_to || msg.parent_id) return;
-        const { data: profile } = await sb.from('profiles').select('full_name,avatar_url,prodeegee_email').eq('id', msg.sender_id).single();
+        const profile = allProfiles.find(p => p.id === msg.sender_id) || (msg.sender_id === currentUser.id ? currentProfile : null);
         msg.profiles = profile;
         const list = document.getElementById('msgList');
         const loading = document.getElementById('msgLoading');
@@ -955,8 +967,27 @@ function subscribeToChannel(channel) {
         list.appendChild(buildMsgEl(msg));
         list.scrollTop = list.scrollHeight;
         if (msg.sender_id !== currentUser.id) {
+          // Update channel badge
+          const badge = document.getElementById('chbadge-' + channel);
+          if (badge && activeChannel !== channel) {
+            badge.textContent = parseInt(badge.textContent || 0) + 1;
+            badge.style.display = 'inline-flex';
+          }
+          // Notify based on channel type
+          const senderName = profile?.full_name || 'Someone';
+          if (DEFAULT_CHANNELS.includes(channel)) {
+            // Default channels — notify everyone
+            addNotification('mention', `${senderName} posted in #${channel}`, msg.id);
+          } else {
+            // Project channels — only notify if assigned to a task in this channel/project
+            const isAssigned = tasksCache.some(t => t.assignee_id === currentUser.id && t.channel_id === channel);
+            if (isAssigned || canManageProjects()) {
+              addNotification('project_update', `${senderName} posted in ${channel.toUpperCase()}`, msg.id);
+            }
+          }
+          // Mention check
           if (msg.body.includes('@' + (currentProfile.full_name || '').split(' ')[0])) {
-            addNotification('mention', `${profile?.full_name} mentioned you in #${channel}`, msg.id);
+            addNotification('mention', `${senderName} mentioned you in #${channel}`, msg.id);
           }
         }
       })
@@ -1649,6 +1680,8 @@ function escHtml(str) {
 
 function formatMsgBody(text) {
   return text
+    .replace(/\n/g, '<br>')
+    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
     .replace(/@(\w+)/g, '<span class="mention">@$1</span>')
     .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
@@ -1694,12 +1727,36 @@ function openNewProjectModal() {
   if (!canManageProjects()) { showToast('Only admins and team leads can create projects', 'error'); return; }
   const name = prompt('Project name:');
   if (!name) return;
-  // Create a channel for the project
   const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  sb.from('channels').insert({ name: slug, created_by: currentUser.id }).then(({ error }) => {
+  sb.from('channels').insert({ name: slug, created_by: currentUser.id }).then(async ({ error }) => {
     if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+    // Insert preset messages from Prodeegee Hub system account
+    const presets = [
+      { emoji: '👋', title: 'Welcome', body: `Welcome to the ${name} project channel! This is your space to collaborate, share updates, and get things done.` },
+      { emoji: '📋', title: 'Guide', body: `How to use this channel:
+• Post updates and progress here
+• Use @mentions to get someone's attention
+• Click ↗ Thread to reply to a specific message
+• Assign tasks via the Projects board` },
+      { emoji: '📌', title: 'Rules', body: `Channel rules:
+1. Keep discussions relevant to ${name}
+2. Be respectful and professional
+3. Update your task status regularly
+4. Tag the team lead for blockers` }
+    ];
+    for (const p of presets) {
+      await sb.from('chat_messages').insert({
+        channel_id: slug,
+        sender_id: currentUser.id,
+        body: `${p.emoji} *${p.title}*
+
+${p.body}`,
+      });
+    }
     showToast(`Project "${name}" created ✓`);
-    loadChannelNav();
+    await loadChannelNav();
+    openChannel(slug);
+    switchSection('channels');
   });
 }
 
