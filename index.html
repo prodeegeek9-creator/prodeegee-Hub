@@ -106,7 +106,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .email-detail-subject{font-size:14px;color:var(--orange);margin-bottom:10px;line-height:1.4}
 .email-meta{font-size:11px;color:var(--muted);line-height:2;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .email-meta span{color:var(--text)}
-.email-body-content{font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.email-body-content{font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}.email-body-content.html-body{white-space:normal}
 .compose-area{flex:1;display:flex;flex-direction:column;padding:16px;gap:10px;overflow-y:auto}
 .compose-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
 .compose-input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:var(--font);font-size:12px;outline:none;width:100%;transition:border-color .15s}
@@ -1067,74 +1067,55 @@ async function sendThreadReply() {
 // ════════════════════════════════════════════════
 // GMAIL — INBOX
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// INBOX — reads from Supabase received_emails
+// (populated by Cloudflare Email Worker, no token needed)
+// ════════════════════════════════════════════════
 async function loadInbox() {
-  if (!gmailToken) {
-    document.getElementById('emailListItems').innerHTML = `
-      <div class="empty-state" style="padding:20px">
-        <div>Gmail token not found.</div>
-        <div style="margin-top:8px">Sign out and sign in again to grant Gmail access.</div>
-        <button class="btn sm" style="margin-top:10px" onclick="signOut()">Re-authenticate</button>
-      </div>`;
-    return;
-  }
   document.getElementById('emailListItems').innerHTML = '<div class="loading" style="padding:30px 0"><div class="spinner"></div></div>';
   try {
-    const res = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=25&q=to:@${PRODEEGEE_DOMAIN}`,
-      { headers: { Authorization: `Bearer ${gmailToken}` } }
-    );
-    if (res.status === 401) { gmailToken = null; loadInbox(); return; }
-    const data = await res.json();
-    const messages = data.messages || [];
-    if (!messages.length) {
-      document.getElementById('emailListItems').innerHTML = `<div class="empty-state" style="padding:20px">No emails to @${PRODEEGEE_DOMAIN} found</div>`;
+    const { data: emails, error } = await sb
+      .from('received_emails')
+      .select('*')
+      .order('received_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    if (!emails || !emails.length) {
+      document.getElementById('emailListItems').innerHTML =
+        `<div class="empty-state" style="padding:20px">No emails yet — send one to any @${PRODEEGEE_DOMAIN} address</div>`;
       return;
     }
-    const emailDetails = await Promise.all(
-      messages.slice(0, 15).map(m => fetchEmailDetail(m.id))
-    );
-    renderInboxList(emailDetails.filter(Boolean));
-    unreadEmails = emailDetails.filter(e => e && e.unread).length;
+    // Normalise to the shape the rest of the UI expects
+    const normalised = emails.map(e => ({
+      id          : e.id,
+      from        : e.from_addr || '',
+      to          : e.to_addr  || '',
+      subject     : e.subject  || '(no subject)',
+      date        : e.received_at ? new Date(e.received_at).toLocaleString() : '',
+      body        : e.body_text || '',
+      snippet     : (e.body_text || '').slice(0, 120),
+      unread      : !e.is_read,
+      internalDate: e.received_at ? new Date(e.received_at).getTime() : 0,
+      _raw        : e,
+    }));
+    renderInboxList(normalised);
+    unreadEmails = normalised.filter(e => e.unread).length;
     document.getElementById('statEmails').textContent = unreadEmails;
     if (unreadEmails > 0) {
       document.getElementById('emailBadge').textContent = unreadEmails;
       document.getElementById('emailBadge').style.display = 'inline-flex';
+    } else {
+      document.getElementById('emailBadge').style.display = 'none';
     }
   } catch (e) {
-    document.getElementById('emailListItems').innerHTML = `<div class="empty-state" style="padding:20px">Error loading inbox: ${e.message}</div>`;
+    document.getElementById('emailListItems').innerHTML =
+      `<div class="empty-state" style="padding:20px">Error loading inbox: ${e.message}</div>`;
   }
 }
 
-async function fetchEmailDetail(msgId) {
-  try {
-    const res = await fetch(
-      `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`,
-      { headers: { Authorization: `Bearer ${gmailToken}` } }
-    );
-    const data = await res.json();
-    const headers = data.payload?.headers || [];
-    const getHeader = name => (headers.find(h => h.name.toLowerCase() === name.toLowerCase())?.value || '');
-    const unread = (data.labelIds || []).includes('UNREAD');
-    let body = '';
-    const parts = data.payload?.parts || [];
-    const textPart = parts.find(p => p.mimeType === 'text/plain') || (data.payload?.mimeType === 'text/plain' ? data.payload : null);
-    if (textPart?.body?.data) {
-      body = atob(textPart.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-    } else if (data.snippet) {
-      body = data.snippet;
-    }
-    return {
-      id: msgId,
-      from: getHeader('from'),
-      to: getHeader('to'),
-      subject: getHeader('subject') || '(no subject)',
-      date: getHeader('date'),
-      body,
-      snippet: data.snippet || '',
-      unread,
-      internalDate: data.internalDate
-    };
-  } catch { return null; }
+// Mark an email as read in Supabase when the user opens it
+async function markEmailRead(emailId) {
+  await sb.from('received_emails').update({ is_read: true }).eq('id', emailId);
 }
 
 function renderInboxList(emails) {
@@ -1157,10 +1138,13 @@ function renderInboxList(emails) {
 function showEmailDetail(i) {
   const e = window._inboxEmails[i];
   if (!e) return;
+  // Mark as read in Supabase if it was unread
+  if (e.unread) { e.unread = false; markEmailRead(e.id); }
   document.querySelectorAll('.email-item').forEach((el, idx) => {
     el.classList.toggle('active-email', idx === i);
     if (idx === i) el.classList.remove('unread');
   });
+  const bodyHtml = e._raw?.body_html || null;
   document.getElementById('emailDetail').innerHTML = `
     <div class="email-detail-subject">${escHtml(e.subject)}</div>
     <div class="email-meta">
@@ -1168,10 +1152,16 @@ function showEmailDetail(i) {
       <div>To: <span style="color:var(--green)">${escHtml(e.to)}</span></div>
       <div>Date: <span>${e.date}</span></div>
     </div>
-    <div class="email-body-content">${escHtml(e.body || e.snippet)}</div>
+    <div class="email-body-content ${bodyHtml ? 'html-body' : ''}" id="emailBodyEl"></div>
     <div style="margin-top:16px;display:flex;gap:8px">
       <button class="btn sm" onclick="replyToEmail(${i})">↩ Reply</button>
     </div>`;
+  const bodyEl = document.getElementById('emailBodyEl');
+  if (bodyHtml) {
+    bodyEl.innerHTML = bodyHtml;
+  } else {
+    bodyEl.textContent = e.body || e.snippet || '';
+  }
 }
 
 function replyToEmail(i) {
