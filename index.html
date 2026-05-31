@@ -264,14 +264,8 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
 
       <div class="nav-section" style="margin-top:8px">Channels</div>
-      <div class="nav-item" id="ch-general" onclick="openChannel('general')">
-        <span class="nav-icon">#</span> general
-      </div>
-      <div class="nav-item" id="ch-projects" onclick="openChannel('projects')">
-        <span class="nav-icon">#</span> projects
-      </div>
-      <div class="nav-item" id="ch-social" onclick="openChannel('social')">
-        <span class="nav-icon">#</span> social
+      <div id="channelNavList">
+        <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div>
       </div>
       <div class="nav-item" id="nav-profile" onclick="switchSection('profile')">
         ⚙ Profile
@@ -820,6 +814,20 @@ async function loadAllProfiles() {
   renderMembers();
   renderDMNav();
   populateAssigneeDropdown();
+  await loadChannelNav();
+}
+
+async function loadChannelNav() {
+  const { data: channels } = await sb.from('channels').select('*').order('created_at', { ascending: true });
+  const nav = document.getElementById('channelNavList');
+  if (!channels || !channels.length) {
+    nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No channels yet</div>';
+    return;
+  }
+  nav.innerHTML = channels.map(ch => `
+    <div class="nav-item" id="ch-${ch.name}" onclick="openChannel('${escHtml(ch.name)}')">
+      <span class="nav-icon">#</span> ${escHtml(ch.name)}
+    </div>`).join('');
 }
 
 function renderMembers() {
@@ -909,7 +917,7 @@ function openChannel(ch) {
 async function loadChannelMessages(channel) {
   document.getElementById('msgLoading').style.display = 'flex';
   const { data } = await sb.from('chat_messages')
-    .select('*, profiles(full_name, avatar_url, prodeegee_email)')
+    .select('*')
     .eq('channel_id', channel)
     .is('dm_to', null)
     .is('parent_id', null)
@@ -919,7 +927,12 @@ async function loadChannelMessages(channel) {
   const list = document.getElementById('msgList');
   list.innerHTML = '';
   if (data && data.length) {
-    data.forEach(m => list.appendChild(buildMsgEl(m)));
+    // Attach profiles from allProfiles cache
+    const msgs = data.map(m => ({
+      ...m,
+      profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+    }));
+    msgs.forEach(m => list.appendChild(buildMsgEl(m)));
   } else {
     list.innerHTML = `<div class="empty-state"><div class="big">#</div>No messages in #${channel} yet. Say hello!</div>`;
   }
@@ -1008,7 +1021,7 @@ async function loadDMMessages(toUserId) {
   const list = document.getElementById('dmList');
   list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const { data } = await sb.from('chat_messages')
-    .select('*, profiles(full_name,avatar_url)')
+    .select('*')
     .is('channel_id', null)
     .is('parent_id', null)
     .or(`and(sender_id.eq.${currentUser.id},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${currentUser.id})`)
@@ -1016,7 +1029,11 @@ async function loadDMMessages(toUserId) {
     .limit(50);
   list.innerHTML = '';
   if (data && data.length) {
-    data.forEach(m => list.appendChild(buildMsgEl(m)));
+    const msgs = data.map(m => ({
+      ...m,
+      profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+    }));
+    msgs.forEach(m => list.appendChild(buildMsgEl(m)));
   } else {
     list.innerHTML = `<div class="empty-state"><div class="big">◎</div>Start a conversation with ${activeDMUserName}</div>`;
   }
@@ -1071,7 +1088,7 @@ function openThread(msgId, preview) {
 
 async function loadThreadMessages(parentId) {
   const { data } = await sb.from('chat_messages')
-    .select('*, profiles(full_name,avatar_url)')
+    .select('*')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true });
   const container = document.getElementById('threadMessages');
@@ -1682,7 +1699,7 @@ function openNewProjectModal() {
   sb.from('channels').insert({ name: slug, created_by: currentUser.id }).then(({ error }) => {
     if (error) { showToast('Failed: ' + error.message, 'error'); return; }
     showToast(`Project "${name}" created ✓`);
-    loadAllProfiles(); // refresh channel list
+    loadChannelNav();
   });
 }
 
