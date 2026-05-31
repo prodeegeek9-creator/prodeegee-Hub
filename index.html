@@ -126,6 +126,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .project-card-status{padding:2px 6px;border:1px solid var(--border);font-size:9px;letter-spacing:.5px}
 .project-card-status.active{border-color:var(--green);color:var(--green)}
 .project-sub-badge{font-size:9px;color:#4fc3f7;border:1px solid #4fc3f7;padding:1px 5px;position:absolute;top:8px;right:8px}
+.project-settings-btn{position:absolute;top:8px;right:8px;color:var(--muted);cursor:pointer;font-size:14px;z-index:2;padding:2px 4px;transition:color .15s}
+.project-settings-btn:hover{color:var(--orange)}
+/* DM bubble style */
+.dm-bubble{display:flex;flex-direction:column;margin-bottom:8px}
+.dm-bubble.me{align-items:flex-end}
+.dm-bubble.them{align-items:flex-start}
+.dm-bubble-inner{max-width:75%;padding:8px 12px;font-size:12px;line-height:1.5;word-break:break-word}
+.dm-bubble.me .dm-bubble-inner{background:var(--orange);color:#000;border-radius:16px 16px 4px 16px}
+.dm-bubble.them .dm-bubble-inner{background:var(--surface);color:var(--text);border-radius:16px 16px 16px 4px;border:1px solid var(--border)}
+.dm-bubble-meta{font-size:9px;color:var(--muted);margin-top:3px;padding:0 4px}
+/* Theme toggle */
+.theme-toggle{width:36px;height:20px;border-radius:10px;background:var(--border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+body.light .theme-toggle{background:var(--orange)}
+body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .kol{background:var(--surface);border:1px solid var(--border);width:220px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
 .kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
 .kol-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
@@ -445,6 +460,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
           <button class="notif-btn" onclick="switchSection('notifications')" id="notifBtn">
             ◉<span class="notif-badge" id="notifBtnBadge">0</span>
           </button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"></button>
         </div>
       </div>
 
@@ -909,6 +925,8 @@ function userRole() { return currentProfile?.role || 'member'; }
 function isAdmin() { return userRole() === 'admin'; }
 function isTeamLead() { return userRole() === 'team_lead'; }
 function canManageProjects() { return isAdmin() || isTeamLead(); }
+function canCreateProjects() { return isAdmin(); }
+function canManageMembers(projectCreatedBy) { return isAdmin() || (isTeamLead() && projectCreatedBy === currentUser.id); }
 
 // ════════════════════════════════════════════════
 // PROFILE SECTION
@@ -998,7 +1016,7 @@ function setUserUI() {
 
   // Show/hide New Project button
   const projBtn = document.getElementById('newProjectBtn');
-  if (projBtn) projBtn.style.display = canManageProjects() ? 'inline' : 'none';
+  if (projBtn) projBtn.style.display = canCreateProjects() ? 'inline' : 'none';
   // Sync mobile drawer profile
   const mobAv = document.getElementById('mobAvatar');
   if (mobAv) {
@@ -1018,9 +1036,33 @@ function setUserUI() {
 // ════════════════════════════════════════════════
 // PROFILES / MEMBERS
 // ════════════════════════════════════════════════
+let myProjectIds = []; // project IDs current user belongs to
+let myProjectMemberIds = []; // user IDs of people sharing projects with me
+
 async function loadAllProfiles() {
-  const { data } = await sb.from('profiles').select('*').neq('id', currentUser.id);
-  allProfiles = data || [];
+  // Load my project memberships first
+  const { data: myMemberships } = await sb.from('hub_project_members')
+    .select('project_id')
+    .eq('user_id', currentUser.id);
+  myProjectIds = (myMemberships || []).map(m => m.project_id);
+
+  if (isAdmin()) {
+    // Admins see everyone
+    const { data } = await sb.from('profiles').select('*').neq('id', currentUser.id);
+    allProfiles = data || [];
+  } else if (myProjectIds.length > 0) {
+    // Get all users sharing at least one project with me
+    const { data: sharedMembers } = await sb.from('hub_project_members')
+      .select('user_id')
+      .in('project_id', myProjectIds)
+      .neq('user_id', currentUser.id);
+    myProjectMemberIds = [...new Set((sharedMembers || []).map(m => m.user_id))];
+    const { data } = await sb.from('profiles').select('*').in('id', myProjectMemberIds.length ? myProjectMemberIds : ['00000000-0000-0000-0000-000000000000']);
+    allProfiles = data || [];
+  } else {
+    // No projects — see no one (basics only)
+    allProfiles = [];
+  }
   renderMembers();
   renderDMNav();
   populateAssigneeDropdown();
@@ -1036,10 +1078,13 @@ async function loadChannelNav() {
     nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No channels yet</div>';
     return;
   }
-  // Members only see default channels
-  const visible = isAdmin() || isTeamLead()
+  // Members see default channels + channels linked to their projects
+  const visible = isAdmin()
     ? channels
-    : channels.filter(ch => DEFAULT_CHANNELS.includes(ch.name));
+    : channels.filter(ch =>
+        DEFAULT_CHANNELS.includes(ch.name) ||
+        (ch.project_id && myProjectIds.includes(ch.project_id))
+      );
   nav.innerHTML = visible.map(ch => {
     const isDefault = DEFAULT_CHANNELS.includes(ch.name);
     const label = isDefault ? `# ${ch.name}` : ch.name.toUpperCase();
@@ -1216,30 +1261,37 @@ function subscribeToChannel(channel) {
     .subscribe();
 }
 
-function buildMsgEl(m) {
+function buildMsgEl(m, isDM) {
   const p = m.profiles || {};
   const name = p.full_name || 'Unknown';
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const color = stringToColor(m.sender_id);
   const isMe = m.sender_id === currentUser.id;
   const time = formatTime(m.created_at);
-  const avatarHtml = p.avatar_url
-    ? `<img src="${p.avatar_url}" alt="${name}">`
-    : initials;
-
   const div = document.createElement('div');
-  div.className = 'msg';
   div.dataset.msgId = m.id;
-  div.innerHTML = `
-    <div class="msg-av" style="background:${color}">${avatarHtml}</div>
-    <div class="msg-body">
-      <div class="msg-header">
-        <span class="msg-name" style="${isMe ? 'color:var(--orange)' : ''}">${escHtml(name)}</span>
-        <span class="msg-time">${time}</span>
-        <span class="btn sm" style="margin-left:auto;font-size:9px;cursor:pointer" onclick="openThread('${m.id}','${escHtml(m.body.slice(0,40))}')">↗ Reply Thread</span>
-      </div>
-      <div class="msg-text">${formatMsgBody(escHtml(m.body))}</div>
-    </div>`;
+
+  if (isDM) {
+    // Chat bubble style
+    div.className = `dm-bubble ${isMe ? 'me' : 'them'}`;
+    div.innerHTML = `
+      <div class="dm-bubble-inner">${formatMsgBody(escHtml(m.body))}</div>
+      <div class="dm-bubble-meta">${isMe ? 'You' : escHtml(name)} · ${time}</div>`;
+  } else {
+    // Channel message style
+    const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}" alt="${name}">` : initials;
+    div.className = 'msg';
+    div.innerHTML = `
+      <div class="msg-av" style="background:${color}">${avatarHtml}</div>
+      <div class="msg-body">
+        <div class="msg-header">
+          <span class="msg-name" style="${isMe ? 'color:var(--orange)' : ''}">${escHtml(name)}</span>
+          <span class="msg-time">${time}</span>
+          <span class="btn sm" style="margin-left:auto;font-size:9px;cursor:pointer" onclick="openThread('${m.id}','${escHtml(m.body.slice(0,40))}')">↗ Reply Thread</span>
+        </div>
+        <div class="msg-text">${formatMsgBody(escHtml(m.body))}</div>
+      </div>`;
+  }
   return div;
 }
 
@@ -1614,7 +1666,9 @@ async function loadProjects() {
   grid.innerHTML = topLevel.map(p => {
     const subs = projects.filter(s => s.parent_id === p.id);
     const memberCount = p.hub_project_members?.length || 0;
+    const canSettings = canManageMembers(p.created_by);
     return `<div class="project-card" onclick="openProject('${p.id}','${escHtml(p.name)}')">
+      ${canSettings ? `<span class="project-settings-btn" onclick="event.stopPropagation();openProjectSettings('${p.id}','${escHtml(p.name)}')" title="Manage members">⚙</span>` : ''}
       <div class="project-card-name">◈ ${escHtml(p.name)}</div>
       <div class="project-card-desc">${escHtml(p.description || 'No description')}</div>
       <div class="project-card-meta">
@@ -1628,10 +1682,10 @@ async function loadProjects() {
   document.getElementById('statTasks').textContent = projects.length;
 }
 
-function openProject(projectId, projectName) {
+async function openProject(projectId, projectName) {
   activeProjectId = projectId;
   document.getElementById('activeProjectName').textContent = projectName;
-  // Show sub-project button for team leads/admins
+  // Show sub-project button for admins/team leads
   const subBtn = document.getElementById('newSubProjectBtn');
   if (subBtn) subBtn.style.display = canManageProjects() ? 'inline' : 'none';
   // Switch to task board view
@@ -1640,6 +1694,64 @@ function openProject(projectId, projectName) {
   document.getElementById('section-project-tasks').style.display = '';
   document.getElementById('section-project-tasks').classList.add('active');
   loadTasks();
+  // Load project members in right panel
+  loadProjectMembers(projectId, projectName);
+}
+
+async function loadProjectMembers(projectId, projectName) {
+  const rpContent = document.getElementById('rpContent');
+  rpContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  document.getElementById('rpHeader').textContent = 'PROJECT MEMBERS';
+  const { data: members } = await sb.from('hub_project_members')
+    .select('user_id, role, joined_at')
+    .eq('project_id', projectId);
+  if (!members || !members.length) {
+    rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">No members yet</div>';
+    return;
+  }
+  const proj = projectsCache.find(p => p.id === projectId);
+  rpContent.innerHTML = members.map(m => {
+    const profile = m.user_id === currentUser.id ? currentProfile : allProfiles.find(p => p.id === m.user_id);
+    if (!profile) return '';
+    const initials = (profile.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const canRemove = canManageMembers(proj?.created_by) && m.user_id !== currentUser.id;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="member-av" style="background:${stringToColor(m.user_id)};width:28px;height:28px;font-size:10px">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:var(--text)">${escHtml(profile.full_name || '')}</div>
+        <div style="font-size:9px;color:var(--muted)">${m.role || 'member'}</div>
+      </div>
+      ${canRemove ? `<span style="cursor:pointer;color:var(--muted);font-size:12px" onclick="removeMemberFromProject('${projectId}','${m.user_id}')" title="Remove">✕</span>` : ''}
+    </div>`;
+  }).join('');
+  // Add member button for admins/team leads
+  if (canManageMembers(proj?.created_by)) {
+    rpContent.innerHTML += `<button class="btn sm" style="margin-top:12px;width:100%" onclick="openAddMemberModal('${projectId}')">+ Add Member</button>`;
+  }
+}
+
+async function removeMemberFromProject(projectId, userId) {
+  if (!confirm('Remove this member from the project?')) return;
+  await sb.from('hub_project_members').delete().eq('project_id', projectId).eq('user_id', userId);
+  showToast('Member removed');
+  loadProjectMembers(projectId);
+  await loadAllProfiles();
+}
+
+async function openAddMemberModal(projectId) {
+  const { data: existing } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
+  const existingIds = (existing || []).map(m => m.user_id);
+  const { data: everyone } = await sb.from('profiles').select('*').not('id', 'in', `(${existingIds.join(',')})`);
+  if (!everyone || !everyone.length) { showToast('No more users to add'); return; }
+  const names = everyone.map(p => `${p.full_name} (${p.prodeegee_email})`).join('\n');
+  const choice = prompt(`Select member to add (type their name):\n${names}`);
+  if (!choice) return;
+  const match = everyone.find(p => p.full_name.toLowerCase().includes(choice.toLowerCase()) || (p.prodeegee_email||'').toLowerCase().includes(choice.toLowerCase()));
+  if (!match) { showToast('User not found', 'error'); return; }
+  await sb.from('hub_project_members').insert({ project_id: projectId, user_id: match.id, role: 'member' });
+  showToast(`${match.full_name} added to project ✓`);
+  loadProjectMembers(projectId);
+  await loadAllProfiles();
 }
 
 async function loadTasks() {
@@ -2058,7 +2170,8 @@ function stringToColor(str) {
 // PROJECT MANAGEMENT (admin/team lead only)
 // ════════════════════════════════════════════════
 function openNewProjectModal(parentId) {
-  if (!canManageProjects()) { showToast('Only admins and team leads can create projects', 'error'); return; }
+  if (parentId && !canManageProjects()) { showToast('Only admins and team leads can create sub-projects', 'error'); return; }
+  if (!parentId && !canCreateProjects()) { showToast('Only admins can create projects', 'error'); return; }
   document.getElementById('projectName').value = '';
   document.getElementById('projectDesc').value = '';
   document.getElementById('projectStatus').value = 'active';
@@ -2111,6 +2224,29 @@ async function createProject() {
     const parent = projectsCache.find(p => p.id === parentId);
     if (parent) openProject(parentId, parent.name);
   }
+}
+
+// ════════════════════════════════════════════════
+// THEME TOGGLE
+// ════════════════════════════════════════════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('hub_theme', isLight ? 'light' : 'dark');
+}
+
+function applyTheme() {
+  const saved = localStorage.getItem('hub_theme');
+  if (saved === 'light') document.body.classList.add('light');
+}
+applyTheme();
+
+// ════════════════════════════════════════════════
+// PROJECT SETTINGS
+// ════════════════════════════════════════════════
+async function openProjectSettings(projectId, projectName) {
+  activeProjectId = projectId;
+  await loadProjectMembers(projectId, projectName);
+  switchSection('projects');
 }
 
 // ════════════════════════════════════════════════
