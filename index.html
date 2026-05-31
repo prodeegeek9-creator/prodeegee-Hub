@@ -1803,8 +1803,11 @@ const _rawHash = window.location.hash;
   const hashErrorDesc = hashParams.get('error_description');
   const isInviteOrReset = (linkType === 'invite' || linkType === 'recovery') && accessToken;
 
+  // DEBUG — remove after testing
+  document.getElementById('authSuccess').textContent = 'hash:' + (hashStr ? hashStr.slice(0,30) : 'EMPTY') + ' type:' + (linkType||'none') + ' token:' + (accessToken?'YES':'NO');
+  document.getElementById('authSuccess').style.display = 'block';
+
   if (hashError) {
-    // Expired or invalid link — show error on login screen
     history.replaceState(null, '', window.location.pathname);
     const errEl = document.getElementById('authError');
     const msg = hashErrorDesc ? decodeURIComponent(hashErrorDesc.replace(/[+]/g, ' ')) : hashError;
@@ -1812,7 +1815,6 @@ const _rawHash = window.location.hash;
     errEl.style.display = 'block';
 
   } else if (isInviteOrReset) {
-    // Invite or password reset link — set the session manually then show set-password panel
     history.replaceState(null, '', window.location.pathname);
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
