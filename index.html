@@ -224,24 +224,38 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
   <div class="auth-card">
     <div class="auth-logo">PRODEEGEE</div>
     <div class="auth-sub">// TEAM HUB v1.0</div>
-    <div class="auth-desc">
-      Sign in with your Google account.<br>
-      Your <span style="color:var(--green)">@prodeegee.com</span> inbox loads automatically.
+
+    <!-- STEP 1: Email input -->
+    <div id="authStep1">
+      <div class="auth-desc">Enter your Prodeegee email to continue.</div>
+      <div style="display:flex;border:1px solid var(--border);margin-bottom:12px">
+        <input id="authEmailPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" />
+        <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface)">@prodeegee.com</span>
+      </div>
+      <button class="btn primary" style="width:100%;padding:10px" onclick="verifyStaffEmail()">Continue →</button>
+      <div id="authEmailError" style="color:#ef5350;font-size:11px;margin-top:8px;display:none"></div>
     </div>
-    <button class="btn-google" onclick="signInWithGoogle()">
-      <svg viewBox="0 0 24 24" fill="none">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-      Sign in with Google
-    </button>
-    <div class="auth-note">
-      Requests Gmail read + send access<br>
-      Only <span style="color:var(--orange)">@prodeegee.com</span> emails are shown<br>
-      <span style="color:var(--green)">●</span> hub.prodeegee.com · Cloudflare Pages
+
+    <!-- STEP 2: Google sign in (shown after verification) -->
+    <div id="authStep2" style="display:none">
+      <div class="auth-desc">
+        Verified: <span style="color:var(--green)" id="authVerifiedEmail"></span><br>
+        Sign in with the Google account linked to this address.
+      </div>
+      <button class="btn-google" onclick="signInWithGoogle()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div style="margin-top:12px;font-size:10px;color:var(--muted)">
+        <span style="color:var(--orange);cursor:pointer" onclick="resetAuthStep()">← Use a different email</span>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -644,6 +658,41 @@ let unreadNotifs = 0;
 let unreadEmails = 0;
 let sentEmailsCache = [];
 
+  // ════════════════════════════════════════════════
+// STAFF EMAIL GATE
+// ════════════════════════════════════════════════
+const ALLOWED_STAFF = ['oluwafemi', 'admin']; // add prefixes here
+
+function verifyStaffEmail() {
+  const prefix = document.getElementById('authEmailPrefix').value.trim().toLowerCase();
+  const errEl = document.getElementById('authEmailError');
+
+  if (!prefix) {
+    errEl.textContent = 'Enter your email prefix.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if (!ALLOWED_STAFF.includes(prefix)) {
+    errEl.textContent = 'This email is not authorised. Contact admin.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  sessionStorage.setItem('prodeegee_prefix', prefix);
+  errEl.style.display = 'none';
+  document.getElementById('authVerifiedEmail').textContent = prefix + '@prodeegee.com';
+  document.getElementById('authStep1').style.display = 'none';
+  document.getElementById('authStep2').style.display = 'block';
+}
+
+function resetAuthStep() {
+  document.getElementById('authStep1').style.display = 'block';
+  document.getElementById('authStep2').style.display = 'none';
+  document.getElementById('authEmailPrefix').value = '';
+  document.getElementById('authEmailError').style.display = 'none';
+}
+
 // ════════════════════════════════════════════════
 // AUTH
 // ════════════════════════════════════════════════
@@ -695,8 +744,10 @@ async function initApp(session) {
 
 async function upsertProfile() {
   const meta = currentUser.user_metadata || {};
-  const first = (meta.full_name || meta.name || '').split(' ')[0].toLowerCase();
+  const savedPrefix = sessionStorage.getItem('prodeegee_prefix');
+  const first = savedPrefix || (meta.full_name || meta.name || '').split(' ')[0].toLowerCase();
   const prodeegeeEmail = first ? `${first}@${PRODEEGEE_DOMAIN}` : currentUser.email;
+  sessionStorage.removeItem('prodeegee_prefix');
 
   const profileData = {
     id: currentUser.id,
@@ -705,7 +756,6 @@ async function upsertProfile() {
     avatar_url: meta.avatar_url || meta.picture || null,
     prodeegee_email: prodeegeeEmail
   };
-
   const { data, error } = await sb.from('profiles').upsert(profileData, { onConflict: 'id' }).select().single();
   if (!error) currentProfile = data;
   else currentProfile = profileData;
