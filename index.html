@@ -1078,9 +1078,11 @@ async function sendThreadReply() {
 async function loadInbox() {
   document.getElementById('emailListItems').innerHTML = '<div class="loading" style="padding:30px 0"><div class="spinner"></div></div>';
   try {
+    const userEmail = currentProfile?.prodeegee_email || currentUser?.email;
     const { data: emails, error } = await sb
       .from('received_emails')
       .select('*')
+      .eq('to_address', userEmail)
       .order('received_at', { ascending: false })
       .limit(50);
     if (error) throw error;
@@ -1092,8 +1094,8 @@ async function loadInbox() {
     // Normalise to the shape the rest of the UI expects
     const normalised = emails.map(e => ({
       id          : e.id,
-      from        : e.from_addr || '',
-      to          : e.to_addr  || '',
+      from        : e.from_address || '',
+      to          : e.to_address  || '',
       subject     : e.subject  || '(no subject)',
       date        : e.received_at ? new Date(e.received_at).toLocaleString() : '',
       body        : e.body_text || '',
