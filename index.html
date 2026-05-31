@@ -1791,15 +1791,15 @@ async function setInitialPassword() {
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
-  // Check if arriving via invite or password reset link
-  const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
-  const linkType = urlParams.get('type') || hashParams.get('type');
+  // Supabase puts invite/reset tokens in the hash: #access_token=...&type=invite
+  const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+  const hashParams = new URLSearchParams(hashStr);
+  const linkType = hashParams.get('type');
   const isInviteOrReset = linkType === 'invite' || linkType === 'recovery';
 
   if (isInviteOrReset) {
-    // Let Supabase exchange the token, then show set-password panel
-    // The session will be established by onAuthStateChange below
+    // Keep auth screen visible — onAuthStateChange will fire SIGNED_IN shortly
+    // after Supabase JS processes the hash token automatically
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
   } else {
