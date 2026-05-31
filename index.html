@@ -1208,7 +1208,7 @@ async function doSendEmail(to, subject, body, statusElId) {
     const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: fromAddr, fromName, to, subject, body, text: body })
+      body: JSON.stringify({ from: fromName ? `${fromName} <${fromAddr}>` : fromAddr, to, subject, text: body })
     });
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
