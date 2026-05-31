@@ -1791,21 +1791,37 @@ async function setInitialPassword() {
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    await initApp(session);
+  // Check if arriving via invite or password reset link
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+  const linkType = urlParams.get('type') || hashParams.get('type');
+  const isInviteOrReset = linkType === 'invite' || linkType === 'recovery';
+
+  if (isInviteOrReset) {
+    // Let Supabase exchange the token, then show set-password panel
+    // The session will be established by onAuthStateChange below
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('hubApp').style.display = 'none';
+  } else {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await initApp(session);
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
-      // User arrived via invite or reset link — show set-password form
       document.getElementById('authScreen').style.display = 'flex';
       document.getElementById('hubApp').style.display = 'none';
       showSetPasswordPanel();
     } else if (event === 'SIGNED_IN' && session) {
-      // Only go to app if we're not in password-recovery mode
-      if (document.getElementById('setPasswordPanel').style.display === 'block') return;
-      await initApp(session);
+      if (isInviteOrReset) {
+        // Came via invite/reset — show set-password form instead of app
+        showSetPasswordPanel();
+      } else if (document.getElementById('setPasswordPanel').style.display === 'block') {
+        // Already showing set-password panel — don't redirect
+        return;
+      } else {
+        await initApp(session);
+      }
     } else if (event === 'SIGNED_OUT') {
       document.getElementById('hubApp').style.display = 'none';
       document.getElementById('authScreen').style.display = 'flex';
