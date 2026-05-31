@@ -1679,7 +1679,7 @@ async function loadProjects() {
     </div>`;
   }).join('');
   // Update stats
-  document.getElementById('statTasks').textContent = projects.length;
+  const stEl = document.getElementById('statTasks'); if(stEl) stEl.textContent = projects.length;
 }
 
 async function openProject(projectId, projectName) {
@@ -1701,7 +1701,7 @@ async function openProject(projectId, projectName) {
 async function loadProjectMembers(projectId, projectName) {
   const rpContent = document.getElementById('rpContent');
   rpContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  document.getElementById('rpHeader').textContent = 'PROJECT MEMBERS';
+  const rpTitle = document.getElementById('rpTitle'); if(rpTitle) rpTitle.textContent = 'PROJECT MEMBERS';
   const { data: members } = await sb.from('hub_project_members')
     .select('user_id, role, joined_at')
     .eq('project_id', projectId);
@@ -1767,10 +1767,10 @@ async function loadTasks() {
   }));
   renderKanban();
   const active = tasksCache.filter(t => t.status !== 'Done').length;
-  document.getElementById('statTasks').textContent = active;
+  const stEl2 = document.getElementById('statTasks'); if(stEl2) stEl2.textContent = active;
   const today = new Date().toISOString().slice(0, 10);
   const dueToday = tasksCache.filter(t => t.due_date === today && t.status !== 'Done').length;
-  document.getElementById('statDue').textContent = dueToday;
+  const sdEl = document.getElementById('statDue'); if(sdEl) sdEl.textContent = dueToday;
 }
 
 function renderKanban() {
