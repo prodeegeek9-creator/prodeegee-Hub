@@ -657,60 +657,6 @@ let unreadNotifs = 0;
 let unreadEmails = 0;
 let sentEmailsCache = [];
 
-// ════════════════════════════════════════════════
-// AUTH — email/password
-// ════════════════════════════════════════════════
-function togglePasswordVis() {
-  const el = document.getElementById('authPassword');
-  const icon = document.getElementById('passToggleIcon');
-  if (el.type === 'password') { el.type = 'text'; icon.textContent = '🙈'; }
-  else { el.type = 'password'; icon.textContent = '👁'; }
-}
-
-function showForgotPassword() {
-  document.getElementById('forgotPanel').style.display = 'block';
-  document.getElementById('authError').style.display = 'none';
-}
-
-function hideForgotPassword() {
-  document.getElementById('forgotPanel').style.display = 'none';
-}
-
-async function sendResetEmail() {
-  const prefix = document.getElementById('resetPrefix').value.trim().toLowerCase();
-  const errEl  = document.getElementById('authError');
-  const okEl   = document.getElementById('authSuccess');
-  if (!prefix) { errEl.textContent = 'Enter your prefix.'; errEl.style.display = 'block'; return; }
-  const email = `${prefix}@${PRODEEGEE_DOMAIN}`;
-  const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://hub.prodeegee.com'
-  });
-  if (error) {
-    errEl.textContent = error.message; errEl.style.display = 'block';
-  } else {
-    errEl.style.display = 'none';
-    okEl.textContent = `Reset link sent to ${email}`; okEl.style.display = 'block';
-    hideForgotPassword();
-  }
-}
-
-async function signIn() {
-  const prefix   = document.getElementById('authEmailPrefix').value.trim().toLowerCase();
-  const password = document.getElementById('authPassword').value;
-  const errEl    = document.getElementById('authError');
-  const btn      = document.getElementById('signInBtn');
-
-  errEl.style.display = 'none';
-  if (!prefix)   { errEl.textContent = 'Enter your email prefix.'; errEl.style.display = 'block'; return; }
-  if (!password) { errEl.textContent = 'Enter your password.'; errEl.style.display = 'block'; return; }
-
-  btn.textContent = 'Signing in...'; btn.disabled = true;
-  const email = `${prefix}@${PRODEEGEE_DOMAIN}`;
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  btn.textContent = 'Sign In →'; btn.disabled = false;
-  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
-}
-
 async function signOut() {
   if (channelSubscription) channelSubscription.unsubscribe();
   if (dmSubscription) dmSubscription.unsubscribe();
@@ -724,7 +670,6 @@ async function signOut() {
 async function initApp(session) {
   currentUser = session.user;
 
-  document.getElementById('authScreen').style.display = 'none';
   document.getElementById('hubApp').style.display = 'grid';
 
   await upsertProfile();
@@ -1682,50 +1627,6 @@ function stringToColor(str) {
   for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
   const colors = ['#4fc3f7','#ce93d8','#80cbc4','#ffb74d','#ef9a9a','#a5d6a7','#fff176','#90caf9'];
   return colors[Math.abs(hash) % colors.length];
-}
-
-// ════════════════════════════════════════════════
-// PASSWORD RECOVERY (invite / reset link)
-// ════════════════════════════════════════════════
-function showSetPasswordPanel() {
-  // Hide normal login fields
-  const hide = ['authDesc','authPrefixWrap','authPasswordWrap','signInBtn','authForgotWrap','authError','authSuccess','forgotPanel'];
-  hide.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  // Show set-password panel
-  document.getElementById('setPasswordPanel').style.display = 'block';
-  document.getElementById('setNewPassword').focus();
-}
-
-async function setInitialPassword() {
-  const np  = document.getElementById('setNewPassword').value;
-  const cp  = document.getElementById('setConfirmPassword').value;
-  const err = document.getElementById('setPasswordError');
-  const btn = document.getElementById('setPasswordBtn');
-
-  if (!np || np.length < 6) {
-    err.textContent = 'Password must be at least 6 characters.';
-    err.style.display = 'block'; return;
-  }
-  if (np !== cp) {
-    err.textContent = 'Passwords do not match.';
-    err.style.display = 'block'; return;
-  }
-
-  btn.textContent = 'Setting password...'; btn.disabled = true;
-  const { data, error } = await sb.auth.updateUser({ password: np });
-  btn.textContent = 'Set Password & Sign In →'; btn.disabled = false;
-
-  if (error) {
-    err.textContent = error.message; err.style.display = 'block';
-  } else {
-    // Password set — session is already active, go straight into app
-    err.style.display = 'none';
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) await initApp(session);
-  }
 }
 
 // ════════════════════════════════════════════════
