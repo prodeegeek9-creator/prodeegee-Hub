@@ -1144,15 +1144,15 @@ async function loadDMMessages(toUserId) {
 
 function subscribeToDM(toUserId) {
   dmSubscription = sb.channel('dm-' + [currentUser.id, toUserId].sort().join('-'))
-    .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'chat_messages',
-        filter: `dm_to=eq.${currentUser.id}`
-      },
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
       payload => {
         const msg = payload.new;
         if (msg.channel_id || msg.parent_id) return;
-        if (msg.sender_id !== toUserId) return; // only for current DM partner
-        msg.profiles = allProfiles.find(p => p.id === msg.sender_id) || null;
+        // Only show messages between current user and the open DM partner
+        const isIncoming = msg.sender_id === toUserId && msg.dm_to === currentUser.id;
+        const isOutgoing = msg.sender_id === currentUser.id && msg.dm_to === toUserId;
+        if (!isIncoming && !isOutgoing) return;
+        msg.profiles = allProfiles.find(p => p.id === msg.sender_id) || (msg.sender_id === currentUser.id ? currentProfile : null);
         const list = document.getElementById('dmList');
         const empty = list.querySelector('.empty-state');
         if (empty) empty.remove();
