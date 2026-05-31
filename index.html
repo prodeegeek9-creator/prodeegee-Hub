@@ -224,21 +224,21 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
   <div class="auth-card">
     <div class="auth-logo">PRODEEGEE</div>
     <div class="auth-sub">// TEAM HUB v1.0</div>
-    <div class="auth-desc">Sign in with your Prodeegee email.</div>
+    <div class="auth-desc" id="authDesc">Sign in with your Prodeegee email.</div>
 
-    <div style="display:flex;border:1px solid var(--border);margin-bottom:12px">
+    <div id="authPrefixWrap" style="display:flex;border:1px solid var(--border);margin-bottom:12px">
       <input id="authEmailPrefix" class="msg-input" placeholder="yourname" style="flex:1;border:none;border-right:1px solid var(--border)" onkeydown="if(event.key==='Enter')signIn()" />
       <span style="padding:8px 10px;color:var(--green);font-size:12px;background:var(--surface);white-space:nowrap">@prodeegee.com</span>
     </div>
 
-    <div style="position:relative;margin-bottom:12px">
+    <div id="authPasswordWrap" style="position:relative;margin-bottom:12px">
       <input id="authPassword" type="password" class="msg-input" placeholder="Password" style="width:100%;box-sizing:border-box;padding-right:36px" onkeydown="if(event.key==='Enter')signIn()" />
       <span onclick="togglePasswordVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:13px" id="passToggleIcon">👁</span>
     </div>
 
     <button class="btn primary" style="width:100%;padding:10px" onclick="signIn()" id="signInBtn">Sign In →</button>
 
-    <div style="margin-top:10px;text-align:right">
+    <div id="authForgotWrap" style="margin-top:10px;text-align:right">
       <span style="color:var(--orange);font-size:11px;cursor:pointer" onclick="showForgotPassword()">Forgot password?</span>
     </div>
 
@@ -1746,14 +1746,13 @@ function stringToColor(str) {
 // PASSWORD RECOVERY (invite / reset link)
 // ════════════════════════════════════════════════
 function showSetPasswordPanel() {
-  // Hide normal login fields, show set-password panel
-  document.getElementById('authEmailPrefix').closest('div[style*="flex"]').style.display = 'none';
-  document.getElementById('authPassword').parentElement.style.display = 'none';
-  document.getElementById('signInBtn').style.display = 'none';
-  document.querySelector('[onclick="showForgotPassword()"]').style.display = 'none';
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authSuccess').style.display = 'none';
-  document.getElementById('forgotPanel').style.display = 'none';
+  // Hide normal login fields
+  const hide = ['authDesc','authPrefixWrap','authPasswordWrap','signInBtn','authForgotWrap','authError','authSuccess','forgotPanel'];
+  hide.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Show set-password panel
   document.getElementById('setPasswordPanel').style.display = 'block';
   document.getElementById('setNewPassword').focus();
 }
