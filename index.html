@@ -234,6 +234,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         <div>
           <div class="user-name" id="sideName">Loading...</div>
           <div class="user-email" id="sideProEmail" style="color:var(--green)">@prodeegee.com</div>
+          <div class="user-email" id="sideRole" style="color:var(--muted);font-size:9px;letter-spacing:1px">MEMBER</div>
         </div>
       </div>
     </div>
@@ -418,7 +419,10 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       <div class="section" id="section-projects" style="overflow:hidden">
         <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
           <span style="font-size:11px;color:var(--green)">◈ Project Board</span>
-          <button class="btn sm" onclick="openTaskModal()">+ New Task</button>
+          <div style="display:flex;gap:6px">
+            <span id="newProjectBtn" style="display:none"><button class="btn sm" onclick="openNewProjectModal()">+ New Project</button></span>
+            <button class="btn sm primary" onclick="openTaskModal()">+ New Task</button>
+          </div>
         </div>
         <div class="kanban-wrap" id="kanbanWrap">
           <div class="loading"><div class="spinner"></div>Loading tasks...</div>
@@ -693,6 +697,7 @@ async function upsertProfile() {
   const meta = currentUser.user_metadata || {};
   // prodeegee_email is the auth email itself (admin@prodeegee.com)
   const prodeegeeEmail = currentUser.email;
+  // Only upsert non-role fields — role is managed manually in Supabase
   const profileData = {
     id: currentUser.id,
     full_name: meta.full_name || meta.name || currentUser.email.split('@')[0],
@@ -703,7 +708,17 @@ async function upsertProfile() {
   const { data, error } = await sb.from('profiles').upsert(profileData, { onConflict: 'id' }).select().single();
   if (!error) currentProfile = data;
   else currentProfile = profileData;
+  // Ensure role is loaded
+  if (!currentProfile.role) currentProfile.role = 'member';
 }
+
+// ════════════════════════════════════════════════
+// ROLES
+// ════════════════════════════════════════════════
+function userRole() { return currentProfile?.role || 'member'; }
+function isAdmin() { return userRole() === 'admin'; }
+function isTeamLead() { return userRole() === 'team_lead'; }
+function canManageProjects() { return isAdmin() || isTeamLead(); }
 
 // ════════════════════════════════════════════════
 // PROFILE SECTION
@@ -782,6 +797,18 @@ function setUserUI() {
   } else {
     av.innerHTML = `${initials}<div class="online-dot"></div>`;
   }
+
+  // Show role badge in sidebar
+  const roleColors = { admin: 'var(--orange)', team_lead: '#4fc3f7', member: 'var(--muted)' };
+  const roleEl = document.getElementById('sideRole');
+  if (roleEl) {
+    roleEl.textContent = (p.role || 'member').replace('_', ' ').toUpperCase();
+    roleEl.style.color = roleColors[p.role] || 'var(--muted)';
+  }
+
+  // Show/hide New Project button
+  const projBtn = document.getElementById('newProjectBtn');
+  if (projBtn) projBtn.style.display = canManageProjects() ? 'inline' : 'none';
 }
 
 // ════════════════════════════════════════════════
@@ -828,8 +855,16 @@ function renderDMNav() {
 function populateAssigneeDropdown() {
   const sel = document.getElementById('taskAssignee');
   const me = currentProfile;
-  sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>` +
-    allProfiles.map(p => `<option value="${p.id}">${p.full_name}</option>`).join('');
+  if (canManageProjects()) {
+    // Admins and team leads can assign to anyone
+    sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>` +
+      allProfiles.map(p => `<option value="${p.id}">${p.full_name}</option>`).join('');
+    sel.disabled = false;
+  } else {
+    // Members can only assign to themselves
+    sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>`;
+    sel.disabled = true;
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -873,7 +908,7 @@ function openChannel(ch) {
 
 async function loadChannelMessages(channel) {
   document.getElementById('msgLoading').style.display = 'flex';
-  const { data } = await sb.from('messages')
+  const { data } = await sb.from('chat_messages')
     .select('*, profiles(full_name, avatar_url, prodeegee_email)')
     .eq('channel_id', channel)
     .is('dm_to', null)
@@ -893,7 +928,7 @@ async function loadChannelMessages(channel) {
 
 function subscribeToChannel(channel) {
   channelSubscription = sb.channel('channel-' + channel)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `channel_id=eq.${channel}` },
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel_id=eq.${channel}` },
       async payload => {
         const msg = payload.new;
         if (msg.dm_to || msg.parent_id) return;
@@ -947,7 +982,7 @@ async function sendChannelMessage() {
   const body = input.value.trim();
   if (!body) return;
   input.value = '';
-  const { error } = await sb.from('messages').insert({
+  const { error } = await sb.from('chat_messages').insert({
     channel_id: activeChannel,
     sender_id: currentUser.id,
     body
@@ -972,7 +1007,7 @@ function openDM(userId, userName) {
 async function loadDMMessages(toUserId) {
   const list = document.getElementById('dmList');
   list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  const { data } = await sb.from('messages')
+  const { data } = await sb.from('chat_messages')
     .select('*, profiles(full_name,avatar_url)')
     .is('channel_id', null)
     .is('parent_id', null)
@@ -990,7 +1025,7 @@ async function loadDMMessages(toUserId) {
 
 function subscribeToDM(toUserId) {
   dmSubscription = sb.channel('dm-' + [currentUser.id, toUserId].sort().join('-'))
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' },
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
       async payload => {
         const msg = payload.new;
         if (msg.channel_id || msg.parent_id) return;
@@ -1013,7 +1048,7 @@ async function sendDM() {
   const body = input.value.trim();
   if (!body) return;
   input.value = '';
-  const { error } = await sb.from('messages').insert({
+  const { error } = await sb.from('chat_messages').insert({
     sender_id: currentUser.id,
     dm_to: activeDMUserId,
     body
@@ -1035,7 +1070,7 @@ function openThread(msgId, preview) {
 }
 
 async function loadThreadMessages(parentId) {
-  const { data } = await sb.from('messages')
+  const { data } = await sb.from('chat_messages')
     .select('*, profiles(full_name,avatar_url)')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true });
@@ -1058,7 +1093,7 @@ async function sendThreadReply() {
   const body = input.value.trim();
   if (!body) return;
   input.value = '';
-  const { error } = await sb.from('messages').insert({
+  const { error } = await sb.from('chat_messages').insert({
     channel_id: activeChannel,
     sender_id: currentUser.id,
     body,
@@ -1279,9 +1314,10 @@ function switchEmailTab(tab) {
 let tasksCache = [];
 
 async function loadTasks() {
-  const { data } = await sb.from('tasks')
-    .select('*, profiles(full_name)')
-    .order('position', { ascending: true });
+  let query = sb.from('tasks').select('*, profiles(full_name)').order('position', { ascending: true });
+  // Members only see tasks assigned to them
+  if (!canManageProjects()) query = query.eq('assignee_id', currentUser.id);
+  const { data } = await query;
   tasksCache = data || [];
   renderKanban();
   const active = tasksCache.filter(t => t.status !== 'Done').length;
@@ -1337,12 +1373,13 @@ function showTaskDetail(taskId) {
       <div><span style="color:var(--muted)">Status: </span>${t.status}</div>
       <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div>
     </div>
+    ${(canManageProjects() || t.assignee_id === currentUser.id) ? `
     <div style="display:flex;flex-direction:column;gap:6px">
       ${['Backlog','In Progress','In Review','Done'].map(s =>
         `<button class="btn sm${t.status===s?' primary':''}" onclick="moveTask('${t.id}','${s}')">→ ${s}</button>`
       ).join('')}
-    </div>
-    <button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete Task</button>`;
+    </div>` : '<div style="font-size:10px;color:var(--muted)">Only the assignee can move this task</div>'}
+    ${canManageProjects() ? `<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete Task</button>` : ''}`;
 }
 
 async function moveTask(taskId, newStatus) {
@@ -1366,7 +1403,9 @@ function openTaskModalWithStatus(status) {
 async function createTask() {
   const title = document.getElementById('taskTitle').value.trim();
   if (!title) { showToast('Enter a task title', 'error'); return; }
-  const assigneeId = document.getElementById('taskAssignee').value;
+  const assigneeId = canManageProjects()
+    ? document.getElementById('taskAssignee').value
+    : currentUser.id; // members can only assign to themselves
   const priority = document.getElementById('taskPriority').value;
   const status = document.getElementById('taskStatus').value;
   const due = document.getElementById('taskDue').value || null;
@@ -1462,7 +1501,7 @@ function updateNotifBadge(count) {
 // ════════════════════════════════════════════════
 async function loadFeed() {
   document.getElementById('feedLoading').style.display = 'flex';
-  const { data: msgs } = await sb.from('messages')
+  const { data: msgs } = await sb.from('chat_messages')
     .select('*, profiles(full_name)')
     .is('dm_to', null)
     .is('parent_id', null)
@@ -1629,6 +1668,22 @@ function stringToColor(str) {
   for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
   const colors = ['#4fc3f7','#ce93d8','#80cbc4','#ffb74d','#ef9a9a','#a5d6a7','#fff176','#90caf9'];
   return colors[Math.abs(hash) % colors.length];
+}
+
+// ════════════════════════════════════════════════
+// PROJECT MANAGEMENT (admin/team lead only)
+// ════════════════════════════════════════════════
+function openNewProjectModal() {
+  if (!canManageProjects()) { showToast('Only admins and team leads can create projects', 'error'); return; }
+  const name = prompt('Project name:');
+  if (!name) return;
+  // Create a channel for the project
+  const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  sb.from('channels').insert({ name: slug, created_by: currentUser.id }).then(({ error }) => {
+    if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+    showToast(`Project "${name}" created ✓`);
+    loadAllProfiles(); // refresh channel list
+  });
 }
 
 // ════════════════════════════════════════════════
