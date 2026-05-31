@@ -495,14 +495,23 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         </div>
       </div>
 
-      <!-- DM -->
+      <!-- DM INBOX -->
       <div class="section" id="section-dm">
         <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
-          ◎ <span id="dmRecipientName">Select a member</span>
+          ◎ DIRECT MESSAGES
         </div>
-        <div class="msg-list" id="dmList">
-          <div class="empty-state"><div class="big">◎</div>Select a team member from the sidebar to start a DM</div>
+        <div id="dmInbox" style="flex:1;overflow-y:auto">
+          <div class="loading"><div class="spinner"></div></div>
         </div>
+      </div>
+
+      <!-- DM CONVERSATION -->
+      <div class="section" id="section-dm-chat">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0;display:flex;align-items:center;gap:10px">
+          <span style="cursor:pointer;color:var(--orange)" onclick="switchSection('dm')">← DMs</span>
+          ◎ <span id="dmRecipientName">—</span>
+        </div>
+        <div class="msg-list" id="dmList"></div>
         <div class="msg-input-area">
           <div class="msg-input-row">
             <textarea class="msg-input" id="dmInput" rows="2" placeholder="Send a direct message..."></textarea>
@@ -1161,15 +1170,74 @@ function switchSection(id) {
   if (nav) nav.classList.add('active');
   const titles = {
     home: '⌂ HOME FEED', channels: '# CHANNELS', dm: '◎ DIRECT MESSAGES',
+    'dm-chat': '◎ DIRECT MESSAGES',
     email: '✉ EMAIL INBOX', projects: '◈ PROJECTS', notifications: '◉ NOTIFICATIONS',
-    profile: '⚙ PROFILE'
+    profile: '⚙ PROFILE', 'project-tasks': '◈ PROJECT TASKS'
   };
-  document.getElementById('topbarTitle').textContent = titles[id] || id.toUpperCase();
+  document.getElementById('topbarTitle').textContent = titles[id] || id.replace(/-/g,' ').toUpperCase();
+
+  // Reset right panel when switching sections (unless going to project-tasks)
+  if (id !== 'project-tasks') {
+    const rpTitle = document.getElementById('rpTitle');
+    if (rpTitle) rpTitle.textContent = 'THREAD / DETAILS';
+    const threadPanel = document.getElementById('threadPanel');
+    if (threadPanel) threadPanel.style.display = 'none';
+  }
+
   if (id === 'notifications') loadNotifications();
   if (id === 'projects') loadProjects();
   if (id === 'email') loadInbox();
   if (id === 'home') loadFeed();
   if (id === 'profile') loadProfileSection();
+  if (id === 'dm') loadDMInbox();
+}
+
+async function loadDMInbox() {
+  const inbox = document.getElementById('dmInbox');
+  if (!inbox) return;
+  inbox.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  // Get latest message per conversation partner
+  const { data } = await sb.from('chat_messages')
+    .select('*')
+    .is('channel_id', null)
+    .is('parent_id', null)
+    .or(`sender_id.eq.${currentUser.id},dm_to.eq.${currentUser.id}`)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (!data || !data.length) {
+    inbox.innerHTML = '<div class="empty-state"><div class="big">◎</div>No messages yet. Start a conversation from the sidebar.</div>';
+    return;
+  }
+
+  // Group by conversation partner
+  const conversations = {};
+  for (const msg of data) {
+    const partnerId = msg.sender_id === currentUser.id ? msg.dm_to : msg.sender_id;
+    if (!partnerId) continue;
+    if (!conversations[partnerId]) conversations[partnerId] = msg;
+  }
+
+  inbox.innerHTML = Object.entries(conversations).map(([partnerId, msg]) => {
+    const partner = allProfiles.find(p => p.id === partnerId) || { full_name: 'Unknown', id: partnerId };
+    const initials = (partner.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const isMe = msg.sender_id === currentUser.id;
+    const preview = (isMe ? 'You: ' : '') + (msg.body || '').slice(0, 50);
+    const badge = document.getElementById('dmbadge-' + partnerId);
+    const unread = badge && parseInt(badge.textContent) > 0;
+    return `<div onclick="openDM('${partnerId}','${escHtml(partner.full_name)}')"
+      style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s"
+      onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background=''">
+      <div class="avatar" style="background:${stringToColor(partnerId)};flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;color:${unread ? 'var(--text)' : 'var(--muted)'};font-weight:${unread ? '600' : '400'}">${escHtml(partner.full_name)}</div>
+        <div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(preview)}</div>
+      </div>
+      <div style="font-size:9px;color:var(--muted)">${formatTime(msg.created_at)}</div>
+      ${unread ? `<span style="background:var(--orange);color:#000;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${badge.textContent}</span>` : ''}
+    </div>`;
+  }).join('') || '<div class="empty-state">No conversations yet</div>';
 }
 
 // ════════════════════════════════════════════════
@@ -1314,9 +1382,10 @@ async function sendChannelMessage() {
 function openDM(userId, userName) {
   activeDMUserId = userId;
   activeDMUserName = userName;
-  switchSection('dm');
+  switchSection('dm-chat');
   document.getElementById('dmRecipientName').textContent = userName;
   document.getElementById('dmInput').placeholder = `Message ${userName}...`;
+  document.getElementById('dmList').innerHTML = '';
   // Clear DM badge
   const badge = document.getElementById('dmbadge-' + userId);
   if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
@@ -1341,7 +1410,7 @@ async function loadDMMessages(toUserId) {
       ...m,
       profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
     }));
-    msgs.forEach(m => list.appendChild(buildMsgEl(m)));
+    msgs.forEach(m => list.appendChild(buildMsgEl(m, true)));
   } else {
     list.innerHTML = `<div class="empty-state"><div class="big">◎</div>Start a conversation with ${activeDMUserName}</div>`;
   }
@@ -1362,7 +1431,7 @@ function subscribeToDM(toUserId) {
         const list = document.getElementById('dmList');
         const empty = list.querySelector('.empty-state');
         if (empty) empty.remove();
-        list.appendChild(buildMsgEl(msg));
+        list.appendChild(buildMsgEl(msg, true));
         list.scrollTop = list.scrollHeight;
       })
     .subscribe();
