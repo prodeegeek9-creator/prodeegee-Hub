@@ -1790,52 +1790,50 @@ async function setInitialPassword() {
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
-  // Supabase puts invite/reset tokens in the hash: #access_token=...&type=invite
-  // or errors: #error=access_denied&error_code=otp_expired...
+  // Parse hash params — Supabase puts tokens and errors here
   const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
   const hashParams = new URLSearchParams(hashStr);
-  const linkType = hashParams.get('type');
-  const hashError = hashParams.get('error');
+  const linkType    = hashParams.get('type');
+  const accessToken = hashParams.get('access_token');
+  const refreshToken = hashParams.get('refresh_token');
+  const hashError   = hashParams.get('error');
   const hashErrorDesc = hashParams.get('error_description');
-  const isInviteOrReset = linkType === 'invite' || linkType === 'recovery';
+  const isInviteOrReset = (linkType === 'invite' || linkType === 'recovery') && accessToken;
 
   if (hashError) {
-    // Show error on login screen (e.g. expired link)
-    document.getElementById('authScreen').style.display = 'flex';
-    document.getElementById('hubApp').style.display = 'none';
+    // Expired or invalid link — show error on login screen
+    history.replaceState(null, '', window.location.pathname);
     const errEl = document.getElementById('authError');
-    const msg = hashErrorDesc ? decodeURIComponent(hashErrorDesc.replace(/\+/g, ' ')) : hashError;
+    const msg = hashErrorDesc ? decodeURIComponent(hashErrorDesc.replace(/[+]/g, ' ')) : hashError;
     errEl.textContent = msg + ' — please request a new invite link.';
     errEl.style.display = 'block';
-    history.replaceState(null, '', window.location.pathname);
+
   } else if (isInviteOrReset) {
-    // Sign out any existing session so the invite user isn't blocked
-    await sb.auth.signOut();
+    // Invite or password reset link — set the session manually then show set-password panel
+    history.replaceState(null, '', window.location.pathname);
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
-    // Give Supabase JS a moment to process the hash token, then check session
-    setTimeout(async () => {
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) showSetPasswordPanel();
-    }, 500);
+    const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    if (error) {
+      const errEl = document.getElementById('authError');
+      errEl.textContent = 'Invite link error: ' + error.message;
+      errEl.style.display = 'block';
+    } else {
+      showSetPasswordPanel();
+    }
+
   } else {
+    // Normal load — check for existing session
     const { data: { session } } = await sb.auth.getSession();
     if (session) await initApp(session);
   }
 
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-      document.getElementById('authScreen').style.display = 'flex';
-      document.getElementById('hubApp').style.display = 'none';
-      showSetPasswordPanel();
-    } else if (event === 'SIGNED_IN' && session) {
-      if (isInviteOrReset) {
-        showSetPasswordPanel();
-      } else if (document.getElementById('setPasswordPanel').style.display === 'block') {
-        return;
-      } else {
-        await initApp(session);
-      }
+    if (event === 'SIGNED_IN' && session) {
+      // Only load app if set-password panel is not active
+      if (document.getElementById('setPasswordPanel').style.display === 'block') return;
+      if (isInviteOrReset) return;
+      await initApp(session);
     } else if (event === 'SIGNED_OUT') {
       document.getElementById('hubApp').style.display = 'none';
       document.getElementById('authScreen').style.display = 'flex';
