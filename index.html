@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// Capture hash synchronously before anything can clear it
+window._initHash = window.location.hash || '';
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prodeegee Hub</title>
@@ -695,7 +699,7 @@ const PRODEEGEE_DOMAIN = 'prodeegee.com';
 // INIT SUPABASE
 // ════════════════════════════════════════════════
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { detectSessionInUrl: false } });
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ════════════════════════════════════════════════
 // STATE
@@ -1789,12 +1793,9 @@ async function setInitialPassword() {
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
-// Read hash immediately before anything can clear it
-const _rawHash = window.location.hash;
-
 (async () => {
-  // Parse hash params — Supabase puts tokens and errors here
-  const hashStr = _rawHash.startsWith('#') ? _rawHash.slice(1) : '';
+  // Use hash captured synchronously at page load (before Supabase/browser clears it)
+  const hashStr = (window._initHash || '').startsWith('#') ? (window._initHash).slice(1) : '';
   const hashParams = new URLSearchParams(hashStr);
   const linkType    = hashParams.get('type');
   const accessToken = hashParams.get('access_token');
@@ -1802,10 +1803,6 @@ const _rawHash = window.location.hash;
   const hashError   = hashParams.get('error');
   const hashErrorDesc = hashParams.get('error_description');
   const isInviteOrReset = (linkType === 'invite' || linkType === 'recovery') && accessToken;
-
-  // DEBUG — remove after testing
-  document.getElementById('authSuccess').textContent = 'hash:' + (hashStr ? hashStr.slice(0,30) : 'EMPTY') + ' type:' + (linkType||'none') + ' token:' + (accessToken?'YES':'NO');
-  document.getElementById('authSuccess').style.display = 'block';
 
   if (hashError) {
     history.replaceState(null, '', window.location.pathname);
@@ -1818,7 +1815,8 @@ const _rawHash = window.location.hash;
     history.replaceState(null, '', window.location.pathname);
     document.getElementById('authScreen').style.display = 'flex';
     document.getElementById('hubApp').style.display = 'none';
-    const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    const { data: sessionData, error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    document.getElementById('authSuccess').textContent += ' | setSession:' + (error ? 'ERR:'+error.message : 'OK') + ' user:' + (sessionData?.session?.user?.email || 'none');
     if (error) {
       const errEl = document.getElementById('authError');
       errEl.textContent = 'Invite link error: ' + error.message;
