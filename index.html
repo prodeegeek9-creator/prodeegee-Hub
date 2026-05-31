@@ -653,7 +653,7 @@ async function signInWithGoogle() {
     options: {
       scopes: GMAIL_SCOPES,
       queryParams: { access_type: 'offline', prompt: 'consent' },
-      redirectTo: window.location.href
+      redirectTo: 'https://hub.prodeegee.com'
     }
   });
   if (error) showToast('Auth error: ' + error.message, 'error');
