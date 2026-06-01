@@ -2595,6 +2595,180 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 });
 
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════════
+async function loadNotifications() {
+  const { data } = await sb.from('notifications')
+    .select('*').eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false }).limit(30);
+  renderNotifications(data || []);
+}
+
+function renderNotifications(notifs) {
+  unreadNotifs = notifs.filter(n => !n.read).length;
+  updateNotifBadge(unreadNotifs);
+  document.getElementById('unreadNotifCount').textContent = unreadNotifs;
+  const wrap = document.getElementById('notifListWrap');
+  if (!notifs.length) { wrap.innerHTML = '<div class="empty-state"><div class="big">◉</div>No notifications yet</div>'; return; }
+  const iconMap = { mention: '#', email: '✉', email_sent: '✉', task_assigned: '◈', deadline: '⚡', dm: '◎', project_update: '◈' };
+  wrap.innerHTML = notifs.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
+      <div class="notif-icon">${iconMap[n.type] || '◉'}</div>
+      <div>
+        <div class="notif-text">${escHtml(n.message)}</div>
+        <div class="notif-when">${formatTime(n.created_at)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateNotifBadge(count) {
+  const b = document.getElementById('notifBadge');
+  const mb = document.getElementById('mobbadge-notifs');
+  if (b) { b.textContent = count; b.style.display = count > 0 ? 'inline-flex' : 'none'; }
+  if (mb) { mb.textContent = count; mb.style.display = count > 0 ? 'inline-flex' : 'none'; }
+}
+
+async function addNotification(type, message, refId, targetUserId) {
+  const userId = targetUserId || currentUser.id;
+  await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
+  const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
+  const title = titles[type] || 'Prodeegee Hub';
+  if (!targetUserId || targetUserId === currentUser.id) showNotifToast(title, message, type);
+  sendPush(userId, title, message);
+}
+
+async function notifyProjectMembers(projectId, title, message, excludeUserId) {
+  const { data } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
+  if (!data) return;
+  const ids = data.map(m => m.user_id).filter(id => id !== excludeUserId);
+  if (ids.length) sendPush(ids, title, message);
+  const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message, reference_id: projectId }));
+  if (notifs.length) await sb.from('notifications').insert(notifs);
+  const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', projectId).single();
+  if (proj?.created_by && proj.created_by !== excludeUserId && !ids.includes(proj.created_by)) {
+    await sb.from('notifications').insert([{ user_id: proj.created_by, type: 'project_update', message, reference_id: projectId }]);
+    sendPush([proj.created_by], title, message);
+  }
+}
+
+async function markNotifRead(notifId) {
+  await sb.from('notifications').update({ read: true }).eq('id', notifId);
+  loadNotifications();
+}
+
+async function markAllNotifsRead() {
+  await sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false);
+  loadNotifications();
+}
+
+function subscribeToNotifications() {
+  notifSubscription = sb.channel('notifs-' + currentUser.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUser.id}` },
+      payload => {
+        unreadNotifs++;
+        updateNotifBadge(unreadNotifs);
+        loadNotifications();
+      })
+    .subscribe();
+}
+
+function subscribeToAllMessages() {
+  sb.channel('global-messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
+      payload => {
+        const msg = payload.new;
+        if (msg.sender_id === currentUser.id) return;
+        if (msg.channel_id && msg.channel_id !== activeChannel) {
+          const badge = document.getElementById('chbadge-' + msg.channel_id);
+          if (badge) { badge.textContent = parseInt(badge.textContent || 0) + 1; badge.style.display = 'inline-flex'; }
+          const mobBadge = document.getElementById('mobbadge-channels');
+          if (mobBadge) { mobBadge.textContent = parseInt(mobBadge.textContent || 0) + 1; mobBadge.style.display = 'inline-flex'; }
+        }
+        if (msg.dm_to === currentUser.id) {
+          const dmBadge = document.getElementById('mobbadge-dm');
+          if (dmBadge) { dmBadge.textContent = parseInt(dmBadge.textContent || 0) + 1; dmBadge.style.display = 'inline-flex'; }
+        }
+      })
+    .subscribe();
+}
+
+// ════════════════════════════════════════════════
+// PROJECT MEMBERS
+// ════════════════════════════════════════════════
+async function loadProjectMembers(projectId, projectName) {
+  const rpContent = document.getElementById('rpContent');
+  rpContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const rpTitle = document.getElementById('rpTitle'); if(rpTitle) rpTitle.textContent = 'PROJECT MEMBERS';
+  const { data: members } = await sb.from('hub_project_members').select('user_id, role, joined_at').eq('project_id', projectId);
+  if (!members || !members.length) {
+    rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">No members yet</div>';
+    if (canManageMembers(activeProjectId)) rpContent.innerHTML += `<button class="btn sm" style="margin-top:8px;width:100%" onclick="openAddMemberModal('${projectId}')">+ Add Member</button>`;
+    return;
+  }
+  const proj = projectsCache.find(p => p.id === projectId);
+  rpContent.innerHTML = members.map(m => {
+    const profile = m.user_id === currentUser.id ? currentProfile : allProfiles.find(p => p.id === m.user_id);
+    if (!profile) return '';
+    const initials = (profile.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const canRemove = canManageMembers(proj?.created_by) && m.user_id !== currentUser.id;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="member-av" style="background:${stringToColor(m.user_id)};width:28px;height:28px;font-size:10px">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:var(--text)">${escHtml(profile.full_name || '')}</div>
+        <div style="font-size:9px;color:var(--muted)">${m.role || 'member'}</div>
+      </div>
+      ${canRemove ? `<span style="cursor:pointer;color:var(--muted);font-size:12px" onclick="removeMemberFromProject('${projectId}','${m.user_id}')">✕</span>` : ''}
+    </div>`;
+  }).join('');
+  if (canManageMembers(proj?.created_by)) {
+    rpContent.innerHTML += `<button class="btn sm" style="margin-top:12px;width:100%" onclick="openAddMemberModal('${projectId}')">+ Add Member</button>`;
+  }
+}
+
+async function removeMemberFromProject(projectId, userId) {
+  if (!confirm('Remove this member from the project?')) return;
+  await sb.from('hub_project_members').delete().eq('project_id', projectId).eq('user_id', userId);
+  showToast('Member removed');
+  loadProjectMembers(projectId);
+  await loadAllProfiles();
+}
+
+async function openAddMemberModal(projectId) {
+  const { data: existing } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
+  const existingIds = (existing || []).map(m => m.user_id);
+  const { data: everyone } = await sb.from('profiles').select('*').not('id', 'in', `(${existingIds.join(',')})`);
+  if (!everyone || !everyone.length) { showToast('No more users to add'); return; }
+  const names = everyone.map(p => `${p.full_name} (${p.prodeegee_email})`).join('\n');
+  const choice = prompt(`Select member to add (type their name):\n${names}`);
+  if (!choice) return;
+  const match = everyone.find(p => p.full_name.toLowerCase().includes(choice.toLowerCase()) || (p.prodeegee_email||'').toLowerCase().includes(choice.toLowerCase()));
+  if (!match) { showToast('User not found', 'error'); return; }
+  await sb.from('hub_project_members').insert({ project_id: projectId, user_id: match.id, role: 'member' });
+  showToast(`${match.full_name} added to project ✓`);
+  loadProjectMembers(projectId);
+  await loadAllProfiles();
+}
+
+// ════════════════════════════════════════════════
+// FEED
+// ════════════════════════════════════════════════
+async function loadFeed() {
+  const wrap = document.getElementById('feedList');
+  if (!wrap) return;
+  const { data: msgs } = await sb.from('chat_messages')
+    .select('*, profiles(full_name)').is('dm_to', null).is('parent_id', null)
+    .order('created_at', { ascending: false }).limit(5);
+  const { data: tasks } = await sb.from('hub_tasks')
+    .select('*').neq('status', 'Done').order('created_at', { ascending: false }).limit(5);
+  const feedItems = [
+    ...(msgs || []).map(m => ({ type: 'msg', time: m.created_at, html: `<div class="feed-item"><span style="color:var(--muted);font-size:9px">MSG</span> <b>${escHtml(m.profiles?.full_name||'?')}</b>: ${escHtml((m.body||'').slice(0,80))}</div>` })),
+    ...(tasks || []).map(t => ({ type: 'task', time: t.created_at, html: `<div class="feed-item"><span style="color:var(--orange);font-size:9px">TASK</span> ${escHtml(t.title)} — <span style="color:var(--muted)">${t.status}</span></div>` }))
+  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,8);
+  wrap.innerHTML = feedItems.length ? feedItems.map(f => f.html).join('') : '<div style="color:var(--muted);font-size:11px;padding:12px">No recent activity</div>';
+}
+
+// ════════════════════════════════════════════════
 // STATS
 // ════════════════════════════════════════════════
 function updateStats() {
