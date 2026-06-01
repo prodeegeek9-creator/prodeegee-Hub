@@ -1030,23 +1030,7 @@ const PRODEEGEE_DOMAIN = 'prodeegee.com';
 // INIT SUPABASE
 // ════════════════════════════════════════════════
 const { createClient } = supabase;
-let sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-function recreateSupabaseClient() {
-  // Recreate the client to clear any stuck fetch queue from browser tab hibernation
-  try {
-    sb.removeAllChannels();
-  } catch {}
-  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  // Re-set the session on the new client instance
-  if (cachedAccessToken && cachedRefreshToken) {
-    sb.auth.setSession({
-      access_token: cachedAccessToken,
-      refresh_token: cachedRefreshToken
-    }).catch(() => {});
-  }
-  console.log('[supabase] client recreated');
-}
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ════════════════════════════════════════════════
 // STATE
@@ -1064,6 +1048,14 @@ let reconnectTimer = null;
 let heartbeatTimer = null;
 let cachedAccessToken = null;
 let cachedRefreshToken = null;
+let currentFetchController = null;
+
+function abortPendingFetches() {
+  if (currentFetchController) {
+    try { currentFetchController.abort(); } catch {}
+  }
+  currentFetchController = new AbortController();
+}
 let isReconnecting = false;
 let lastReconnectAt = 0;
 let activeThreadMsgId = null;
@@ -1459,6 +1451,7 @@ function switchSection(id) {
     if (threadPanel) threadPanel.style.display = 'none';
   }
 
+  abortPendingFetches();
   if (id === 'notifications') loadNotifications();
   if (id === 'projects') loadProjects();
   if (id === 'email') loadInbox();
@@ -1471,6 +1464,8 @@ async function loadDMInbox() {
   const inbox = document.getElementById('dmInbox');
   if (!inbox) return;
   inbox.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const _t = setTimeout(() => { console.warn('[loadDMInbox] timeout — retrying'); loadDMInbox(); }, 6000);
+  const _origDone = () => clearTimeout(_t);
 
   // Get latest message per conversation partner
   const { data } = await sb.from('chat_messages')
@@ -1537,28 +1532,43 @@ function openChannel(ch) {
 async function loadChannelMessages(channel) {
   const loading = document.getElementById('msgLoading');
   const list = document.getElementById('msgList');
-  if (!list) return; // section not in DOM yet
+  if (!list) return;
   if (loading) loading.style.display = 'flex';
-  const { data } = await sb.from('chat_messages')
-    .select('*')
-    .eq('channel_id', channel)
-    .is('dm_to', null)
-    .is('parent_id', null)
-    .order('created_at', { ascending: true })
-    .limit(50);
-  if (loading) loading.style.display = 'none';
-  list.innerHTML = '';
-  if (data && data.length) {
-    // Attach profiles from allProfiles cache
-    const msgs = data.map(m => ({
-      ...m,
-      profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
-    }));
-    msgs.forEach(m => list.appendChild(buildMsgEl(m)));
-  } else {
-    list.innerHTML = `<div class="empty-state"><div class="big">#</div>No messages in #${channel} yet. Say hello!</div>`;
+  // Timeout guard — if fetch takes >6s, retry (catches browser hibernation freeze)
+  let retried = false;
+  const timeoutId = setTimeout(async () => {
+    if (retried) return;
+    retried = true;
+    console.warn('[loadChannelMessages] fetch timeout — retrying');
+    if (loading) loading.style.display = 'flex';
+    loadChannelMessages(channel);
+  }, 6000);
+  try {
+    const { data } = await sb.from('chat_messages')
+      .select('*')
+      .eq('channel_id', channel)
+      .is('dm_to', null)
+      .is('parent_id', null)
+      .order('created_at', { ascending: true })
+      .limit(50);
+    clearTimeout(timeoutId);
+    if (retried) return; // retry already fired, let it handle rendering
+    if (loading) loading.style.display = 'none';
+    list.innerHTML = '';
+    if (data && data.length) {
+      const msgs = data.map(m => ({
+        ...m,
+        profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+      }));
+      msgs.forEach(m => list.appendChild(buildMsgEl(m)));
+    } else {
+      list.innerHTML = `<div class="empty-state"><div class="big">#</div>No messages in #${channel} yet. Say hello!</div>`;
+    }
+    list.scrollTop = list.scrollHeight;
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (!retried) { retried = true; setTimeout(() => loadChannelMessages(channel), 1000); }
   }
-  list.scrollTop = list.scrollHeight;
 }
 
 function subscribeToChannel(channel) {
@@ -2914,6 +2924,7 @@ function startHeartbeat() {
 
 function refreshActiveSection() {
   try {
+    abortPendingFetches();
     if (activeSection === 'projects') loadProjects();
     else if (activeSection === 'project-tasks') {
       if (activeTeamId) loadTasks();
@@ -2934,9 +2945,6 @@ function startVisibilityReconnect() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       const state = channelSubscription?.state;
-      // Recreate Supabase client to clear any stuck fetch queue
-      // Browser tab hibernation can leave the client's HTTP queue frozen
-      recreateSupabaseClient();
       // ── DIAGNOSTIC — paste what you see in console ──
       const allSections = {};
       document.querySelectorAll('.section').forEach(s => {
