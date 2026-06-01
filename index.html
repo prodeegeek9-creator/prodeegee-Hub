@@ -685,6 +685,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
               </div>
               <button class="btn sm" onclick="initPushNotifications().then(checkPushStatus)" id="pushBtn">Enable</button>
             </div>
+            <div id="pushDevices" style="margin-top:10px"></div>
           </div>
 
           <!-- Theme -->
@@ -983,19 +984,51 @@ function canManageMembers(projectCreatedBy) { return isAdmin() || (isTeamLead() 
 // ════════════════════════════════════════════════
 async function checkPushStatus() {
   const statusEl = document.getElementById('pushStatus');
-  const btnEl = document.getElementById('pushBtn');
+  const btnEl    = document.getElementById('pushBtn');
+  const devicesEl = document.getElementById('pushDevices');
   if (!statusEl) return;
-  if (!('serviceWorker' in navigator)) { statusEl.textContent = 'Not supported'; return; }
+
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    statusEl.textContent = 'Not supported on this browser';
+    if (btnEl) btnEl.style.display = 'none';
+    return;
+  }
+
   const permission = Notification.permission;
   if (permission === 'granted') {
-    statusEl.textContent = 'Enabled ✓'; statusEl.style.color = 'var(--green)';
-    if (btnEl) btnEl.textContent = 'Enabled';
+    statusEl.textContent = `Enabled on this device (${getBrowserName()} / ${getOSName()}) ✓`;
+    statusEl.style.color = 'var(--green)';
+    if (btnEl) { btnEl.textContent = 'Re-register'; }
   } else if (permission === 'denied') {
-    statusEl.textContent = 'Blocked in browser settings';
+    statusEl.textContent = 'Blocked — allow notifications in browser settings';
+    statusEl.style.color = '#ef5350';
     if (btnEl) btnEl.style.display = 'none';
   } else {
-    statusEl.textContent = 'Click Enable to allow notifications';
+    statusEl.textContent = 'Not enabled on this device';
   }
+
+  // Show all registered devices
+  if (devicesEl) {
+    const { data: subs } = await sb.from('push_subscriptions')
+      .select('id, device_hint, updated_at')
+      .eq('user_id', currentUser.id);
+    if (subs && subs.length) {
+      devicesEl.innerHTML = subs.map(s => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:10px;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">${s.device_hint || 'Unknown device'}</span>
+          <span style="color:var(--muted)">${new Date(s.updated_at).toLocaleDateString()}</span>
+          <span style="cursor:pointer;color:#ef5350" onclick="removePushDevice('${s.id}')">✕</span>
+        </div>`).join('');
+    } else {
+      devicesEl.innerHTML = '<div style="font-size:10px;color:var(--muted)">No devices registered</div>';
+    }
+  }
+}
+
+async function removePushDevice(subId) {
+  await sb.from('push_subscriptions').delete().eq('id', subId);
+  showToast('Device removed');
+  checkPushStatus();
 }
 
 function loadProfileSection() {
@@ -2418,16 +2451,47 @@ async function initPushNotifications() {
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
-    // Save subscription to Supabase
-    await sb.from('push_subscriptions').upsert({
-      user_id: currentUser.id,
-      subscription: JSON.stringify(sub),
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-    console.log('Push notifications enabled');
+    const subStr = JSON.stringify(sub);
+    const deviceHint = `${getBrowserName()} on ${getOSName()}`;
+
+    // Check if this exact subscription already exists
+    const { data: existing } = await sb.from('push_subscriptions')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('subscription', subStr)
+      .maybeSingle();
+
+    if (!existing) {
+      await sb.from('push_subscriptions').insert({
+        user_id: currentUser.id,
+        subscription: subStr,
+        device_hint: deviceHint,
+        updated_at: new Date().toISOString()
+      });
+    }
+    console.log('Push notifications enabled on', deviceHint);
   } catch(e) {
     console.log('Push setup failed:', e.message);
   }
+}
+
+function getBrowserName() {
+  const ua = navigator.userAgent;
+  if (ua.includes('Edg/')) return 'Edge';
+  if (ua.includes('Chrome/')) return 'Chrome';
+  if (ua.includes('Firefox/')) return 'Firefox';
+  if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari';
+  return 'Browser';
+}
+
+function getOSName() {
+  const ua = navigator.userAgent;
+  if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+  if (ua.includes('Android')) return 'Android';
+  if (ua.includes('Win')) return 'Windows';
+  if (ua.includes('Mac')) return 'Mac';
+  if (ua.includes('Linux')) return 'Linux';
+  return 'Unknown';
 }
 
 function urlBase64ToUint8Array(base64String) {
