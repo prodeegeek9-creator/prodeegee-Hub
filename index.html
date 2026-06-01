@@ -1046,6 +1046,8 @@ let realtimeConnected = false;
 let reconnectTimer = null;
 let heartbeatTimer = null;
 let cachedAccessToken = null;
+let isReconnecting = false;
+let lastReconnectAt = 0;
 let activeThreadMsgId = null;
 let allProfiles = [];
 let unreadNotifs = 0;
@@ -2832,17 +2834,25 @@ function setConnStatus(connected) {
 
 // ── Reconnection ─────────────────────────────────────────────────────────────
 function resubscribeAll() {
+  const now = Date.now();
+  // Debounce — ignore if already reconnecting or reconnected < 5s ago
+  if (isReconnecting) { console.log('[realtime] Reconnect already in progress, skipping'); return; }
+  if (now - lastReconnectAt < 5000) { console.log('[realtime] Too soon to reconnect, skipping'); return; }
+
+  isReconnecting = true;
+  lastReconnectAt = now;
   console.log('[realtime] Resubscribing all channels...');
   setConnStatus(false);
-  // Tear down existing subscriptions cleanly
-  try { if (channelSubscription) { channelSubscription.unsubscribe(); channelSubscription = null; } } catch {}
-  try { if (dmSubscription) { dmSubscription.unsubscribe(); dmSubscription = null; } } catch {}
-  try { if (notifSubscription) { notifSubscription.unsubscribe(); notifSubscription = null; } } catch {}
-  try { sb.removeAllChannels(); } catch {}
-  // Delay before resubscribing to let socket settle
+
   if (reconnectTimer) clearTimeout(reconnectTimer);
   reconnectTimer = setTimeout(async () => {
     try {
+      // Tear down cleanly
+      try { if (channelSubscription) { await channelSubscription.unsubscribe(); channelSubscription = null; } } catch {}
+      try { if (dmSubscription) { await dmSubscription.unsubscribe(); dmSubscription = null; } } catch {}
+      try { if (notifSubscription) { await notifSubscription.unsubscribe(); notifSubscription = null; } } catch {}
+      // Small pause for socket to fully close before reopening
+      await new Promise(r => setTimeout(r, 500));
       subscribeToChannel(activeChannel);
       subscribeToNotifications();
       subscribeToAllMessages();
@@ -2852,44 +2862,50 @@ function resubscribeAll() {
     } catch(e) {
       console.error('[realtime] Resubscribe failed:', e);
       setConnStatus(false);
+    } finally {
+      isReconnecting = false;
     }
-  }, 2000);
+  }, 1500);
 }
 
 function startHeartbeat() {
   if (heartbeatTimer) clearInterval(heartbeatTimer);
   heartbeatTimer = setInterval(() => {
-    if (!currentUser) return;
-    // Check channel state directly — no HTTP ping needed
+    if (!currentUser || isReconnecting) return;
     const state = channelSubscription?.state;
     console.log('[heartbeat] channel state:', state);
-    if (!state || state === 'closed' || state === 'errored' || state === 'leaving') {
+    // Only reconnect on definitively dead states, not transient ones
+    if (state === 'closed' || state === 'errored') {
       console.warn('[heartbeat] dead channel detected, reconnecting...');
       resubscribeAll();
     }
-  }, 15000);
+  }, 20000);
 }
 
 function startVisibilityReconnect() {
-  // Tab becomes visible — always reconnect, WS may have died while hidden
+  // Tab becomes visible — only reconnect if channel is actually dead
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      console.log('[realtime] Tab visible — forcing reconnect');
-      resubscribeAll();
+      const state = channelSubscription?.state;
+      console.log('[realtime] Tab visible, channel state:', state);
+      if (state === 'closed' || state === 'errored' || !state) {
+        resubscribeAll();
+      }
     }
   });
 
   // Network restored
   window.addEventListener('online', () => {
     console.log('[realtime] Network online — resubscribing');
-    setTimeout(resubscribeAll, 1000);
+    setTimeout(resubscribeAll, 2000);
   });
 
-  // Page focus (catches Alt+Tab back, clicking from another window)
+  // Window focus — only reconnect if definitively dead, not just not-yet-joined
   window.addEventListener('focus', () => {
+    if (isReconnecting) return;
     const state = channelSubscription?.state;
-    if (!state || state !== 'joined') {
-      console.log('[realtime] Window focused, channel not joined — reconnecting');
+    if (state === 'closed' || state === 'errored') {
+      console.log('[realtime] Window focused, dead channel — reconnecting');
       resubscribeAll();
     }
   });
