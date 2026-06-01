@@ -1030,7 +1030,23 @@ const PRODEEGEE_DOMAIN = 'prodeegee.com';
 // INIT SUPABASE
 // ════════════════════════════════════════════════
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function recreateSupabaseClient() {
+  // Recreate the client to clear any stuck fetch queue from browser tab hibernation
+  try {
+    sb.removeAllChannels();
+  } catch {}
+  sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Re-set the session on the new client instance
+  if (cachedAccessToken && cachedRefreshToken) {
+    sb.auth.setSession({
+      access_token: cachedAccessToken,
+      refresh_token: cachedRefreshToken
+    }).catch(() => {});
+  }
+  console.log('[supabase] client recreated');
+}
 
 // ════════════════════════════════════════════════
 // STATE
@@ -1047,6 +1063,7 @@ let realtimeConnected = false;
 let reconnectTimer = null;
 let heartbeatTimer = null;
 let cachedAccessToken = null;
+let cachedRefreshToken = null;
 let isReconnecting = false;
 let lastReconnectAt = 0;
 let activeThreadMsgId = null;
@@ -1070,6 +1087,7 @@ async function signOut() {
 async function initApp(session) {
   currentUser = session.user;
   cachedAccessToken = session.access_token;
+  cachedRefreshToken = session.refresh_token;
 
   document.getElementById('hubApp').style.display = 'grid';
 
@@ -2916,6 +2934,9 @@ function startVisibilityReconnect() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       const state = channelSubscription?.state;
+      // Recreate Supabase client to clear any stuck fetch queue
+      // Browser tab hibernation can leave the client's HTTP queue frozen
+      recreateSupabaseClient();
       // ── DIAGNOSTIC — paste what you see in console ──
       const allSections = {};
       document.querySelectorAll('.section').forEach(s => {
@@ -3355,6 +3376,8 @@ function hideNotifToast() {
       await initApp(session);
     } else if (event === 'TOKEN_REFRESHED' && session) {
       cachedAccessToken = session.access_token;
+      cachedRefreshToken = session.refresh_token;
+  cachedRefreshToken = session.refresh_token;
     } else if (event === 'SIGNED_OUT') {
       window.location.href = '/login.html';
     }
