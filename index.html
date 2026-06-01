@@ -2147,18 +2147,16 @@ function subscribeToNotifications() {
 async function sendPush(userIds, title, body, url) {
   try {
     const ids = Array.isArray(userIds) ? userIds : [userIds];
-    // Don't push to yourself
-    const filtered = ids.filter(id => id !== currentUser.id);
-    if (!filtered.length) return;
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session?.access_token) return; // ← bail, don't fallback to anon
+    await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${session.access_token}`
       },
-      body: JSON.stringify({ user_id: filtered, title, body, url: url || 'https://hub.prodeegee.com' })
+      body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
     });
-    if (!res.ok) console.log('Push response:', res.status, await res.text());
   } catch(e) {
     console.log('Push send failed:', e.message);
   }
