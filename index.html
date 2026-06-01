@@ -1045,6 +1045,7 @@ let notifSubscription = null;
 let realtimeConnected = false;
 let reconnectTimer = null;
 let heartbeatTimer = null;
+let cachedAccessToken = null;
 let activeThreadMsgId = null;
 let allProfiles = [];
 let unreadNotifs = 0;
@@ -1065,6 +1066,7 @@ async function signOut() {
 
 async function initApp(session) {
   currentUser = session.user;
+  cachedAccessToken = session.access_token;
 
   document.getElementById('hubApp').style.display = 'grid';
 
@@ -2373,7 +2375,8 @@ function showTaskDetail(taskId) {
     : canManageProjects();
 
   document.getElementById('rpTitle').textContent = '◈ Task Detail';
-  document.getElementById('threadPanel').style.display = 'none';
+  const _tp = document.getElementById('threadPanel');
+  if (_tp) _tp.style.display = 'none';
 
   const bodyHtml = t.task_body_type === 'code'
     ? `<pre style="background:var(--surface);padding:10px;font-size:11px;overflow-x:auto;white-space:pre-wrap;border:1px solid var(--border);margin-bottom:14px"><code>${escHtml(t.description || '')}</code></pre>`
@@ -3011,6 +3014,30 @@ function dismissIosPrompt() {
 // ════════════════════════════════════════════════
 // PUSH NOTIFICATIONS
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// SEND PUSH
+// ════════════════════════════════════════════════
+async function sendPush(userIds, title, body, url) {
+  try {
+    const ids = Array.isArray(userIds) ? userIds : [userIds];
+    let token = cachedAccessToken;
+    if (!token) {
+      const { data: { session } } = await sb.auth.getSession();
+      token = session?.access_token;
+    }
+    if (!token) { console.log('sendPush: no auth token, skipping'); return; }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
+    });
+    const resData = await res.json().catch(() => ({}));
+    console.log('[sendPush] status:', res.status, '| response:', JSON.stringify(resData));
+  } catch(e) {
+    console.log('Push send failed:', e.message);
+  }
+}
+
 const VAPID_PUBLIC_KEY = 'BAecU5R4ibThjjZNkWpOjGiBYneSsI4pEt2mTsaa-mD2qva9MP3X004uYFnv8E0uwSdWSju_Oaa2F-Ujh8r85Ks';
 // ↑ Replace with your actual VAPID public key from web-push library
 
@@ -3212,6 +3239,8 @@ function hideNotifToast() {
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await initApp(session);
+    } else if (event === 'TOKEN_REFRESHED' && session) {
+      cachedAccessToken = session.access_token;
     } else if (event === 'SIGNED_OUT') {
       window.location.href = '/login.html';
     }
