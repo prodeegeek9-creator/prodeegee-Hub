@@ -1370,13 +1370,12 @@ function subscribeToChannel(channel) {
           // Notify based on channel type
           const senderName = profile?.full_name || 'Someone';
           if (DEFAULT_CHANNELS.includes(channel)) {
-            // Default channels — notify everyone
             addNotification('mention', `${senderName} posted in #${channel}`, msg.id);
           } else {
-            // Project channels — only notify if assigned to a task in this channel/project
-            const isAssigned = tasksCache.some(t => t.assignee_id === currentUser.id && t.channel_id === channel);
-            if (isAssigned || canManageProjects()) {
-              addNotification('project_update', `${senderName} posted in ${channel.toUpperCase()}`, msg.id);
+            // Project channel — push all project members
+            const { data: chData } = await sb.from('channels').select('project_id').eq('name', channel).single();
+            if (chData?.project_id) {
+              notifyProjectMembers(chData.project_id, `#${channel}`, `${senderName}: ${msg.body.slice(0,80)}`, currentUser.id);
             }
           }
           // Mention check
@@ -2085,14 +2084,51 @@ function subscribeToNotifications() {
     .subscribe();
 }
 
+// Send push notification via Supabase Edge Function
+async function sendPush(userIds, title, body, url) {
+  try {
+    const ids = Array.isArray(userIds) ? userIds : [userIds];
+    await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
+    });
+  } catch(e) {
+    console.log('Push send failed:', e.message);
+  }
+}
+
 async function addNotification(type, message, refId, targetUserId) {
   const userId = targetUserId || currentUser.id;
   await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
-  // Show toast for notifications targeting current user
+
+  const titles = {
+    mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned',
+    project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline'
+  };
+  const title = titles[type] || 'Prodeegee Hub';
+
+  // Show toast if targeting current user
   if (!targetUserId || targetUserId === currentUser.id) {
-    const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
-    showNotifToast(titles[type] || 'Notification', message, type);
+    showNotifToast(title, message, type);
   }
+
+  // Send push to the target user
+  sendPush(userId, title, message);
+}
+
+// Send push to all members of a project (used for channel messages)
+async function notifyProjectMembers(projectId, title, message, excludeUserId) {
+  const { data } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
+  if (!data) return;
+  const ids = data.map(m => m.user_id).filter(id => id !== excludeUserId);
+  if (ids.length) sendPush(ids, title, message);
+  // Also insert notifications for each member
+  const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message, reference_id: projectId }));
+  if (notifs.length) await sb.from('notifications').insert(notifs);
 }
 
 async function markNotifRead(notifId) {
