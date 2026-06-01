@@ -1532,6 +1532,12 @@ async function loadChannelMessages(channel) {
 }
 
 function subscribeToChannel(channel) {
+  // Clean up previous subscription before creating new one
+  if (channelSubscription) {
+    try { channelSubscription.unsubscribe(); } catch {}
+    try { sb.removeChannel(channelSubscription); } catch {}
+    channelSubscription = null;
+  }
   channelSubscription = sb.channel('channel-' + channel)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `channel_id=eq.${channel}` },
       async payload => {
@@ -1662,6 +1668,11 @@ async function loadDMMessages(toUserId) {
 }
 
 function subscribeToDM(toUserId) {
+  if (dmSubscription) {
+    try { dmSubscription.unsubscribe(); } catch {}
+    try { sb.removeChannel(dmSubscription); } catch {}
+    dmSubscription = null;
+  }
   dmSubscription = sb.channel('dm-' + [currentUser.id, toUserId].sort().join('-'))
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
       payload => {
@@ -1955,6 +1966,11 @@ function renderSentList() {
 // ════════════════════════════════════════════════
 // EMAIL TABS
 // ════════════════════════════════════════════════
+function openComposeModal() {
+  switchSection('email');
+  setTimeout(() => switchEmailTab('compose'), 50);
+}
+
 function switchEmailTab(tab) {
   ['inbox', 'compose', 'sent'].forEach(t => {
     const el = document.getElementById('emailTab-' + t);
@@ -2684,6 +2700,11 @@ async function markAllNotifsRead() {
 }
 
 function subscribeToNotifications() {
+  if (notifSubscription) {
+    try { notifSubscription.unsubscribe(); } catch {}
+    try { sb.removeChannel(notifSubscription); } catch {}
+    notifSubscription = null;
+  }
   notifSubscription = sb.channel('notifs-' + currentUser.id)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUser.id}` },
       payload => {
@@ -2837,39 +2858,40 @@ function resubscribeAll() {
 
 function startHeartbeat() {
   if (heartbeatTimer) clearInterval(heartbeatTimer);
-  // Ping every 20s — Supabase closes idle WS after ~60s
-  heartbeatTimer = setInterval(async () => {
+  heartbeatTimer = setInterval(() => {
     if (!currentUser) return;
-    try {
-      const { error } = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
-      if (error) throw error;
-      // Also verify channel subscription is still alive
-      const state = channelSubscription?.state;
-      if (state && state !== 'joined') {
-        console.warn('[heartbeat] channel state:', state, '— resubscribing');
-        resubscribeAll();
-      }
-    } catch (e) {
-      console.warn('[heartbeat] ping failed, triggering reconnect:', e.message);
+    // Check channel state directly — no HTTP ping needed
+    const state = channelSubscription?.state;
+    console.log('[heartbeat] channel state:', state);
+    if (!state || state === 'closed' || state === 'errored' || state === 'leaving') {
+      console.warn('[heartbeat] dead channel detected, reconnecting...');
       resubscribeAll();
     }
-  }, 20000);
+  }, 15000);
 }
 
 function startVisibilityReconnect() {
-  // When tab becomes visible again after being hidden, resubscribe
+  // Tab becomes visible — always reconnect, WS may have died while hidden
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      console.log('[realtime] Tab visible — checking connection');
-      // Always resubscribe when returning to tab — cheap and reliable
+      console.log('[realtime] Tab visible — forcing reconnect');
       resubscribeAll();
     }
   });
 
-  // Also handle browser coming back online after network drop
+  // Network restored
   window.addEventListener('online', () => {
     console.log('[realtime] Network online — resubscribing');
-    resubscribeAll();
+    setTimeout(resubscribeAll, 1000);
+  });
+
+  // Page focus (catches Alt+Tab back, clicking from another window)
+  window.addEventListener('focus', () => {
+    const state = channelSubscription?.state;
+    if (!state || state !== 'joined') {
+      console.log('[realtime] Window focused, channel not joined — reconnecting');
+      resubscribeAll();
+    }
   });
 }
 
