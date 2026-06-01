@@ -929,13 +929,15 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ════════════════════════════════════════════════
 let currentUser = null;
 let currentProfile = null;
-let cachedAccessToken = null; // cached at login, used by sendPush
 let activeChannel = 'general';
 let activeDMUserId = null;
 let activeDMUserName = '';
 let channelSubscription = null;
 let dmSubscription = null;
 let notifSubscription = null;
+let realtimeConnected = false;
+let reconnectTimer = null;
+let heartbeatTimer = null;
 let activeThreadMsgId = null;
 let allProfiles = [];
 let unreadNotifs = 0;
@@ -943,6 +945,8 @@ let unreadEmails = 0;
 let sentEmailsCache = [];
 
 async function signOut() {
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  if (reconnectTimer) clearTimeout(reconnectTimer);
   if (channelSubscription) channelSubscription.unsubscribe();
   if (dmSubscription) dmSubscription.unsubscribe();
   if (notifSubscription) notifSubscription.unsubscribe();
@@ -954,7 +958,6 @@ async function signOut() {
 
 async function initApp(session) {
   currentUser = session.user;
-  cachedAccessToken = session.access_token; // cache for sendPush
 
   document.getElementById('hubApp').style.display = 'grid';
 
@@ -972,6 +975,8 @@ async function initApp(session) {
   subscribeToChannel('general');
   subscribeToNotifications();
   subscribeToAllMessages();
+  startHeartbeat();
+  startVisibilityReconnect();
   updateStats();
   // Load channel messages after profiles are ready
   loadChannelMessages('general');
@@ -2149,23 +2154,16 @@ function subscribeToNotifications() {
 async function sendPush(userIds, title, body, url) {
   try {
     const ids = Array.isArray(userIds) ? userIds : [userIds];
-    // Use cached token from login; fall back to live session if somehow not set
-    let token = cachedAccessToken;
-    if (!token) {
-      const { data: { session } } = await sb.auth.getSession();
-      token = session?.access_token;
-    }
-    if (!token) { console.log('sendPush: no auth token, skipping'); return; }
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session?.access_token) return; // ← bail, don't fallback to anon
+    await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${session.access_token}`
       },
       body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
     });
-    const resData = await res.json().catch(() => ({}));
-    console.log('[sendPush] status:', res.status, '| response:', JSON.stringify(resData));
   } catch(e) {
     console.log('Push send failed:', e.message);
   }
@@ -2321,7 +2319,63 @@ function setConnStatus(connected) {
   const dot = document.getElementById('connDot');
   const txt = document.getElementById('connStatus');
   dot.className = 'status-dot' + (connected ? '' : ' red');
-  txt.textContent = connected ? 'Connected' : 'Disconnected';
+  txt.textContent = connected ? 'Connected' : 'Reconnecting...';
+  realtimeConnected = connected;
+}
+
+// ── Reconnection ─────────────────────────────────────────────────────────────
+function resubscribeAll() {
+  console.log('[realtime] Resubscribing all channels...');
+  setConnStatus(false);
+
+  // Tear down existing subscriptions
+  try { if (channelSubscription) channelSubscription.unsubscribe(); } catch {}
+  try { if (dmSubscription) dmSubscription.unsubscribe(); } catch {}
+  try { if (notifSubscription) notifSubscription.unsubscribe(); } catch {}
+
+  // Small delay before resubscribing to let the socket settle
+  setTimeout(() => {
+    subscribeToChannel(activeChannel);
+    subscribeToNotifications();
+    subscribeToAllMessages();
+    if (activeDMUserId) subscribeToAllMessages(); // re-sub DM if open
+    setConnStatus(true);
+    console.log('[realtime] Resubscribed');
+  }, 1500);
+}
+
+function startHeartbeat() {
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  // Ping Supabase every 25s to keep the websocket alive
+  // Supabase closes idle connections after ~60s
+  heartbeatTimer = setInterval(async () => {
+    if (!currentUser) return;
+    try {
+      // Lightweight ping — just check our own profile row
+      const { error } = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
+      if (error) throw error;
+    } catch (e) {
+      console.warn('[heartbeat] ping failed, triggering reconnect:', e.message);
+      resubscribeAll();
+    }
+  }, 25000);
+}
+
+function startVisibilityReconnect() {
+  // When tab becomes visible again after being hidden, resubscribe
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('[realtime] Tab visible — checking connection');
+      // Always resubscribe when returning to tab — cheap and reliable
+      resubscribeAll();
+    }
+  });
+
+  // Also handle browser coming back online after network drop
+  window.addEventListener('online', () => {
+    console.log('[realtime] Network online — resubscribing');
+    resubscribeAll();
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -2495,34 +2549,14 @@ function dismissIosPrompt() {
 // PUSH NOTIFICATIONS
 // ════════════════════════════════════════════════
 const VAPID_PUBLIC_KEY = 'BAecU5R4ibThjjZNkWpOjGiBYneSsI4pEt2mTsaa-mD2qva9MP3X004uYFnv8E0uwSdWSju_Oaa2F-Ujh8r85Ks';
-
-// Wait for service worker to be fully active — required on iOS
-function waitForSWActive(reg) {
-  return new Promise(resolve => {
-    if (reg.active) { resolve(); return; }
-    const sw = reg.installing || reg.waiting;
-    if (!sw) { resolve(); return; }
-    sw.addEventListener('statechange', function handler() {
-      if (sw.state === 'activated') { sw.removeEventListener('statechange', handler); resolve(); }
-    });
-    // Timeout fallback after 5s
-    setTimeout(resolve, 5000);
-  });
-}
+// ↑ Replace with your actual VAPID public key from web-push library
 
 async function initPushNotifications() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
   try {
-    // Register SW and wait for it to be fully active (critical for iOS)
     const reg = await navigator.serviceWorker.register('/sw.js');
-    await waitForSWActive(reg);
-
-    // iOS blocks permission requests that aren't from a user gesture (button tap).
-    // The auto-call via setTimeout will silently fail on iOS — that's OK,
-    // the Enable button in Profile triggers this correctly as a user gesture.
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return;
-
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
@@ -2545,8 +2579,7 @@ async function initPushNotifications() {
         updated_at: new Date().toISOString()
       });
     }
-    console.log('[push] Notifications enabled on', deviceHint);
-    console.log('[push] Subscription saved:', subStr.slice(0, 80) + '...');
+    console.log('Push notifications enabled on', deviceHint);
   } catch(e) {
     console.log('Push setup failed:', e.message);
   }
@@ -2716,8 +2749,6 @@ function hideNotifToast() {
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await initApp(session);
-    } else if (event === 'TOKEN_REFRESHED' && session) {
-      cachedAccessToken = session.access_token; // keep token fresh
     } else if (event === 'SIGNED_OUT') {
       window.location.href = '/login.html';
     }
