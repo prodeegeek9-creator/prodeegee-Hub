@@ -611,7 +611,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
 
       <!-- PROJECT TASKS BOARD -->
-      <div class="section" id="section-project-tasks" style="overflow:hidden;display:none">
+      <div class="section" id="section-project-tasks" style="overflow:hidden">
         <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
           <div style="display:flex;align-items:center;gap:10px">
             <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="switchSection('projects')">← Projects</span>
@@ -639,7 +639,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
 
       <!-- PROFILE SECTION -->
-      <div class="section" id="section-profile" style="display:none;padding:24px;overflow-y:auto">
+      <div class="section" id="section-profile" style="padding:24px;overflow-y:auto">
         <div style="max-width:420px">
           <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">⚙ Profile Settings</div>
 
@@ -1817,8 +1817,6 @@ async function openProject(projectId, projectName) {
   if (subBtn) subBtn.style.display = canManageProjects() ? 'inline' : 'none';
   // Switch to task board view
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('section-project-tasks').classList.remove('active');
-  document.getElementById('section-project-tasks').style.display = '';
   document.getElementById('section-project-tasks').classList.add('active');
   loadTasks();
   // Load project members in right panel
