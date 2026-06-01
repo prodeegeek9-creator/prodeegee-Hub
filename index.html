@@ -13,6 +13,26 @@
   --orange:#ff6b2b;--green:#00ff9d;--text:#e0e0e0;--muted:#555;--dim:#2a2a2a;
   --font:'IBM Plex Mono',monospace;
 }
+body.light{
+  --bg:#f0f2f5;--sidebar:#ffffff;--panel:#ffffff;--surface:#f5f7fa;--border:#e1e4e8;
+  --text:#1a1a2e;--muted:#8b95a1;--dim:#e8eaed;--green:#0a7c4e;
+}
+body.light .hub,body.light .center,body.light .section{background:var(--bg)}
+body.light .sidebar,body.light .topbar,body.light .right-panel,body.light .rp-content,body.light .rp-header{background:var(--panel)}
+body.light .sidebar{border-right:1px solid var(--border)}
+body.light .topbar{border-bottom:1px solid var(--border)}
+body.light .right-panel{border-left:1px solid var(--border)}
+body.light .kol,body.light .task-card,body.light .modal,body.light .email-item,body.light .project-card,body.light .feed-item,body.light .notif-item,body.light .notif-toast{background:var(--panel);border-color:var(--border)}
+body.light .msg-input{background:var(--panel);color:var(--text);border-color:var(--border)}
+body.light .msg-input-area{background:var(--panel);border-top-color:var(--border)}
+body.light .field-input{background:var(--surface);color:var(--text);border-color:var(--border)}
+body.light .dm-bubble.them .dm-bubble-inner{background:var(--surface);color:var(--text);border-color:var(--border)}
+body.light .nav-item.active{background:rgba(255,107,43,.1)}
+body.light .mob-drawer{background:var(--panel)}
+body.light .modal-overlay{background:rgba(0,0,0,.4)}
+body.light code{background:#f0f0f0;color:#d45a00}
+body.light .task-card:hover,body.light .project-card:hover{border-color:var(--orange)}
+body.light .email-item.active-email{border-left-color:var(--orange);background:var(--surface)}
 body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:13px}
 
 /* ── AUTH ── */
@@ -655,6 +675,27 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
             <div id="passwordMsg" style="font-size:11px;margin-top:8px;display:none"></div>
           </div>
 
+          <!-- Push Notifications -->
+          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Notifications</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:12px;color:var(--text)">Push Notifications</div>
+                <div style="font-size:10px;color:var(--muted)" id="pushStatus">Not enabled</div>
+              </div>
+              <button class="btn sm" onclick="initPushNotifications().then(checkPushStatus)" id="pushBtn">Enable</button>
+            </div>
+          </div>
+
+          <!-- Theme -->
+          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Appearance</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:12px;color:var(--text)">Light Mode</div>
+              <button class="theme-toggle" onclick="toggleTheme()"></button>
+            </div>
+          </div>
+
           <!-- Sign Out -->
           <button class="btn sm" style="width:100%;color:#ef5350;border-color:#ef5350" onclick="signOut()">Sign Out</button>
         </div>
@@ -940,8 +981,26 @@ function canManageMembers(projectCreatedBy) { return isAdmin() || (isTeamLead() 
 // ════════════════════════════════════════════════
 // PROFILE SECTION
 // ════════════════════════════════════════════════
+async function checkPushStatus() {
+  const statusEl = document.getElementById('pushStatus');
+  const btnEl = document.getElementById('pushBtn');
+  if (!statusEl) return;
+  if (!('serviceWorker' in navigator)) { statusEl.textContent = 'Not supported'; return; }
+  const permission = Notification.permission;
+  if (permission === 'granted') {
+    statusEl.textContent = 'Enabled ✓'; statusEl.style.color = 'var(--green)';
+    if (btnEl) btnEl.textContent = 'Enabled';
+  } else if (permission === 'denied') {
+    statusEl.textContent = 'Blocked in browser settings';
+    if (btnEl) btnEl.style.display = 'none';
+  } else {
+    statusEl.textContent = 'Click Enable to allow notifications';
+  }
+}
+
 function loadProfileSection() {
   if (!currentProfile) return;
+  checkPushStatus();
   const name = currentProfile.full_name || '';
   const email = currentProfile.prodeegee_email || currentUser.email;
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
@@ -2308,6 +2367,41 @@ function applyTheme() {
   if (saved === 'light') document.body.classList.add('light');
 }
 applyTheme();
+
+// ════════════════════════════════════════════════
+// PUSH NOTIFICATIONS
+// ════════════════════════════════════════════════
+const VAPID_PUBLIC_KEY = 'BAecU5R4ibThjjZNkWpOjGiBYneSsI4pEt2mTsaa-mD2qva9MP3X004uYFnv8E0uwSdWSju_Oaa2F-Ujh8r85Ks';
+// ↑ Replace with your actual VAPID public key from web-push library
+
+async function initPushNotifications() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    // Save subscription to Supabase
+    await sb.from('push_subscriptions').upsert({
+      user_id: currentUser.id,
+      subscription: JSON.stringify(sub),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+    console.log('Push notifications enabled');
+  } catch(e) {
+    console.log('Push setup failed:', e.message);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
 
 // ════════════════════════════════════════════════
 // PROJECT SETTINGS
