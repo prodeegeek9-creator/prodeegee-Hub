@@ -1201,7 +1201,7 @@ async function loadAllProfiles() {
   }
   renderMembers();
   renderDMNav();
-  populateAssigneeDropdown();
+  await populateAssigneeDropdown();
   await loadChannelNav();
 }
 
@@ -1270,7 +1270,7 @@ function renderDMNav() {
   if (mobDM) mobDM.innerHTML = nav.innerHTML;
 }
 
-function populateAssigneeDropdown() {
+async function populateAssigneeDropdown() {
   const sel = document.getElementById('taskAssignee');
   const me = currentProfile;
   if (canManageProjects()) {
@@ -1278,10 +1278,19 @@ function populateAssigneeDropdown() {
     sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>` +
       allProfiles.map(p => `<option value="${p.id}">${p.full_name}</option>`).join('');
     sel.disabled = false;
+  } else if (activeProjectId) {
+    // Members can assign to any fellow project member
+    const { data: projMembers } = await sb.from('hub_project_members')
+      .select('user_id').eq('project_id', activeProjectId);
+    const memberIds = (projMembers || []).map(m => m.user_id);
+    const options = [me, ...allProfiles.filter(p => memberIds.includes(p.id) && p.id !== me.id)];
+    sel.innerHTML = options.map(p =>
+      `<option value="${p.id}">${p.id === me.id ? p.full_name + ' (you)' : p.full_name}</option>`
+    ).join('');
+    sel.disabled = false;
   } else {
-    // Members can only assign to themselves
     sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>`;
-    sel.disabled = true;
+    sel.disabled = false;
   }
 }
 
@@ -1620,8 +1629,21 @@ async function sendThreadReply() {
     body,
     parent_id: activeThreadMsgId
   });
-  if (!error) loadThreadMessages(activeThreadMsgId);
-  else showToast('Failed: ' + error.message, 'error');
+  if (!error) {
+    loadThreadMessages(activeThreadMsgId);
+    // Notify everyone who has replied in this thread + original poster
+    const { data: threadMsgs } = await sb.from('chat_messages')
+      .select('sender_id')
+      .or(`id.eq.${activeThreadMsgId},parent_id.eq.${activeThreadMsgId}`);
+    const notifyIds = [...new Set((threadMsgs || []).map(m => m.sender_id))]
+      .filter(id => id !== currentUser.id);
+    const senderName = currentProfile.full_name || 'Someone';
+    for (const uid of notifyIds) {
+      await addNotification('mention', `${senderName} replied in a thread: "${body.slice(0, 60)}"`, activeThreadMsgId, uid);
+    }
+  } else {
+    showToast('Failed: ' + error.message, 'error');
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -1778,7 +1800,14 @@ async function doSendEmail(to, subject, body, statusElId) {
     sentEmailsCache.unshift(sentEntry);
     await sb.from('sent_emails').insert(sentEntry);
     renderSentList();
-    addNotification('email_sent', `Email sent to ${to} from ${fromAddr}`, null);
+    // Alert the recipient if they're a hub member — in-app + push
+    const recipientProfile = allProfiles.find(p =>
+      p.prodeegee_email === to || p.email === to
+    );
+    if (recipientProfile) {
+      await addNotification('mention', `📧 New email from ${fromAddr}: "${subject}"`, null, recipientProfile.id);
+      sendPush([recipientProfile.id], 'New Email', `From ${fromAddr}: "${subject}"`);
+    }
     return true;
   } catch (e) {
     if (status) status.textContent = '';
@@ -2025,6 +2054,23 @@ async function moveTask(taskId, newStatus) {
   await sb.from('hub_tasks').update({ status: newStatus }).eq('id', taskId);
   showToast(`Moved to ${newStatus}`);
   await loadTasks();
+
+  // Notify the task's assigned member and project team lead
+  const task = tasksCache.find(t => t.id === taskId);
+  if (!task) return;
+  const moverName = currentProfile.full_name || 'Someone';
+  const msg = `Task "${task.title}" moved to ${newStatus} by ${moverName}`;
+
+  // Notify assignee if they didn't move it themselves
+  if (task.assigned_to && task.assigned_to !== currentUser.id) {
+    await addNotification('task_assigned', msg, null, task.assigned_to);
+  }
+
+  // Notify project team lead
+  const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', activeProjectId).single();
+  if (proj?.created_by && proj.created_by !== currentUser.id && proj.created_by !== task.assigned_to) {
+    await addNotification('project_update', msg, null, proj.created_by);
+  }
 }
 
 async function deleteTask(taskId) {
@@ -2063,8 +2109,37 @@ async function createTask() {
   document.getElementById('taskDesc').value = '';
   showToast(`Task created: ${title} ✓`);
   await loadTasks();
+
+  const creatorName = currentProfile.full_name || 'Someone';
+  const assigneeName = assigneeId === currentUser.id ? 'you'
+    : (allProfiles.find(p => p.id === assigneeId)?.full_name || 'a member');
+
+  // Notify + push the assignee
   if (assigneeId !== currentUser.id) {
-    await addNotification('task_assigned', `Task assigned to you: "${title}"`, null, assigneeId);
+    await addNotification('task_assigned', `${creatorName} assigned you a task: "${title}"`, null, assigneeId);
+  }
+
+  // Notify all other project members (excluding creator and assignee)
+  const { data: projMembers } = await sb.from('hub_project_members')
+    .select('user_id').eq('project_id', activeProjectId);
+  const otherIds = (projMembers || [])
+    .map(m => m.user_id)
+    .filter(id => id !== currentUser.id && id !== assigneeId);
+  if (otherIds.length) {
+    const notifs = otherIds.map(uid => ({
+      user_id: uid, type: 'project_update',
+      message: `New task in project: "${title}" — assigned to ${assigneeName}`
+    }));
+    await sb.from('notifications').insert(notifs);
+    sendPush(otherIds, 'New Task', `"${title}" assigned to ${assigneeName}`);
+  }
+
+  // Notify team lead if creator is not team lead/admin
+  if (!canManageProjects()) {
+    const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', activeProjectId).single();
+    if (proj?.created_by && proj.created_by !== currentUser.id) {
+      await addNotification('project_update', `New task created: "${title}" by ${creatorName}`, null, proj.created_by);
+    }
   }
 }
 
@@ -2194,9 +2269,17 @@ async function notifyProjectMembers(projectId, title, message, excludeUserId) {
   if (!data) return;
   const ids = data.map(m => m.user_id).filter(id => id !== excludeUserId);
   if (ids.length) sendPush(ids, title, message);
-  // Also insert notifications for each member
   const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message, reference_id: projectId }));
   if (notifs.length) await sb.from('notifications').insert(notifs);
+
+  // Also notify the project team lead if they're not already in the member list
+  const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', projectId).single();
+  if (proj?.created_by && proj.created_by !== excludeUserId && !ids.includes(proj.created_by)) {
+    await sb.from('notifications').insert([{
+      user_id: proj.created_by, type: 'project_update', message, reference_id: projectId
+    }]);
+    sendPush([proj.created_by], title, message);
+  }
 }
 
 async function markNotifRead(notifId) {
@@ -2297,7 +2380,7 @@ async function createChannel() {
 // MODALS
 // ════════════════════════════════════════════════
 function openComposeModal() { openModal('composeModal'); }
-function openTaskModal() { openModal('taskModal'); }
+function openTaskModal() { openModal('taskModal'); populateAssigneeDropdown(); }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
