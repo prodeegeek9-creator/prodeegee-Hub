@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -42,55 +43,55 @@ body.light .email-item.active-email{border-left-color:var(--orange);background:v
 body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:13px}
 
 /* ── AUTH ── */
-.auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200}
-.auth-card{border:1px solid var(--border);padding:40px;width:380px;text-align:center;background:var(--panel)}
-.auth-logo{color:var(--orange);font-size:26px;letter-spacing:4px;margin-bottom:4px;font-family:'Share Tech Mono',monospace}
-.auth-sub{color:var(--green);font-size:11px;letter-spacing:2px;margin-bottom:28px}
-.auth-desc{color:var(--muted);font-size:11px;margin-bottom:24px;line-height:1.7}
-.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;background:transparent;border:1px solid var(--orange);color:var(--orange);font-family:var(--font);font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.auth-screen{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;z-index:200}
+.auth-card{border:1px solid var(–border);padding:40px;width:380px;text-align:center;background:var(–panel)}
+.auth-logo{color:var(–orange);font-size:26px;letter-spacing:4px;margin-bottom:4px;font-family:‘Share Tech Mono’,monospace}
+.auth-sub{color:var(–green);font-size:11px;letter-spacing:2px;margin-bottom:28px}
+.auth-desc{color:var(–muted);font-size:11px;margin-bottom:24px;line-height:1.7}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;background:transparent;border:1px solid var(–orange);color:var(–orange);font-family:var(–font);font-size:12px;cursor:pointer;letter-spacing:1px;transition:all .2s}
 .btn-google:hover{background:rgba(255,107,43,.1)}
 .btn-google svg{width:18px;height:18px}
-.auth-note{margin-top:20px;font-size:10px;color:var(--muted);line-height:1.8}
+.auth-note{margin-top:20px;font-size:10px;color:var(–muted);line-height:1.8}
 
 /* ── LAYOUT ── */
 .hub{display:grid;grid-template-columns:240px 1fr;height:100vh;display:none}
-.sidebar{background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.sidebar-header{padding:16px;border-bottom:1px solid var(--border)}
-.logo{color:var(--orange);font-size:15px;font-weight:600;letter-spacing:2px;font-family:'Share Tech Mono',monospace}
-.logo-sub{color:var(--green);font-size:10px;margin-top:2px;letter-spacing:1px}
+.sidebar{background:var(–sidebar);border-right:1px solid var(–border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:16px;border-bottom:1px solid var(–border)}
+.logo{color:var(–orange);font-size:15px;font-weight:600;letter-spacing:2px;font-family:‘Share Tech Mono’,monospace}
+.logo-sub{color:var(–green);font-size:10px;margin-top:2px;letter-spacing:1px}
 .user-row{display:flex;align-items:center;gap:10px;margin-top:14px}
-.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#000;flex-shrink:0;position:relative;background:var(--orange)}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#000;flex-shrink:0;position:relative;background:var(–orange)}
 .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.online-dot{position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(--green);border:2px solid var(--sidebar)}
-.user-name{font-size:12px;color:var(--text);font-weight:500}
-.user-email{font-size:10px;color:var(--muted)}
+.online-dot{position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(–green);border:2px solid var(–sidebar)}
+.user-name{font-size:12px;color:var(–text);font-weight:500}
+.user-email{font-size:10px;color:var(–muted)}
 .nav{flex:1;overflow-y:auto;padding:8px 0}
-.nav-section{padding:12px 16px 4px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;cursor:pointer;color:var(--muted);transition:all .15s;font-size:12px}
-.nav-item:hover{background:var(--surface);color:var(--text)}
-.nav-item.active{color:var(--orange);background:rgba(255,107,43,.08);border-left:2px solid var(--orange)}
-.nav-item .badge{margin-left:auto;background:var(--orange);color:#000;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
-.nav-item .badge.green{background:var(--green)}
+.nav-section{padding:12px 16px 4px;font-size:10px;color:var(–muted);letter-spacing:1px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;cursor:pointer;color:var(–muted);transition:all .15s;font-size:12px}
+.nav-item:hover{background:var(–surface);color:var(–text)}
+.nav-item.active{color:var(–orange);background:rgba(255,107,43,.08);border-left:2px solid var(–orange)}
+.nav-item .badge{margin-left:auto;background:var(–orange);color:#000;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
+.nav-item .badge.green{background:var(–green)}
 .nav-icon{width:16px;text-align:center;font-size:14px}
 .main{display:grid;grid-template-columns:1fr 300px;height:100vh;overflow:hidden}
 .center{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.topbar-title{font-size:12px;color:var(--orange);letter-spacing:1px;text-transform:uppercase}
+.topbar{background:var(–panel);border-bottom:1px solid var(–border);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:12px;color:var(–orange);letter-spacing:1px;text-transform:uppercase}
 .topbar-actions{display:flex;gap:8px;align-items:center}
-.btn{background:transparent;border:1px solid var(--border);color:var(--text);padding:5px 12px;font-family:var(--font);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:.5px}
-.btn:hover{border-color:var(--orange);color:var(--orange)}
-.btn.primary{background:var(--orange);border-color:var(--orange);color:#000;font-weight:600}
+.btn{background:transparent;border:1px solid var(–border);color:var(–text);padding:5px 12px;font-family:var(–font);font-size:11px;cursor:pointer;transition:all .15s;letter-spacing:.5px}
+.btn:hover{border-color:var(–orange);color:var(–orange)}
+.btn.primary{background:var(–orange);border-color:var(–orange);color:#000;font-weight:600}
 .btn.primary:hover{background:#e55a1f}
 .btn.sm{padding:3px 8px;font-size:10px}
 .btn.danger{border-color:#c62828;color:#ef9a9a}
 .btn.danger:hover{background:rgba(198,40,40,.15)}
-.notif-btn{position:relative;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;line-height:1}
-.notif-badge{position:absolute;top:-2px;right:-2px;background:var(--orange);color:#000;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;display:none}
+.notif-btn{position:relative;background:none;border:none;color:var(–muted);cursor:pointer;font-size:18px;padding:4px;line-height:1}
+.notif-badge{position:absolute;top:-2px;right:-2px;background:var(–orange);color:#000;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;display:none}
 .content{flex:1;overflow-y:auto;padding:0}
 .section{display:none}
 .section.active{display:flex;flex-direction:column;height:100%}
-.right-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.rp-header{padding:12px 16px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.right-panel{background:var(–panel);border-left:1px solid var(–border);display:flex;flex-direction:column;overflow:hidden}
+.rp-header{padding:12px 16px;border-bottom:1px solid var(–border);font-size:10px;color:var(–muted);letter-spacing:1px;text-transform:uppercase}
 .rp-content{flex:1;overflow-y:auto;padding:12px}
 
 /* ── MESSAGES ── */
@@ -101,240 +102,257 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .msg-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 .msg-body{flex:1}
 .msg-header{display:flex;gap:8px;align-items:baseline;margin-bottom:4px}
-.msg-name{font-size:12px;font-weight:600;color:var(--orange)}
-.msg-time{font-size:10px;color:var(--muted)}
-.msg-text{font-size:12px;color:var(--text);line-height:1.6;word-break:break-word}
-.msg-text code{background:var(--surface);padding:1px 5px;border-radius:3px;color:var(--green);font-family:var(--font)}
-.mention{color:var(--green);font-weight:500}
-.msg-input-area{padding:12px 16px;border-top:1px solid var(--border);background:var(--panel);flex-shrink:0}
+.msg-name{font-size:12px;font-weight:600;color:var(–orange)}
+.msg-time{font-size:10px;color:var(–muted)}
+.msg-text{font-size:12px;color:var(–text);line-height:1.6;word-break:break-word}
+.msg-text code{background:var(–surface);padding:1px 5px;border-radius:3px;color:var(–green);font-family:var(–font)}
+.mention{color:var(–green);font-weight:500}
+.msg-input-area{padding:12px 16px;border-top:1px solid var(–border);background:var(–panel);flex-shrink:0}
 .msg-input-row{display:flex;gap:8px}
-.msg-input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:var(--font);font-size:12px;outline:none;resize:none;transition:border-color .15s}
-.msg-input:focus{border-color:var(--orange)}
-.msg-input::placeholder{color:var(--muted)}
-.typing-indicator{font-size:10px;color:var(--muted);padding:4px 0;height:20px}
+.msg-input{flex:1;background:var(–surface);border:1px solid var(–border);color:var(–text);padding:8px 12px;font-family:var(–font);font-size:12px;outline:none;resize:none;transition:border-color .15s}
+.msg-input:focus{border-color:var(–orange)}
+.msg-input::placeholder{color:var(–muted)}
+.typing-indicator{font-size:10px;color:var(–muted);padding:4px 0;height:20px}
 
 /* ── EMAIL ── */
-.email-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0}
-.etab{padding:10px 16px;cursor:pointer;font-size:11px;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.5px;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
-.etab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.email-tabs{display:flex;border-bottom:1px solid var(–border);background:var(–panel);flex-shrink:0}
+.etab{padding:10px 16px;cursor:pointer;font-size:11px;color:var(–muted);border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.5px;background:none;border-top:none;border-left:none;border-right:none;font-family:var(–font)}
+.etab.active{color:var(–orange);border-bottom-color:var(–orange)}
 .email-wrap{display:flex;flex:1;overflow:hidden}
-.email-list-col{width:260px;border-right:1px solid var(--border);flex-shrink:0;overflow-y:auto}
-.email-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
-.email-item:hover{background:var(--surface)}
-.email-item.unread .email-subject{color:var(--text);font-weight:500}
-.email-item.active-email{background:rgba(255,107,43,.07);border-left:2px solid var(--orange)}
-.email-unread-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);flex-shrink:0;margin-top:4px}
-.email-from{font-size:10px;color:var(--muted);margin-bottom:2px}
-.email-subject{font-size:11px;color:var(--muted);margin-bottom:2px}
-.email-preview{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.email-time{font-size:10px;color:var(--muted);white-space:nowrap}
+.email-list-col{width:260px;border-right:1px solid var(–border);flex-shrink:0;overflow-y:auto}
+.email-item{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid var(–border);cursor:pointer;transition:background .1s}
+.email-item:hover{background:var(–surface)}
+.email-item.unread .email-subject{color:var(–text);font-weight:500}
+.email-item.active-email{background:rgba(255,107,43,.07);border-left:2px solid var(–orange)}
+.email-unread-dot{width:7px;height:7px;border-radius:50%;background:var(–orange);flex-shrink:0;margin-top:4px}
+.email-from{font-size:10px;color:var(–muted);margin-bottom:2px}
+.email-subject{font-size:11px;color:var(–muted);margin-bottom:2px}
+.email-preview{font-size:10px;color:var(–muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.email-time{font-size:10px;color:var(–muted);white-space:nowrap}
 .email-detail{flex:1;overflow-y:auto;padding:16px}
-.email-detail-subject{font-size:14px;color:var(--orange);margin-bottom:10px;line-height:1.4}
-.email-meta{font-size:11px;color:var(--muted);line-height:2;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.email-meta span{color:var(--text)}
-.email-body-content{font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}.email-body-content.html-body{white-space:normal}
+.email-detail-subject{font-size:14px;color:var(–orange);margin-bottom:10px;line-height:1.4}
+.email-meta{font-size:11px;color:var(–muted);line-height:2;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(–border)}
+.email-meta span{color:var(–text)}
+.email-body-content{font-size:12px;line-height:1.9;color:var(–text);white-space:pre-wrap;word-break:break-word}.email-body-content.html-body{white-space:normal}
 .compose-area{flex:1;display:flex;flex-direction:column;padding:16px;gap:10px;overflow-y:auto}
-.compose-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.compose-input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:var(--font);font-size:12px;outline:none;width:100%;transition:border-color .15s}
-.compose-input:focus{border-color:var(--orange)}
-.compose-input::placeholder{color:var(--muted)}
+.compose-label{font-size:10px;color:var(–muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.compose-input{background:var(–surface);border:1px solid var(–border);color:var(–text);padding:8px 10px;font-family:var(–font);font-size:12px;outline:none;width:100%;transition:border-color .15s}
+.compose-input:focus{border-color:var(–orange)}
+.compose-input::placeholder{color:var(–muted)}
 .compose-body-input{min-height:160px;resize:vertical}
-.from-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);padding:4px 10px;font-size:11px;color:var(--green);margin-bottom:4px}
-.sent-empty{padding:40px;text-align:center;color:var(--muted);font-size:11px}
+.from-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);padding:4px 10px;font-size:11px;color:var(–green);margin-bottom:4px}
+.sent-empty{padding:40px;text-align:center;color:var(–muted);font-size:11px}
 
 /* ── PROJECTS ── */
 .kanban-wrap{display:flex;gap:12px;padding:16px;overflow-x:auto;height:100%;align-items:flex-start}
-.project-card{background:var(--surface);border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .15s;position:relative}
-.project-card:hover{border-color:var(--orange);background:rgba(255,107,43,.04)}
-.project-card-name{font-size:13px;color:var(--orange);margin-bottom:6px;font-weight:600}
-.project-card-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:12px}
-.project-card-meta{display:flex;gap:8px;font-size:10px;color:var(--muted)}
-.project-card-status{padding:2px 6px;border:1px solid var(--border);font-size:9px;letter-spacing:.5px}
-.project-card-status.active{border-color:var(--green);color:var(--green)}
+.project-card{background:var(–surface);border:1px solid var(–border);padding:16px;cursor:pointer;transition:all .15s;position:relative}
+.project-card:hover{border-color:var(–orange);background:rgba(255,107,43,.04)}
+.project-card-name{font-size:13px;color:var(–orange);margin-bottom:6px;font-weight:600}
+.project-card-desc{font-size:11px;color:var(–muted);line-height:1.5;margin-bottom:12px}
+.project-card-meta{display:flex;gap:8px;font-size:10px;color:var(–muted)}
+.project-card-status{padding:2px 6px;border:1px solid var(–border);font-size:9px;letter-spacing:.5px}
+.project-card-status.active{border-color:var(–green);color:var(–green)}
 .project-sub-badge{font-size:9px;color:#4fc3f7;border:1px solid #4fc3f7;padding:1px 5px;position:absolute;top:8px;right:8px}
-.project-settings-btn{position:absolute;top:8px;right:8px;color:var(--muted);cursor:pointer;font-size:14px;z-index:2;padding:2px 4px;transition:color .15s}
-.project-settings-btn:hover{color:var(--orange)}
+.project-settings-btn{position:absolute;top:8px;right:8px;color:var(–muted);cursor:pointer;font-size:14px;z-index:2;padding:2px 4px;transition:color .15s}
+.project-settings-btn:hover{color:var(–orange)}
 /* DM bubble style */
 .dm-bubble{display:flex;flex-direction:column;margin-bottom:8px}
 .dm-bubble.me{align-items:flex-end}
 .dm-bubble.them{align-items:flex-start}
 .dm-bubble-inner{max-width:75%;padding:8px 12px;font-size:12px;line-height:1.5;word-break:break-word}
-.dm-bubble.me .dm-bubble-inner{background:var(--orange);color:#000;border-radius:16px 16px 4px 16px}
-.dm-bubble.them .dm-bubble-inner{background:var(--surface);color:var(--text);border-radius:16px 16px 16px 4px;border:1px solid var(--border)}
-.dm-bubble-meta{font-size:9px;color:var(--muted);margin-top:3px;padding:0 4px}
+.dm-bubble.me .dm-bubble-inner{background:var(–orange);color:#000;border-radius:16px 16px 4px 16px}
+.dm-bubble.them .dm-bubble-inner{background:var(–surface);color:var(–text);border-radius:16px 16px 16px 4px;border:1px solid var(–border)}
+.dm-bubble-meta{font-size:9px;color:var(–muted);margin-top:3px;padding:0 4px}
 /* Theme toggle */
-.theme-toggle{width:36px;height:20px;border-radius:10px;background:var(--border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
-body.light .theme-toggle{background:var(--orange)}
+.theme-toggle{width:36px;height:20px;border-radius:10px;background:var(–border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.theme-toggle::after{content:’’;position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(–muted);transition:transform .2s,background .2s}
+body.light .theme-toggle{background:var(–orange)}
 body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
-.kol{background:var(--surface);border:1px solid var(--border);width:220px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
-.kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.kol{background:var(–surface);border:1px solid var(–border);width:220px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
+.kol-header{padding:10px 12px;border-bottom:1px solid var(–border);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
 .kol-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
-.kcard{background:var(--panel);border:1px solid var(--border);padding:10px;cursor:pointer;transition:border-color .15s;animation:fadeIn .2s ease}
-.kcard:hover{border-color:var(--orange)}
-.kcard-title{font-size:12px;color:var(--text);margin-bottom:7px;line-height:1.4}
+.kcard{background:var(–panel);border:1px solid var(–border);padding:10px;cursor:pointer;transition:border-color .15s;animation:fadeIn .2s ease}
+.kcard:hover{border-color:var(–orange)}
+.kcard-title{font-size:12px;color:var(–text);margin-bottom:7px;line-height:1.4}
 .kcard-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .priority{font-size:9px;padding:2px 5px;font-weight:600;letter-spacing:.5px}
 .pri-high{background:rgba(229,57,53,.2);color:#ef9a9a}
 .pri-med{background:rgba(255,213,79,.15);color:#ffd54f}
-.pri-low{background:rgba(0,255,157,.1);color:var(--green)}
-.pri-done{background:rgba(100,100,100,.15);color:var(--muted)}
-.assignee-pill{font-size:9px;color:var(--muted);background:var(--dim);padding:2px 6px}
-.due-label{font-size:9px;color:var(--muted);margin-left:auto}
-.add-task-btn{margin:8px;padding:6px;font-size:11px;color:var(--muted);background:none;border:1px dashed var(--dim);cursor:pointer;font-family:var(--font);width:calc(100% - 16px);transition:all .15s}
-.add-task-btn:hover{border-color:var(--orange);color:var(--orange)}
+.pri-low{background:rgba(0,255,157,.1);color:var(–green)}
+.pri-done{background:rgba(100,100,100,.15);color:var(–muted)}
+.assignee-pill{font-size:9px;color:var(–muted);background:var(–dim);padding:2px 6px}
+.due-label{font-size:9px;color:var(–muted);margin-left:auto}
+.add-task-btn{margin:8px;padding:6px;font-size:11px;color:var(–muted);background:none;border:1px dashed var(–dim);cursor:pointer;font-family:var(–font);width:calc(100% - 16px);transition:all .15s}
+.add-task-btn:hover{border-color:var(–orange);color:var(–orange)}
+.team-card{background:var(–panel);border:1px solid var(–border);padding:14px;cursor:pointer;transition:all .15s;position:relative;border-radius:2px}
+.team-card:hover{border-color:var(–orange);transform:translateY(-1px)}
+.team-card-accent{position:absolute;top:0;left:0;width:3px;height:100%}
+.team-card-name{font-size:13px;font-weight:600;margin-bottom:4px;padding-left:10px}
+.team-card-desc{font-size:10px;color:var(–muted);margin-bottom:10px;padding-left:10px}
+.team-card-meta{display:flex;gap:10px;font-size:10px;color:var(–muted);padding-left:10px}
+.team-stat{display:flex;flex-direction:column;align-items:center;background:var(–surface);border:1px solid var(–border);padding:10px 16px;min-width:100px}
+.team-stat-num{font-size:22px;color:var(–orange);font-weight:700}
+.team-stat-label{font-size:10px;color:var(–muted)}
+.team-color-opt{display:inline-block;width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.team-color-opt.selected,.team-color-opt:hover{border-color:#fff;transform:scale(1.2)}
+.kcard-team-badge{font-size:9px;padding:1px 5px;border-radius:2px;color:#000;margin-left:4px;font-weight:600}
+.kcard-unclaimed{border-left:3px solid #ffd54f !important}
+.kcard-cross-team{border-left:3px solid #ce93d8 !important}
+.cm-editor-wrap{font-family:‘IBM Plex Mono’,monospace;font-size:12px;line-height:1.5;background:var(–surface);color:var(–text);padding:8px;min-height:120px;border:none;outline:none;resize:vertical;width:100%;box-sizing:border-box;white-space:pre;overflow-x:auto}
 
 /* ── NOTIFICATIONS ── */
 .notif-list-wrap{display:flex;flex-direction:column}
-.notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;cursor:pointer;transition:background .1s}
-.notif-item:hover{background:var(--surface)}
-.notif-item.unread{border-left:2px solid var(--orange)}
+.notif-item{padding:12px 16px;border-bottom:1px solid var(–border);display:flex;gap:10px;cursor:pointer;transition:background .1s}
+.notif-item:hover{background:var(–surface)}
+.notif-item.unread{border-left:2px solid var(–orange)}
 .notif-icon{font-size:16px;flex-shrink:0;margin-top:1px}
-.notif-text{font-size:12px;color:var(--text);margin-bottom:2px;line-height:1.5}
-.notif-when{font-size:10px;color:var(--muted)}
+.notif-text{font-size:12px;color:var(–text);margin-bottom:2px;line-height:1.5}
+.notif-when{font-size:10px;color:var(–muted)}
 
 /* ── HOME FEED ── */
 .feed-wrap{padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1}
-.feed-item{background:var(--surface);border:1px solid var(--border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
-.feed-item:hover{border-color:var(--dim)}
+.feed-item{background:var(–surface);border:1px solid var(–border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
+.feed-item:hover{border-color:var(–dim)}
 .feed-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
 .feed-body{flex:1}
-.feed-label{font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
-.feed-text{font-size:12px;color:var(--text);line-height:1.5}
-.feed-time{font-size:10px;color:var(--muted);margin-top:3px}
+.feed-label{font-size:10px;color:var(–muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.feed-text{font-size:12px;color:var(–text);line-height:1.5}
+.feed-time{font-size:10px;color:var(–muted);margin-top:3px}
 
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:150;display:none;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);width:460px;max-width:96vw;max-height:85vh;display:flex;flex-direction:column}
-.modal-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.modal-title{color:var(--orange);font-size:11px;letter-spacing:1px;text-transform:uppercase}
-.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px}
-.modal-close:hover{color:var(--text)}
+.modal{background:var(–panel);border:1px solid var(–border);width:460px;max-width:96vw;max-height:85vh;display:flex;flex-direction:column}
+.modal-header{padding:14px 16px;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-title{color:var(–orange);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.modal-close{background:none;border:none;color:var(–muted);cursor:pointer;font-size:18px;line-height:1;padding:2px}
+.modal-close:hover{color:var(–text)}
 .modal-body{padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
 .field-group{display:flex;flex-direction:column;gap:4px}
-.field-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-.field-input{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 10px;font-family:var(--font);font-size:12px;outline:none;width:100%}
-.field-input:focus{border-color:var(--orange)}
-.field-input::placeholder{color:var(--muted)}
+.field-label{font-size:10px;color:var(–muted);letter-spacing:1px;text-transform:uppercase}
+.field-input{background:var(–surface);border:1px solid var(–border);color:var(–text);padding:8px 10px;font-family:var(–font);font-size:12px;outline:none;width:100%}
+.field-input:focus{border-color:var(–orange)}
+.field-input::placeholder{color:var(–muted)}
 .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* ── STATUS BAR ── */
-.status-bar{padding:5px 14px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-shrink:0}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px}
+.status-bar{padding:5px 14px;border-top:1px solid var(–border);font-size:9px;color:var(–muted);display:flex;gap:12px;align-items:center;flex-shrink:0}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(–green);display:inline-block;margin-right:4px}
 .status-dot.red{background:#ef5350}
-.signout-btn{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-family:var(--font);font-size:9px;padding:0}
-.signout-btn:hover{color:var(--orange)}
+.signout-btn{margin-left:auto;background:none;border:none;color:var(–muted);cursor:pointer;font-family:var(–font);font-size:9px;padding:0}
+.signout-btn:hover{color:var(–orange)}
 
 /* ── MEMBERS ── */
-.members-section{border-top:1px solid var(--border);padding:8px 0}
-.members-header{padding:5px 16px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.members-section{border-top:1px solid var(–border);padding:8px 0}
+.members-header{padding:5px 16px;font-size:10px;color:var(–muted);letter-spacing:1px;text-transform:uppercase}
 .member-row{display:flex;align-items:center;gap:8px;padding:4px 16px}
 .member-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#000;flex-shrink:0;position:relative}
 .member-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.member-name-txt{font-size:11px;color:var(--text)}
-.member-status-txt{font-size:10px;color:var(--muted)}
+.member-name-txt{font-size:11px;color:var(–text)}
+.member-status-txt{font-size:10px;color:var(–muted)}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--green);color:var(--green);padding:10px 16px;font-size:12px;z-index:300;display:none;animation:fadeIn .2s ease;max-width:320px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(–surface);border:1px solid var(–green);color:var(–green);padding:10px 16px;font-size:12px;z-index:300;display:none;animation:fadeIn .2s ease;max-width:320px}
 .toast.error{border-color:#ef5350;color:#ef5350}
-.toast.info{border-color:var(--muted);color:var(--muted)}
+.toast.info{border-color:var(–muted);color:var(–muted)}
 
 /* ── LOADING ── */
-.loading{display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:12px;color:var(--muted);font-size:11px}
-.spinner{width:24px;height:24px;border:2px solid var(--dim);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+.loading{display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:12px;color:var(–muted);font-size:11px}
+.spinner{width:24px;height:24px;border:2px solid var(–dim);border-top-color:var(–orange);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── SCANLINE ── */
-body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,157,.012) 2px,rgba(0,255,157,.012) 4px)}
+body::before{content:’’;position:fixed;top:0;left:0;right:0;height:48px;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,157,.012) 2px,rgba(0,255,157,.012) 4px)}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px}
+::-webkit-scrollbar-thumb{background:var(–dim);border-radius:2px}
 
 /* ── EMPTY STATE ── */
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:11px;line-height:1.8}
+.empty-state{text-align:center;padding:40px 20px;color:var(–muted);font-size:11px;line-height:1.8}
 .empty-state .big{font-size:28px;margin-bottom:8px}
 
 /* ── MOBILE BOTTOM NAV ── */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(--panel);border-top:1px solid var(--border);z-index:100;grid-template-columns:repeat(5,1fr)}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);transition:color .15s;font-size:9px;letter-spacing:.5px;position:relative;padding:8px 0}
-.mob-nav-item.active{color:var(--orange)}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:60px;background:var(–panel);border-top:1px solid var(–border);z-index:100;grid-template-columns:repeat(5,1fr)}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(–muted);transition:color .15s;font-size:9px;letter-spacing:.5px;position:relative;padding:8px 0}
+.mob-nav-item.active{color:var(–orange)}
 .mob-nav-icon{font-size:20px;line-height:1}
-.mob-nav-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--orange);color:#000;font-size:8px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px;display:none}
+.mob-nav-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(–orange);color:#000;font-size:8px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px;display:none}
 
 /* ── MOBILE SIDEBAR DRAWER ── */
 .mob-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:150;opacity:0;transition:opacity .25s}
 .mob-drawer-overlay.open{opacity:1}
-.mob-drawer{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(--sidebar);z-index:160;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding-bottom:80px}
+.mob-drawer{position:fixed;left:0;top:0;bottom:0;width:280px;background:var(–sidebar);z-index:160;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding-bottom:80px}
 .mob-drawer.open{transform:translateX(0)}
-.mob-drawer-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 8px}
+.mob-drawer-handle{width:40px;height:4px;background:var(–border);border-radius:2px;margin:12px auto 8px}
 
 /* ── NOTIFICATION TOAST (beautiful) ── */
-.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:400;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
+.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(–panel);border:1px solid var(–border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:400;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
 .notif-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
 .notif-toast-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(255,107,43,.15);border:1px solid rgba(255,107,43,.3)}
 .notif-toast-body{flex:1;min-width:0}
-.notif-toast-title{font-size:11px;color:var(--orange);font-weight:600;margin-bottom:2px;letter-spacing:.5px}
-.notif-toast-msg{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.notif-toast-time{font-size:9px;color:var(--muted);margin-top:2px}
-.notif-toast-close{color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px}
+.notif-toast-title{font-size:11px;color:var(–orange);font-weight:600;margin-bottom:2px;letter-spacing:.5px}
+.notif-toast-msg{font-size:11px;color:var(–text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif-toast-time{font-size:9px;color:var(–muted);margin-top:2px}
+.notif-toast-close{color:var(–muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px}
 @keyframes notifPulse{0%,100%{box-shadow:0 8px 32px rgba(0,0,0,.5)}50%{box-shadow:0 8px 32px rgba(255,107,43,.3)}}
 .notif-toast.show{animation:notifPulse 2s ease 0.4s}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
-  body{overflow:hidden;height:100dvh}
-  .hub{grid-template-columns:1fr;height:100dvh}
-  .sidebar{display:none}
-  .main{grid-template-columns:1fr;height:100dvh}
-  .right-panel{display:none}
-  .center{height:calc(100dvh - 60px);padding-bottom:0}
-  .topbar{height:52px;padding:0 12px}
-  .topbar-title{font-size:11px}
-  .topbar-actions .btn{padding:4px 8px;font-size:10px}
-  .mobile-nav{display:grid}
+body{overflow:hidden;height:100dvh}
+.hub{grid-template-columns:1fr;height:100dvh}
+.sidebar{display:none}
+.main{grid-template-columns:1fr;height:100dvh}
+.right-panel{display:none}
+.center{height:calc(100dvh - 60px);padding-bottom:0}
+.topbar{height:52px;padding:0 12px}
+.topbar-title{font-size:11px}
+.topbar-actions .btn{padding:4px 8px;font-size:10px}
+.mobile-nav{display:grid}
 
-  /* Email mobile */
-  .email-wrap{flex-direction:column}
-  .email-list-col{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:40vh}
+/* Email mobile */
+.email-wrap{flex-direction:column}
+.email-list-col{width:100%;border-right:none;border-bottom:1px solid var(–border);max-height:40vh}
 
-  /* Kanban mobile - horizontal scroll */
-  .kanban-wrap{padding:10px}
-  .kol{width:180px}
+/* Kanban mobile - horizontal scroll */
+.kanban-wrap{padding:10px}
+.kol{width:180px}
 
-  /* Projects grid mobile */
-  #projectsGrid{grid-template-columns:1fr 1fr !important;gap:10px;padding:10px}
+/* Projects grid mobile */
+#projectsGrid{grid-template-columns:1fr 1fr !important;gap:10px;padding:10px}
 
-  /* Modals mobile */
-  .modal{width:calc(100vw - 32px) !important;margin:16px;max-height:85vh;overflow-y:auto}
-  .modal-overlay{align-items:flex-end;padding-bottom:0}
-  .modal{border-radius:16px 16px 0 0 !important;margin:0 !important;width:100% !important;max-height:85vh;padding-bottom:env(safe-area-inset-bottom)}
+/* Modals mobile */
+.modal{width:calc(100vw - 32px) !important;margin:16px;max-height:85vh;overflow-y:auto}
+.modal-overlay{align-items:flex-end;padding-bottom:0}
+.modal{border-radius:16px 16px 0 0 !important;margin:0 !important;width:100% !important;max-height:85vh;padding-bottom:env(safe-area-inset-bottom)}
 
-  /* Auth mobile */
-  .auth-card{width:calc(100vw - 32px);padding:28px 20px;border-radius:12px}
+/* Auth mobile */
+.auth-card{width:calc(100vw - 32px);padding:28px 20px;border-radius:12px}
 
-  /* Toast mobile */
-  .toast{bottom:80px;left:16px;right:16px;max-width:none}
+/* Toast mobile */
+.toast{bottom:80px;left:16px;right:16px;max-width:none}
 
-  /* Messages */
-  .msg-input-area{padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+/* Messages */
+.msg-input-area{padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
 
-  /* Profile section */
-  #section-profile{padding:16px !important}
-  #section-profile>div{max-width:none !important}
+/* Profile section */
+#section-profile{padding:16px !important}
+#section-profile>div{max-width:none !important}
 }
 
 @media(max-width:480px){
-  #projectsGrid{grid-template-columns:1fr !important}
-  .topbar-actions .btn:not(.primary){display:none}
+#projectsGrid{grid-template-columns:1fr !important}
+.topbar-actions .btn:not(.primary){display:none}
 }
 </style>
+
 </head>
 <body>
 
 <!-- ════ MOBILE BOTTOM NAV ════ -->
+
 <nav class="mobile-nav" id="mobileNav">
   <div class="mob-nav-item active" id="mobnav-home" onclick="mobNav('home')">
     <span class="mob-nav-icon">⌂</span><span>Home</span>
@@ -357,6 +375,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </nav>
 
 <!-- ════ MOBILE DRAWER ════ -->
+
 <div class="mob-drawer-overlay" id="mobDrawerOverlay" onclick="closeMobDrawer()"></div>
 <div class="mob-drawer" id="mobDrawer">
   <div class="mob-drawer-handle"></div>
@@ -393,6 +412,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- ════ iOS INSTALL PROMPT ════ -->
+
 <div id="iosPrompt" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;background:var(--panel);border:1px solid var(--orange);border-radius:16px;padding:16px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.5)">
   <div style="display:flex;align-items:flex-start;gap:12px">
     <div style="font-size:28px;flex-shrink:0">📲</div>
@@ -412,6 +432,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- ════ NOTIFICATION TOAST ════ -->
+
 <div class="notif-toast" id="notifToast">
   <div class="notif-toast-icon" id="notifToastIcon">◉</div>
   <div class="notif-toast-body">
@@ -423,9 +444,11 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- ════ HUB APP ════ -->
+
 <div class="hub" id="hubApp">
 
   <!-- SIDEBAR -->
+
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="logo">PRODEEGEE</div>
@@ -442,59 +465,63 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
     </div>
 
-    <div class="nav">
-      <div class="nav-section">Navigate</div>
-      <div class="nav-item active" id="nav-home" onclick="switchSection('home')">
-        <span class="nav-icon">⌂</span> Home
-      </div>
-      <div class="nav-item" id="nav-channels" onclick="switchSection('channels')">
-        <span class="nav-icon">#</span> Channels
-        <span class="badge" id="channelBadge" style="display:none">0</span>
-      </div>
-      <div class="nav-item" id="nav-dm" onclick="switchSection('dm')">
-        <span class="nav-icon">◎</span> Direct Messages
-      </div>
-      <div class="nav-item" id="nav-email" onclick="switchSection('email')">
-        <span class="nav-icon">✉</span> Email Inbox
-        <span class="badge green" id="emailBadge" style="display:none">0</span>
-      </div>
-      <div class="nav-item" id="nav-projects" onclick="switchSection('projects')">
-        <span class="nav-icon">◈</span> Projects
-      </div>
-      <div class="nav-item" id="nav-notifications" onclick="switchSection('notifications')">
-        <span class="nav-icon">◉</span> Notifications
-        <span class="badge" id="notifBadge" style="display:none">0</span>
-      </div>
+```
+<div class="nav">
+  <div class="nav-section">Navigate</div>
+  <div class="nav-item active" id="nav-home" onclick="switchSection('home')">
+    <span class="nav-icon">⌂</span> Home
+  </div>
+  <div class="nav-item" id="nav-channels" onclick="switchSection('channels')">
+    <span class="nav-icon">#</span> Channels
+    <span class="badge" id="channelBadge" style="display:none">0</span>
+  </div>
+  <div class="nav-item" id="nav-dm" onclick="switchSection('dm')">
+    <span class="nav-icon">◎</span> Direct Messages
+  </div>
+  <div class="nav-item" id="nav-email" onclick="switchSection('email')">
+    <span class="nav-icon">✉</span> Email Inbox
+    <span class="badge green" id="emailBadge" style="display:none">0</span>
+  </div>
+  <div class="nav-item" id="nav-projects" onclick="switchSection('projects')">
+    <span class="nav-icon">◈</span> Projects
+  </div>
+  <div class="nav-item" id="nav-notifications" onclick="switchSection('notifications')">
+    <span class="nav-icon">◉</span> Notifications
+    <span class="badge" id="notifBadge" style="display:none">0</span>
+  </div>
 
-      <div class="nav-section" style="margin-top:8px">Channels</div>
-      <div id="channelNavList">
-        <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div>
-      </div>
-      <div class="nav-item" id="nav-profile" onclick="switchSection('profile')">
-        ⚙ Profile
-      </div>
-      <div class="nav-item" onclick="openNewChannelModal()" style="color:var(--muted)">
-        <span class="nav-icon">+</span> Add channel
-      </div>
+  <div class="nav-section" style="margin-top:8px">Channels</div>
+  <div id="channelNavList">
+    <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div>
+  </div>
+  <div class="nav-item" id="nav-profile" onclick="switchSection('profile')">
+    ⚙ Profile
+  </div>
+  <div class="nav-item" onclick="openNewChannelModal()" style="color:var(--muted)">
+    <span class="nav-icon">+</span> Add channel
+  </div>
 
-      <div class="nav-section" style="margin-top:8px">Direct Messages</div>
-      <div id="dmNavList">
-        <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading members...</div>
-      </div>
-    </div>
+  <div class="nav-section" style="margin-top:8px">Direct Messages</div>
+  <div id="dmNavList">
+    <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading members...</div>
+  </div>
+</div>
 
-    <div class="members-section">
-      <div class="members-header">Online — <span id="onlineCount">0</span></div>
-      <div id="membersList"></div>
-    </div>
+<div class="members-section">
+  <div class="members-header">Online — <span id="onlineCount">0</span></div>
+  <div id="membersList"></div>
+</div>
 
-    <div class="status-bar">
-      <span><span class="status-dot" id="connDot"></span><span id="connStatus">Connecting...</span></span>
-      <button class="signout-btn" onclick="signOut()">Sign out</button>
-    </div>
+<div class="status-bar">
+  <span><span class="status-dot" id="connDot"></span><span id="connStatus">Connecting...</span></span>
+  <button class="signout-btn" onclick="signOut()">Sign out</button>
+</div>
+```
+
   </div>
 
   <!-- MAIN AREA -->
+
   <div class="main">
     <div class="center">
       <div class="topbar">
@@ -509,263 +536,281 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
         </div>
       </div>
 
-      <!-- HOME -->
-      <div class="section active" id="section-home">
-        <div class="feed-wrap" id="feedWrap">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding-bottom:4px;flex-shrink:0">Recent Activity</div>
-          <div class="loading" id="feedLoading"><div class="spinner"></div>Loading activity...</div>
-          <div id="feedItems"></div>
-          <div style="display:flex;gap:8px;padding-top:4px;flex-shrink:0">
-            <button class="btn sm" onclick="openChannel('general')">+ Message</button>
-            <button class="btn sm" onclick="openTaskModal()">+ Task</button>
-            <button class="btn sm" onclick="openComposeModal()">+ Email</button>
+```
+  <!-- HOME -->
+  <div class="section active" id="section-home">
+    <div class="feed-wrap" id="feedWrap">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding-bottom:4px;flex-shrink:0">Recent Activity</div>
+      <div class="loading" id="feedLoading"><div class="spinner"></div>Loading activity...</div>
+      <div id="feedItems"></div>
+      <div style="display:flex;gap:8px;padding-top:4px;flex-shrink:0">
+        <button class="btn sm" onclick="openChannel('general')">+ Message</button>
+        <button class="btn sm" onclick="openTaskModal()">+ Task</button>
+        <button class="btn sm" onclick="openComposeModal()">+ Email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNELS -->
+  <div class="section" id="section-channels">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
+      # <span id="activeChannelName">general</span>
+    </div>
+    <div class="msg-list" id="msgList">
+      <div class="loading" id="msgLoading"><div class="spinner"></div>Loading messages...</div>
+    </div>
+    <div class="msg-input-area">
+      <div class="typing-indicator" id="typingIndicator"></div>
+      <div class="msg-input-row">
+        <textarea class="msg-input" id="msgInput" rows="2" placeholder="Message #general..."></textarea>
+        <button class="btn primary" onclick="sendChannelMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DM INBOX -->
+  <div class="section" id="section-dm">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
+      ◎ DIRECT MESSAGES
+    </div>
+    <div id="dmInbox" style="flex:1;overflow-y:auto">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- DM CONVERSATION -->
+  <div class="section" id="section-dm-chat">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0;display:flex;align-items:center;gap:10px">
+      <span style="cursor:pointer;color:var(--orange)" onclick="switchSection('dm')">← DMs</span>
+      ◎ <span id="dmRecipientName">—</span>
+    </div>
+    <div class="msg-list" id="dmList"></div>
+    <div class="msg-input-area">
+      <div class="msg-input-row">
+        <textarea class="msg-input" id="dmInput" rows="2" placeholder="Send a direct message..."></textarea>
+        <button class="btn primary" onclick="sendDM()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL -->
+  <div class="section" id="section-email">
+    <div class="email-tabs">
+      <button class="etab active" id="etab-inbox" onclick="switchEmailTab('inbox')">Inbox</button>
+      <button class="etab" id="etab-compose" onclick="switchEmailTab('compose')">Compose</button>
+      <button class="etab" id="etab-sent" onclick="switchEmailTab('sent')">Sent</button>
+    </div>
+
+    <!-- INBOX TAB -->
+    <div id="emailTab-inbox" class="email-wrap" style="flex:1;overflow:hidden">
+      <div class="email-list-col">
+        <div style="padding:8px 12px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)">
+          Filter: <span style="color:var(--green)">@prodeegee.com only</span>
+        </div>
+        <div id="emailListItems">
+          <div class="loading" style="padding:30px 0"><div class="spinner"></div></div>
+        </div>
+      </div>
+      <div class="email-detail" id="emailDetail">
+        <div class="empty-state"><div class="big">✉</div>Select an email to read</div>
+      </div>
+    </div>
+
+    <!-- COMPOSE TAB -->
+    <div id="emailTab-compose" class="compose-area" style="display:none">
+      <div class="from-badge">✉ Sending as: <span id="composeFromAddr">you@prodeegee.com</span></div>
+      <div class="field-group">
+        <div class="compose-label">To</div>
+        <input class="compose-input" id="composeTo" placeholder="recipient@example.com" />
+      </div>
+      <div class="field-group">
+        <div class="compose-label">Subject</div>
+        <input class="compose-input" id="composeSubject" placeholder="Email subject" />
+      </div>
+      <div class="field-group">
+        <div class="compose-label">Message</div>
+        <textarea class="compose-input compose-body-input" id="composeBodyText" placeholder="Write your message here..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn primary" onclick="sendEmail()">Send Email →</button>
+        <button class="btn sm" onclick="switchEmailTab('inbox')">Cancel</button>
+        <span id="sendingStatus" style="font-size:10px;color:var(--muted)"></span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.8;margin-top:4px">
+        Sends via Resend · Recipient sees <span style="color:var(--green)" id="composeFromNote">you@prodeegee.com</span>
+      </div>
+    </div>
+
+    <!-- SENT TAB -->
+    <div id="emailTab-sent" style="display:none;flex:1;overflow-y:auto">
+      <div style="padding:8px 12px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)">
+        Logged in Supabase · sent_emails table
+      </div>
+      <div id="sentEmailList"><div class="sent-empty">No sent emails yet</div></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS GRID -->
+  <div class="section" id="section-projects" style="overflow-y:auto">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <span style="font-size:11px;color:var(--green)">◈ Projects</span>
+      <div style="display:flex;gap:6px">
+        <span id="newProjectBtn" style="display:none"><button class="btn sm" onclick="openNewProjectModal()">+ New Project</button></span>
+      </div>
+    </div>
+    <div id="projectsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:16px">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- PROJECT TASKS BOARD -->
+  <div class="section" id="section-project-tasks" style="overflow:hidden;display:flex;flex-direction:column">
+    <!-- Project header bar -->
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="color:var(--orange);cursor:pointer;font-size:11px" id="projectBreadcrumb" onclick="backToProjectOverview()">← Projects</span>
+        <span style="font-size:11px;color:var(--green)" id="activeProjectName">Project</span>
+        <span style="font-size:11px;color:var(--muted)" id="activeTeamName" style="display:none"></span>
+      </div>
+      <div style="display:flex;gap:6px" id="projectActionBtns">
+        <span id="newSubProjectBtn" style="display:none"><button class="btn sm" onclick="openNewSubProjectModal()">+ Sub-project</button></span>
+        <button class="btn sm" id="createTeamBtn" style="display:none" onclick="openCreateTeamModal()">+ Team</button>
+        <button class="btn sm primary" id="newTaskBtn" style="display:none" onclick="openTaskModal()">+ Task</button>
+      </div>
+    </div>
+    <!-- Team overview grid (shown when project opened) -->
+    <div id="teamOverviewWrap" style="flex:1;overflow-y:auto;padding:16px;display:none">
+      <div id="teamStatsBar" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap"></div>
+      <div id="teamsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px"></div>
+    </div>
+    <!-- Team task board (shown when team clicked) -->
+    <div id="teamBoardWrap" style="flex:1;overflow:hidden;display:none;flex-direction:column">
+      <div style="padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="backToTeamOverview()">← Teams</span>
+        <span style="font-size:12px;font-weight:600" id="activeBoardTeamName"></span>
+        <span style="font-size:10px;color:var(--muted)" id="activeBoardTeamMeta"></span>
+      </div>
+      <div class="kanban-wrap" id="kanbanWrap" style="flex:1">
+        <div class="loading"><div class="spinner"></div>Loading tasks...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="section" id="section-notifications">
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+      <span style="font-size:11px;color:var(--muted)"><span id="unreadNotifCount">0</span> unread</span>
+      <button class="btn sm" onclick="markAllNotifsRead()">Mark all read</button>
+    </div>
+    <div class="notif-list-wrap" id="notifListWrap">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE SECTION -->
+  <div class="section" id="section-profile" style="padding:24px;overflow-y:auto">
+    <div style="max-width:420px">
+      <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">⚙ Profile Settings</div>
+
+      <!-- Identity -->
+      <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Identity</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div class="avatar" id="profileAvatar" style="width:44px;height:44px;font-size:16px"></div>
+          <div>
+            <div style="font-size:13px;color:var(--text)" id="profileName">—</div>
+            <div style="font-size:11px;color:var(--green)" id="profileEmail">—</div>
           </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Display Name</div>
+          <input id="profileNameInput" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Your full name" />
+        </div>
+        <button class="btn sm primary" onclick="updateDisplayName()">Save Name</button>
+      </div>
+
+      <!-- Change Password -->
+      <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Change Password</div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">New Password</div>
+          <input id="newPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="New password" />
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Confirm Password</div>
+          <input id="confirmPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Confirm password" />
+        </div>
+        <button class="btn sm primary" onclick="changePassword()">Update Password</button>
+        <div id="passwordMsg" style="font-size:11px;margin-top:8px;display:none"></div>
+      </div>
+
+      <!-- Push Notifications -->
+      <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Notifications</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:12px;color:var(--text)">Push Notifications</div>
+            <div style="font-size:10px;color:var(--muted)" id="pushStatus">Not enabled</div>
+          </div>
+          <button class="btn sm" onclick="initPushNotifications().then(checkPushStatus)" id="pushBtn">Enable</button>
+        </div>
+        <div id="pushDevices" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Theme -->
+      <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Appearance</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:12px;color:var(--text)">Light Mode</div>
+          <button class="theme-toggle" onclick="toggleTheme()"></button>
         </div>
       </div>
 
-      <!-- CHANNELS -->
-      <div class="section" id="section-channels">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
-          # <span id="activeChannelName">general</span>
-        </div>
-        <div class="msg-list" id="msgList">
-          <div class="loading" id="msgLoading"><div class="spinner"></div>Loading messages...</div>
-        </div>
-        <div class="msg-input-area">
-          <div class="typing-indicator" id="typingIndicator"></div>
-          <div class="msg-input-row">
-            <textarea class="msg-input" id="msgInput" rows="2" placeholder="Message #general..."></textarea>
-            <button class="btn primary" onclick="sendChannelMessage()">Send</button>
-          </div>
-        </div>
-      </div>
+      <!-- Sign Out -->
+      <button class="btn sm" style="width:100%;color:#ef5350;border-color:#ef5350" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
 
-      <!-- DM INBOX -->
-      <div class="section" id="section-dm">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
-          ◎ DIRECT MESSAGES
-        </div>
-        <div id="dmInbox" style="flex:1;overflow-y:auto">
-          <div class="loading"><div class="spinner"></div></div>
-        </div>
-      </div>
+</div><!-- end .center -->
 
-      <!-- DM CONVERSATION -->
-      <div class="section" id="section-dm-chat">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0;display:flex;align-items:center;gap:10px">
-          <span style="cursor:pointer;color:var(--orange)" onclick="switchSection('dm')">← DMs</span>
-          ◎ <span id="dmRecipientName">—</span>
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="rp-header" id="rpTitle">Thread / Details</div>
+  <div class="rp-content" id="rpContent">
+    <div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px;line-height:2">
+      Click a task, email, or message<br>to see details here
+    </div>
+    <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Quick Stats</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
+          <div style="font-size:20px;color:var(--orange);font-weight:600" id="statTasks">—</div>
+          <div style="font-size:10px;color:var(--muted)">Active Tasks</div>
         </div>
-        <div class="msg-list" id="dmList"></div>
-        <div class="msg-input-area">
-          <div class="msg-input-row">
-            <textarea class="msg-input" id="dmInput" rows="2" placeholder="Send a direct message..."></textarea>
-            <button class="btn primary" onclick="sendDM()">Send</button>
-          </div>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
+          <div style="font-size:20px;color:var(--green);font-weight:600" id="statEmails">—</div>
+          <div style="font-size:10px;color:var(--muted)">New Emails</div>
         </div>
-      </div>
-
-      <!-- EMAIL -->
-      <div class="section" id="section-email">
-        <div class="email-tabs">
-          <button class="etab active" id="etab-inbox" onclick="switchEmailTab('inbox')">Inbox</button>
-          <button class="etab" id="etab-compose" onclick="switchEmailTab('compose')">Compose</button>
-          <button class="etab" id="etab-sent" onclick="switchEmailTab('sent')">Sent</button>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
+          <div style="font-size:20px;color:#4fc3f7;font-weight:600" id="statOnline">—</div>
+          <div style="font-size:10px;color:var(--muted)">Online Now</div>
         </div>
-
-        <!-- INBOX TAB -->
-        <div id="emailTab-inbox" class="email-wrap" style="flex:1;overflow:hidden">
-          <div class="email-list-col">
-            <div style="padding:8px 12px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)">
-              Filter: <span style="color:var(--green)">@prodeegee.com only</span>
-            </div>
-            <div id="emailListItems">
-              <div class="loading" style="padding:30px 0"><div class="spinner"></div></div>
-            </div>
-          </div>
-          <div class="email-detail" id="emailDetail">
-            <div class="empty-state"><div class="big">✉</div>Select an email to read</div>
-          </div>
-        </div>
-
-        <!-- COMPOSE TAB -->
-        <div id="emailTab-compose" class="compose-area" style="display:none">
-          <div class="from-badge">✉ Sending as: <span id="composeFromAddr">you@prodeegee.com</span></div>
-          <div class="field-group">
-            <div class="compose-label">To</div>
-            <input class="compose-input" id="composeTo" placeholder="recipient@example.com" />
-          </div>
-          <div class="field-group">
-            <div class="compose-label">Subject</div>
-            <input class="compose-input" id="composeSubject" placeholder="Email subject" />
-          </div>
-          <div class="field-group">
-            <div class="compose-label">Message</div>
-            <textarea class="compose-input compose-body-input" id="composeBodyText" placeholder="Write your message here..."></textarea>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn primary" onclick="sendEmail()">Send Email →</button>
-            <button class="btn sm" onclick="switchEmailTab('inbox')">Cancel</button>
-            <span id="sendingStatus" style="font-size:10px;color:var(--muted)"></span>
-          </div>
-          <div style="font-size:10px;color:var(--muted);line-height:1.8;margin-top:4px">
-            Sends via Resend · Recipient sees <span style="color:var(--green)" id="composeFromNote">you@prodeegee.com</span>
-          </div>
-        </div>
-
-        <!-- SENT TAB -->
-        <div id="emailTab-sent" style="display:none;flex:1;overflow-y:auto">
-          <div style="padding:8px 12px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)">
-            Logged in Supabase · sent_emails table
-          </div>
-          <div id="sentEmailList"><div class="sent-empty">No sent emails yet</div></div>
-        </div>
-      </div>
-
-      <!-- PROJECTS GRID -->
-      <div class="section" id="section-projects" style="overflow-y:auto">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-          <span style="font-size:11px;color:var(--green)">◈ Projects</span>
-          <div style="display:flex;gap:6px">
-            <span id="newProjectBtn" style="display:none"><button class="btn sm" onclick="openNewProjectModal()">+ New Project</button></span>
-          </div>
-        </div>
-        <div id="projectsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:16px">
-          <div class="loading"><div class="spinner"></div></div>
-        </div>
-      </div>
-
-      <!-- PROJECT TASKS BOARD -->
-      <div class="section" id="section-project-tasks" style="overflow:hidden">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:10px">
-            <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="switchSection('projects')">← Projects</span>
-            <span style="font-size:11px;color:var(--green)" id="activeProjectName">Project</span>
-          </div>
-          <div style="display:flex;gap:6px">
-            <span id="newSubProjectBtn" style="display:none"><button class="btn sm" onclick="openNewSubProjectModal()">+ Sub-project</button></span>
-            <button class="btn sm primary" onclick="openTaskModal()">+ New Task</button>
-          </div>
-        </div>
-        <div class="kanban-wrap" id="kanbanWrap">
-          <div class="loading"><div class="spinner"></div>Loading tasks...</div>
-        </div>
-      </div>
-
-      <!-- NOTIFICATIONS -->
-      <div class="section" id="section-notifications">
-        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-          <span style="font-size:11px;color:var(--muted)"><span id="unreadNotifCount">0</span> unread</span>
-          <button class="btn sm" onclick="markAllNotifsRead()">Mark all read</button>
-        </div>
-        <div class="notif-list-wrap" id="notifListWrap">
-          <div class="loading"><div class="spinner"></div></div>
-        </div>
-      </div>
-
-      <!-- PROFILE SECTION -->
-      <div class="section" id="section-profile" style="padding:24px;overflow-y:auto">
-        <div style="max-width:420px">
-          <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">⚙ Profile Settings</div>
-
-          <!-- Identity -->
-          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
-            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Identity</div>
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-              <div class="avatar" id="profileAvatar" style="width:44px;height:44px;font-size:16px"></div>
-              <div>
-                <div style="font-size:13px;color:var(--text)" id="profileName">—</div>
-                <div style="font-size:11px;color:var(--green)" id="profileEmail">—</div>
-              </div>
-            </div>
-            <div style="margin-bottom:8px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Display Name</div>
-              <input id="profileNameInput" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Your full name" />
-            </div>
-            <button class="btn sm primary" onclick="updateDisplayName()">Save Name</button>
-          </div>
-
-          <!-- Change Password -->
-          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
-            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Change Password</div>
-            <div style="margin-bottom:8px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">New Password</div>
-              <input id="newPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="New password" />
-            </div>
-            <div style="margin-bottom:12px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Confirm Password</div>
-              <input id="confirmPassword" type="password" class="msg-input" style="width:100%;box-sizing:border-box" placeholder="Confirm password" />
-            </div>
-            <button class="btn sm primary" onclick="changePassword()">Update Password</button>
-            <div id="passwordMsg" style="font-size:11px;margin-top:8px;display:none"></div>
-          </div>
-
-          <!-- Push Notifications -->
-          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
-            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Notifications</div>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div>
-                <div style="font-size:12px;color:var(--text)">Push Notifications</div>
-                <div style="font-size:10px;color:var(--muted)" id="pushStatus">Not enabled</div>
-              </div>
-              <button class="btn sm" onclick="initPushNotifications().then(checkPushStatus)" id="pushBtn">Enable</button>
-            </div>
-            <div id="pushDevices" style="margin-top:10px"></div>
-          </div>
-
-          <!-- Theme -->
-          <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
-            <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Appearance</div>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <div style="font-size:12px;color:var(--text)">Light Mode</div>
-              <button class="theme-toggle" onclick="toggleTheme()"></button>
-            </div>
-          </div>
-
-          <!-- Sign Out -->
-          <button class="btn sm" style="width:100%;color:#ef5350;border-color:#ef5350" onclick="signOut()">Sign Out</button>
-        </div>
-      </div>
-
-    </div><!-- end .center -->
-
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-      <div class="rp-header" id="rpTitle">Thread / Details</div>
-      <div class="rp-content" id="rpContent">
-        <div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px;line-height:2">
-          Click a task, email, or message<br>to see details here
-        </div>
-        <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Quick Stats</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
-              <div style="font-size:20px;color:var(--orange);font-weight:600" id="statTasks">—</div>
-              <div style="font-size:10px;color:var(--muted)">Active Tasks</div>
-            </div>
-            <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
-              <div style="font-size:20px;color:var(--green);font-weight:600" id="statEmails">—</div>
-              <div style="font-size:10px;color:var(--muted)">New Emails</div>
-            </div>
-            <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
-              <div style="font-size:20px;color:#4fc3f7;font-weight:600" id="statOnline">—</div>
-              <div style="font-size:10px;color:var(--muted)">Online Now</div>
-            </div>
-            <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
-              <div style="font-size:20px;color:#ffd54f;font-weight:600" id="statDue">—</div>
-              <div style="font-size:10px;color:var(--muted)">Due Today</div>
-            </div>
-          </div>
-        </div>
-        <!-- Thread replies -->
-        <div id="threadPanel" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:none">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Thread Replies</div>
-          <div id="threadMessages" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
-          <textarea class="msg-input" id="threadInput" rows="2" placeholder="Reply in thread..." style="width:100%;margin-bottom:6px"></textarea>
-          <button class="btn sm primary" onclick="sendThreadReply()" style="width:100%">Reply</button>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:10px;text-align:center">
+          <div style="font-size:20px;color:#ffd54f;font-weight:600" id="statDue">—</div>
+          <div style="font-size:10px;color:var(--muted)">Due Today</div>
         </div>
       </div>
     </div>
+    <!-- Thread replies -->
+    <div id="threadPanel" style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;display:none">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Thread Replies</div>
+      <div id="threadMessages" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+      <textarea class="msg-input" id="threadInput" rows="2" placeholder="Reply in thread..." style="width:100%;margin-bottom:6px"></textarea>
+      <button class="btn sm primary" onclick="sendThreadReply()" style="width:100%">Reply</button>
+    </div>
+  </div>
+</div>
+```
 
   </div><!-- end .main -->
 </div><!-- end .hub -->
@@ -773,6 +818,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 <!-- ════ MODALS ════ -->
 
 <!-- COMPOSE EMAIL MODAL (from anywhere) -->
+
 <div class="modal-overlay" id="composeModal">
   <div class="modal">
     <div class="modal-header">
@@ -804,44 +850,62 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- NEW TASK MODAL -->
+
 <div class="modal-overlay" id="taskModal">
-  <div class="modal">
+  <div class="modal" style="width:520px;max-width:95vw">
     <div class="modal-header">
       <div class="modal-title">◈ New Task</div>
       <button class="modal-close" onclick="closeModal('taskModal')">✕</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <!-- Title -->
       <div class="field-group">
         <div class="field-label">Task Title</div>
         <input class="field-input" id="taskTitle" placeholder="What needs to be done?" />
       </div>
+      <!-- Body type toggle + editor -->
       <div class="field-group">
-        <div class="field-label">Description</div>
-        <textarea class="field-input" id="taskDesc" rows="3" placeholder="Details..." style="resize:vertical"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div class="field-label" style="margin:0">Description</div>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button id="bodyTypeText" class="btn sm primary" onclick="setTaskBodyType('text')" style="padding:2px 8px;font-size:10px">Text</button>
+            <button id="bodyTypeCode" class="btn sm" onclick="setTaskBodyType('code')" style="padding:2px 8px;font-size:10px">&lt;/&gt; Code</button>
+            <select id="codeLangSelect" class="field-input" style="display:none;padding:2px 6px;font-size:10px;width:auto">
+              <option value="sql">SQL</option>
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="bash">Bash</option>
+              <option value="json">JSON</option>
+              <option value="html">HTML</option>
+            </select>
+          </div>
+        </div>
+        <textarea class="field-input" id="taskDesc" rows="4" placeholder="Details..." style="resize:vertical;font-family:var(--font);font-size:12px"></textarea>
+        <div id="taskCodeEditor" style="display:none;border:1px solid var(--border);border-radius:2px;min-height:120px"></div>
       </div>
+      <!-- Team + Assign -->
       <div class="field-grid">
         <div class="field-group">
-          <div class="field-label">Assign To</div>
-          <select class="field-input" id="taskAssignee"></select>
+          <div class="field-label">Assign to Team</div>
+          <select class="field-input" id="taskTeam" onchange="onTaskTeamChange()">
+            <option value="">— same team —</option>
+          </select>
         </div>
         <div class="field-group">
-          <div class="field-label">Priority</div>
-          <select class="field-input" id="taskPriority">
-            <option value="High">High</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="Low">Low</option>
+          <div class="field-label">Assign to Person</div>
+          <select class="field-input" id="taskAssignee">
+            <option value="">— whole team —</option>
           </select>
         </div>
       </div>
-      <input type="hidden" id="taskProjectId" value="" />
+      <!-- Priority + Due -->
       <div class="field-grid">
         <div class="field-group">
-          <div class="field-label">Status</div>
-          <select class="field-input" id="taskStatus">
-            <option value="Backlog" selected>Backlog</option>
-            <option value="In Progress">In Progress</option>
-            <option value="In Review">In Review</option>
-            <option value="Done">Done</option>
+          <div class="field-label">Priority</div>
+          <select class="field-input" id="taskPriority">
+            <option value="High">🔴 High</option>
+            <option value="Medium" selected>🟡 Medium</option>
+            <option value="Low">🟢 Low</option>
           </select>
         </div>
         <div class="field-group">
@@ -849,12 +913,74 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
           <input class="field-input" id="taskDue" type="date" />
         </div>
       </div>
+      <input type="hidden" id="taskProjectId" value="" />
       <button class="btn primary" onclick="createTask()" style="width:100%;padding:10px">Create Task →</button>
     </div>
   </div>
 </div>
 
+<!-- CREATE TEAM MODAL -->
+
+<div class="modal-overlay" id="createTeamModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <div class="modal-title">👥 New Team</div>
+      <button class="modal-close" onclick="closeModal('createTeamModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <div class="field-group">
+        <div class="field-label">Team Name</div>
+        <input class="field-input" id="newTeamName" placeholder="e.g. Frontend / Backend / Automations" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <input class="field-input" id="newTeamDesc" placeholder="What does this team handle?" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">Team Color</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap" id="teamColorPicker">
+          <span class="team-color-opt" data-color="#ff6b2b" style="background:#ff6b2b" onclick="selectTeamColor('#ff6b2b')"></span>
+          <span class="team-color-opt" data-color="#4fc3f7" style="background:#4fc3f7" onclick="selectTeamColor('#4fc3f7')"></span>
+          <span class="team-color-opt" data-color="#00ff9d" style="background:#00ff9d" onclick="selectTeamColor('#00ff9d')"></span>
+          <span class="team-color-opt" data-color="#ffd54f" style="background:#ffd54f" onclick="selectTeamColor('#ffd54f')"></span>
+          <span class="team-color-opt" data-color="#ce93d8" style="background:#ce93d8" onclick="selectTeamColor('#ce93d8')"></span>
+          <span class="team-color-opt" data-color="#ef5350" style="background:#ef5350" onclick="selectTeamColor('#ef5350')"></span>
+        </div>
+        <input type="hidden" id="newTeamColor" value="#4fc3f7" />
+      </div>
+      <button class="btn primary" onclick="createTeam()" style="width:100%;padding:10px">Create Team →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TEAM MEMBER MODAL -->
+
+<div class="modal-overlay" id="addTeamMemberModal">
+  <div class="modal" style="width:380px">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Team Member</div>
+      <button class="modal-close" onclick="closeModal('addTeamMemberModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <div class="field-group">
+        <div class="field-label">Select Member</div>
+        <select class="field-input" id="addTeamMemberSelect"></select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Role in Team</div>
+        <select class="field-input" id="addTeamMemberRole">
+          <option value="member">Member</option>
+          <option value="lead">Team Lead</option>
+        </select>
+      </div>
+      <input type="hidden" id="addTeamMemberTeamId" value="" />
+      <button class="btn primary" onclick="addTeamMember()" style="width:100%;padding:10px">Add to Team →</button>
+    </div>
+  </div>
+</div>
+
 <!-- NEW PROJECT MODAL -->
+
 <div class="modal-overlay" id="projectModal">
   <div class="modal" style="width:420px">
     <div class="modal-header">
@@ -889,6 +1015,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- NEW CHANNEL MODAL -->
+
 <div class="modal-overlay" id="channelModal">
   <div class="modal" style="width:340px">
     <div class="modal-header">
@@ -906,6 +1033,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 </div>
 
 <!-- TOAST -->
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1863,21 +1991,23 @@ function switchEmailTab(tab) {
 // ════════════════════════════════════════════════
 let tasksCache = [];
 let projectsCache = [];
+let teamsCache = [];
 let activeProjectId = null;
+let activeTeamId = null;
+let selectedTeamColor = '#4fc3f7';
+let taskBodyType = 'text';
 
 // ── Projects Grid ─────────────────────────────────
 async function loadProjects() {
   const grid = document.getElementById('projectsGrid');
   grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  let query = sb.from('hub_projects').select('*, hub_project_members(user_id)').order('created_at', { ascending: false });
-  const { data, error } = await query;
+  const { data, error } = await sb.from('hub_projects')
+    .select('*, hub_project_members(user_id)').order('created_at', { ascending: false });
   if (error) { grid.innerHTML = `<div style="color:#ef5350;padding:20px;font-size:11px">${error.message}</div>`; return; }
   let projects = data || [];
-  // Members only see projects they belong to
   if (!isAdmin()) {
     projects = projects.filter(p =>
-      p.hub_project_members?.some(m => m.user_id === currentUser.id) ||
-      p.created_by === currentUser.id
+      p.hub_project_members?.some(m => m.user_id === currentUser.id) || p.created_by === currentUser.id
     );
   }
   projectsCache = projects;
@@ -1885,7 +2015,6 @@ async function loadProjects() {
     grid.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:20px">No projects yet' + (canManageProjects() ? ' — click + New Project to create one' : '') + '</div>';
     return;
   }
-  // Show top-level projects only (no parent_id), sub-projects shown inside
   const topLevel = projects.filter(p => !p.parent_id);
   grid.innerHTML = topLevel.map(p => {
     const subs = projects.filter(s => s.parent_id === p.id);
@@ -1902,712 +2031,775 @@ async function loadProjects() {
       </div>
     </div>`;
   }).join('');
-  // Update stats
   const stEl = document.getElementById('statTasks'); if(stEl) stEl.textContent = projects.length;
 }
 
 async function openProject(projectId, projectName) {
   activeProjectId = projectId;
+  activeTeamId = null;
   document.getElementById('activeProjectName').textContent = projectName;
-  // Show sub-project button for admins/team leads
-  const subBtn = document.getElementById('newSubProjectBtn');
-  if (subBtn) subBtn.style.display = canManageProjects() ? 'inline' : 'none';
-  // Switch to task board view
+  document.getElementById('activeTeamName').textContent = '';
+  // Button visibility
+  document.getElementById('newSubProjectBtn').style.display = canManageProjects() ? 'inline' : 'none';
+  document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
+  document.getElementById('newTaskBtn').style.display = 'none';
+  // Switch view
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('section-project-tasks').classList.add('active');
-  loadTasks();
-  // Load project members in right panel
+  document.getElementById('teamOverviewWrap').style.display = 'block';
+  document.getElementById('teamBoardWrap').style.display = 'none';
+  // Update breadcrumb
+  document.getElementById('projectBreadcrumb').textContent = '← Projects';
+  document.getElementById('projectBreadcrumb').onclick = () => switchSection('projects');
+  await loadTeamOverview(projectId);
   loadProjectMembers(projectId, projectName);
 }
 
-async function loadProjectMembers(projectId, projectName) {
-  const rpContent = document.getElementById('rpContent');
-  rpContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  const rpTitle = document.getElementById('rpTitle'); if(rpTitle) rpTitle.textContent = 'PROJECT MEMBERS';
-  const { data: members } = await sb.from('hub_project_members')
-    .select('user_id, role, joined_at')
-    .eq('project_id', projectId);
-  if (!members || !members.length) {
-    rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">No members yet</div>';
+async function loadTeamOverview(projectId) {
+  const grid = document.getElementById('teamsGrid');
+  const statsBar = document.getElementById('teamStatsBar');
+  grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  // Load teams + their tasks in parallel
+  const [teamsRes, tasksRes] = await Promise.all([
+    sb.from('hub_teams').select('*, hub_team_members(user_id, role)').eq('project_id', projectId),
+    sb.from('hub_tasks').select('id, status, team_id, claimed_by').eq('project_id', projectId)
+  ]);
+
+  const teams = teamsRes.data || [];
+  const allTasks = tasksRes.data || [];
+  teamsCache = teams;
+
+  // Stats bar
+  const totalTasks = allTasks.length;
+  const doneTasks = allTasks.filter(t => t.status === 'Done').length;
+  const unclaimedTasks = allTasks.filter(t => t.status === 'Queue' && !t.claimed_by).length;
+  const overdueTasks = 0; // handled by cron
+  statsBar.innerHTML = [
+    { num: teams.length, label: 'Teams' },
+    { num: totalTasks, label: 'Total Tasks' },
+    { num: doneTasks, label: 'Done' },
+    { num: unclaimedTasks, label: 'Unclaimed', alert: unclaimedTasks > 0 },
+  ].map(s => `<div class="team-stat">
+    <div class="team-stat-num" style="${s.alert ? 'color:#ffd54f' : ''}">${s.num}</div>
+    <div class="team-stat-label">${s.label}</div>
+  </div>`).join('');
+
+  if (!teams.length) {
+    grid.innerHTML = `<div style="color:var(--muted);font-size:11px;padding:20px;grid-column:1/-1">
+      No teams yet${canManageProjects() ? ' — click + Team to create your first team' : ''}
+    </div>`;
     return;
   }
-  const proj = projectsCache.find(p => p.id === projectId);
+
+  grid.innerHTML = teams.map(team => {
+    const teamTasks = allTasks.filter(t => t.team_id === team.id);
+    const done = teamTasks.filter(t => t.status === 'Done').length;
+    const inProg = teamTasks.filter(t => t.status === 'In Progress').length;
+    const unclaimed = teamTasks.filter(t => t.status === 'Queue' && !t.claimed_by).length;
+    const memberCount = team.hub_team_members?.length || 0;
+    const lead = team.hub_team_members?.find(m => m.role === 'lead');
+    const leadProfile = lead ? (allProfiles.find(p => p.id === lead.user_id) || (lead.user_id === currentUser.id ? currentProfile : null)) : null;
+    const pct = teamTasks.length ? Math.round((done / teamTasks.length) * 100) : 0;
+
+    return `<div class="team-card" onclick="openTeamBoard('${team.id}')">
+      <div class="team-card-accent" style="background:${team.color || '#4fc3f7'}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="team-card-name">${escHtml(team.name)}</div>
+        ${canManageProjects() ? `<span style="font-size:11px;cursor:pointer;color:var(--muted);padding:2px 6px" onclick="event.stopPropagation();openTeamSettings('${team.id}')">⚙</span>` : ''}
+      </div>
+      <div class="team-card-desc">${escHtml(team.description || '')}</div>
+      <div class="team-card-meta">
+        <span>👥 ${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
+        <span>◈ ${teamTasks.length} tasks</span>
+        ${unclaimed ? `<span style="color:#ffd54f">⚠ ${unclaimed} unclaimed</span>` : ''}
+      </div>
+      ${leadProfile ? `<div style="font-size:9px;color:var(--muted);padding-left:10px;margin-top:6px">Lead: ${escHtml(leadProfile.full_name)}</div>` : ''}
+      <!-- Progress bar -->
+      <div style="margin:8px 10px 4px;height:3px;background:var(--border);border-radius:2px">
+        <div style="width:${pct}%;height:100%;background:${team.color || '#4fc3f7'};border-radius:2px;transition:width .3s"></div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);padding-left:10px">${done}/${teamTasks.length} done (${pct}%)</div>
+    </div>`;
+  }).join('');
+}
+
+function backToProjectOverview() {
+  const proj = projectsCache.find(p => p.id === activeProjectId);
+  if (proj) openProject(activeProjectId, proj.name);
+  else switchSection('projects');
+}
+
+function backToTeamOverview() {
+  activeTeamId = null;
+  document.getElementById('teamOverviewWrap').style.display = 'block';
+  document.getElementById('teamBoardWrap').style.display = 'none';
+  document.getElementById('newTaskBtn').style.display = 'none';
+  document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
+  const proj = projectsCache.find(p => p.id === activeProjectId);
+  loadTeamOverview(activeProjectId);
+  if (proj) loadProjectMembers(activeProjectId, proj.name);
+}
+
+async function openTeamBoard(teamId) {
+  activeTeamId = teamId;
+  const team = teamsCache.find(t => t.id === teamId);
+  if (!team) return;
+  // Update header
+  document.getElementById('activeBoardTeamName').textContent = team.name;
+  const memberCount = team.hub_team_members?.length || 0;
+  document.getElementById('activeBoardTeamMeta').textContent = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+  document.getElementById('activeBoardTeamName').style.color = team.color || '#4fc3f7';
+  // Show board, hide overview
+  document.getElementById('teamOverviewWrap').style.display = 'none';
+  document.getElementById('teamBoardWrap').style.display = 'flex';
+  document.getElementById('newTaskBtn').style.display = 'inline';
+  document.getElementById('createTeamBtn').style.display = 'none';
+  await loadTasks();
+  // Right panel: team members
+  loadTeamMembers(teamId);
+}
+
+async function loadTeamMembers(teamId) {
+  const rpContent = document.getElementById('rpContent');
+  const rpTitle = document.getElementById('rpTitle');
+  if (rpTitle) rpTitle.textContent = 'TEAM MEMBERS';
+  const team = teamsCache.find(t => t.id === teamId);
+  const { data: members } = await sb.from('hub_team_members')
+    .select('user_id, role').eq('team_id', teamId);
+  if (!members?.length) {
+    rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">No members yet</div>';
+    if (canManageProjects()) rpContent.innerHTML += `<button class="btn sm" style="margin:8px;width:calc(100% - 16px)" onclick="openAddTeamMemberModal('${teamId}')">+ Add Member</button>`;
+    return;
+  }
   rpContent.innerHTML = members.map(m => {
     const profile = m.user_id === currentUser.id ? currentProfile : allProfiles.find(p => p.id === m.user_id);
     if (!profile) return '';
     const initials = (profile.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    const canRemove = canManageMembers(proj?.created_by) && m.user_id !== currentUser.id;
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-      <div class="member-av" style="background:${stringToColor(m.user_id)};width:28px;height:28px;font-size:10px">${initials}</div>
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div class="member-av" style="background:${stringToColor(m.user_id)};width:26px;height:26px;font-size:10px;flex-shrink:0">${initials}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:11px;color:var(--text)">${escHtml(profile.full_name || '')}</div>
-        <div style="font-size:9px;color:var(--muted)">${m.role || 'member'}</div>
+        <div style="font-size:9px;color:${m.role === 'lead' ? 'var(--orange)' : 'var(--muted)'}">${m.role === 'lead' ? '★ Lead' : 'Member'}</div>
       </div>
-      ${canRemove ? `<span style="cursor:pointer;color:var(--muted);font-size:12px" onclick="removeMemberFromProject('${projectId}','${m.user_id}')" title="Remove">✕</span>` : ''}
+      ${canManageProjects() && m.user_id !== currentUser.id ? `<span style="cursor:pointer;color:var(--muted);font-size:11px" onclick="removeTeamMember('${teamId}','${m.user_id}')">✕</span>` : ''}
     </div>`;
   }).join('');
-  // Add member button for admins/team leads
-  if (canManageMembers(proj?.created_by)) {
-    rpContent.innerHTML += `<button class="btn sm" style="margin-top:12px;width:100%" onclick="openAddMemberModal('${projectId}')">+ Add Member</button>`;
+  if (canManageProjects()) {
+    rpContent.innerHTML += `<button class="btn sm" style="margin-top:10px;width:100%" onclick="openAddTeamMemberModal('${teamId}')">+ Add Member</button>`;
   }
 }
 
-async function removeMemberFromProject(projectId, userId) {
-  if (!confirm('Remove this member from the project?')) return;
-  await sb.from('hub_project_members').delete().eq('project_id', projectId).eq('user_id', userId);
-  showToast('Member removed');
-  loadProjectMembers(projectId);
-  await loadAllProfiles();
+// ── Team CRUD ──────────────────────────────────────────────────────────────────
+function openCreateTeamModal() { openModal('createTeamModal'); selectTeamColor('#4fc3f7'); }
+
+function selectTeamColor(color) {
+  selectedTeamColor = color;
+  document.getElementById('newTeamColor').value = color;
+  document.querySelectorAll('.team-color-opt').forEach(el => {
+    el.classList.toggle('selected', el.dataset.color === color);
+  });
 }
 
-async function openAddMemberModal(projectId) {
-  const { data: existing } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
+async function createTeam() {
+  const name = document.getElementById('newTeamName').value.trim();
+  if (!name) { showToast('Enter a team name', 'error'); return; }
+  const desc = document.getElementById('newTeamDesc').value.trim();
+  const color = document.getElementById('newTeamColor').value || '#4fc3f7';
+  const { data: team, error } = await sb.from('hub_teams').insert({
+    project_id: activeProjectId, name, description: desc, color, created_by: currentUser.id
+  }).select().single();
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  // Auto-add creator as lead
+  await sb.from('hub_team_members').insert({ team_id: team.id, user_id: currentUser.id, role: 'lead' });
+  closeModal('createTeamModal');
+  document.getElementById('newTeamName').value = '';
+  document.getElementById('newTeamDesc').value = '';
+  showToast(`Team "${name}" created ✓`);
+  await loadTeamOverview(activeProjectId);
+  // Notify project members
+  notifyProjectMembers(activeProjectId, 'New Team', `Team "${name}" created in project`, currentUser.id);
+}
+
+async function openTeamSettings(teamId) {
+  const team = teamsCache.find(t => t.id === teamId);
+  if (!team) return;
+  // For now open add member modal — can expand later
+  openAddTeamMemberModal(teamId);
+}
+
+async function openAddTeamMemberModal(teamId) {
+  document.getElementById('addTeamMemberTeamId').value = teamId;
+  // Populate with project members not already in team
+  const { data: existing } = await sb.from('hub_team_members').select('user_id').eq('team_id', teamId);
   const existingIds = (existing || []).map(m => m.user_id);
-  const { data: everyone } = await sb.from('profiles').select('*').not('id', 'in', `(${existingIds.join(',')})`);
-  if (!everyone || !everyone.length) { showToast('No more users to add'); return; }
-  const names = everyone.map(p => `${p.full_name} (${p.prodeegee_email})`).join('\n');
-  const choice = prompt(`Select member to add (type their name):\n${names}`);
-  if (!choice) return;
-  const match = everyone.find(p => p.full_name.toLowerCase().includes(choice.toLowerCase()) || (p.prodeegee_email||'').toLowerCase().includes(choice.toLowerCase()));
-  if (!match) { showToast('User not found', 'error'); return; }
-  await sb.from('hub_project_members').insert({ project_id: projectId, user_id: match.id, role: 'member' });
-  showToast(`${match.full_name} added to project ✓`);
-  loadProjectMembers(projectId);
-  await loadAllProfiles();
+  const { data: projMembers } = await sb.from('hub_project_members').select('user_id').eq('project_id', activeProjectId);
+  const projIds = (projMembers || []).map(m => m.user_id).filter(id => !existingIds.includes(id));
+  const candidates = [currentUser.id === projIds.find(id => id === currentUser.id) ? currentProfile : null,
+    ...allProfiles.filter(p => projIds.includes(p.id))].filter(Boolean);
+  const sel = document.getElementById('addTeamMemberSelect');
+  sel.innerHTML = candidates.map(p => `<option value="${p.id}">${escHtml(p.full_name)}</option>`).join('');
+  if (!candidates.length) { showToast('All project members already in this team'); return; }
+  openModal('addTeamMemberModal');
 }
 
+async function addTeamMember() {
+  const teamId = document.getElementById('addTeamMemberTeamId').value;
+  const userId = document.getElementById('addTeamMemberSelect').value;
+  const role = document.getElementById('addTeamMemberRole').value;
+  const { error } = await sb.from('hub_team_members').insert({ team_id: teamId, user_id: userId, role });
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  const profile = allProfiles.find(p => p.id === userId) || currentProfile;
+  const team = teamsCache.find(t => t.id === teamId);
+  closeModal('addTeamMemberModal');
+  showToast(`${profile?.full_name} added to ${team?.name} ✓`);
+  await addNotification('project_update', `You've been added to team: ${team?.name}`, null, userId);
+  sendPush([userId], 'Added to Team', `You've been added to ${team?.name}`);
+  if (activeTeamId === teamId) loadTeamMembers(teamId);
+  else loadTeamOverview(activeProjectId);
+}
+
+async function removeTeamMember(teamId, userId) {
+  if (!confirm('Remove from team?')) return;
+  await sb.from('hub_team_members').delete().eq('team_id', teamId).eq('user_id', userId);
+  showToast('Member removed from team');
+  loadTeamMembers(teamId);
+}
+
+// ── Task body type toggle ──────────────────────────────────────────────────────
+function setTaskBodyType(type) {
+  taskBodyType = type;
+  const descEl = document.getElementById('taskDesc');
+  const codeEl = document.getElementById('taskCodeEditor');
+  const langEl = document.getElementById('codeLangSelect');
+  const textBtn = document.getElementById('bodyTypeText');
+  const codeBtn = document.getElementById('bodyTypeCode');
+  if (type === 'code') {
+    descEl.style.display = 'none';
+    codeEl.style.display = 'block';
+    langEl.style.display = 'inline-block';
+    textBtn.classList.remove('primary');
+    codeBtn.classList.add('primary');
+    // Use a simple code textarea if CodeMirror not available
+    if (!codeEl.querySelector('textarea')) {
+      codeEl.innerHTML = `<textarea class="cm-editor-wrap" id="taskCodeContent" placeholder="Paste your code here..."></textarea>`;
+
+```
+}
+```
+
+} else {
+descEl.style.display = ‘block’;
+codeEl.style.display = ‘none’;
+langEl.style.display = ‘none’;
+textBtn.classList.add(‘primary’);
+codeBtn.classList.remove(‘primary’);
+}
+}
+
+function getTaskBodyContent() {
+if (taskBodyType === ‘code’) {
+return document.getElementById(‘taskCodeContent’)?.value?.trim() || ‘’;
+}
+return document.getElementById(‘taskDesc’).value.trim();
+}
+
+// ── Team selector in task modal ───────────────────────────────────────────────
+async function populateTaskTeamDropdown() {
+const sel = document.getElementById(‘taskTeam’);
+sel.innerHTML = ‘<option value="">— same team —</option>’;
+if (!teamsCache.length) return;
+// Other teams (not current)
+teamsCache.filter(t => t.id !== activeTeamId).forEach(t => {
+sel.innerHTML += `<option value="${t.id}">${escHtml(t.name)}</option>`;
+});
+}
+
+async function onTaskTeamChange() {
+const teamId = document.getElementById(‘taskTeam’).value || activeTeamId;
+await populateAssigneeDropdown(teamId);
+}
+
+// ── Tasks ──────────────────────────────────────────────────────────────────────
 async function loadTasks() {
-  if (!activeProjectId) return;
-  let query = sb.from('hub_tasks').select('*').eq('project_id', activeProjectId).order('created_at', { ascending: true });
-  // Members only see tasks assigned to them
-  if (!canManageProjects()) query = query.eq('assigned_to', currentUser.id);
-  const { data } = await query;
-  tasksCache = (data || []).map(t => ({
-    ...t,
-    assignee_id: t.assigned_to,
-    profiles: allProfiles.find(p => p.id === t.assigned_to) || (t.assigned_to === currentUser.id ? currentProfile : null)
-  }));
-  renderKanban();
-  const active = tasksCache.filter(t => t.status !== 'Done').length;
-  const stEl2 = document.getElementById('statTasks'); if(stEl2) stEl2.textContent = active;
-  const today = new Date().toISOString().slice(0, 10);
-  const dueToday = tasksCache.filter(t => t.due_date === today && t.status !== 'Done').length;
-  const sdEl = document.getElementById('statDue'); if(sdEl) sdEl.textContent = dueToday;
+if (!activeProjectId) return;
+const query = sb.from(‘hub_tasks’).select(’*, profiles!hub_tasks_claimed_by_fkey(full_name)’)
+.eq(‘project_id’, activeProjectId);
+const { data } = activeTeamId
+? await query.eq(‘team_id’, activeTeamId).order(‘created_at’, { ascending: true })
+: await query.order(‘created_at’, { ascending: true });
+tasksCache = (data || []).map(t => ({
+…t,
+assignee_id: t.assigned_to,
+assigneeProfile: allProfiles.find(p => p.id === t.assigned_to) || (t.assigned_to === currentUser.id ? currentProfile : null),
+claimedByProfile: allProfiles.find(p => p.id === t.claimed_by) || (t.claimed_by === currentUser.id ? currentProfile : null),
+}));
+renderKanban();
+const active = tasksCache.filter(t => t.status !== ‘Done’).length;
+const stEl2 = document.getElementById(‘statTasks’); if(stEl2) stEl2.textContent = active;
 }
 
 function renderKanban() {
-  const columns = ['Backlog', 'In Progress', 'In Review', 'Done'];
-  const colors = { Backlog: 'var(--muted)', 'In Progress': '#4fc3f7', 'In Review': '#ffd54f', Done: 'var(--green)' };
-  const wrap = document.getElementById('kanbanWrap');
-  wrap.innerHTML = columns.map(col => {
-    const cards = tasksCache.filter(t => t.status === col);
-    return `<div class="kol">
-      <div class="kol-header" style="color:${colors[col]}">${col} <span style="font-size:10px">${cards.length}</span></div>
-      <div class="kol-cards" id="kol-${col.replace(' ', '_')}">
-        ${cards.map(t => buildTaskCard(t)).join('')}
-      </div>
-      <button class="add-task-btn" onclick="openTaskModalWithStatus('${col}')">+ Add task</button>
-    </div>`;
-  }).join('');
+const columns = [‘Queue’, ‘Claimed’, ‘In Progress’, ‘Review’, ‘Done’];
+const colors = { Queue: ‘var(–muted)’, Claimed: ‘#4fc3f7’, ‘In Progress’: ‘#ff6b2b’, Review: ‘#ffd54f’, Done: ‘var(–green)’ };
+const wrap = document.getElementById(‘kanbanWrap’);
+wrap.innerHTML = columns.map(col => {
+const cards = tasksCache.filter(t => t.status === col);
+const canAdd = col === ‘Queue’;
+return `<div class="kol"> <div class="kol-header" style="color:${colors[col]}">${col} <span style="font-size:10px">${cards.length}</span></div> <div class="kol-cards" id="kol-${col.replace(' ','_')}"> ${cards.map(t => buildTaskCard(t)).join('')} </div> ${canAdd ? `<button class="add-task-btn" onclick="openTaskModal()">+ Add task</button>` : ''} </div>`;
+}).join(’’);
 }
 
 function buildTaskCard(t) {
-  const p = t.profiles || {};
-  const assigneeName = p.full_name ? p.full_name.split(' ')[0] : 'Unassigned';
-  const priClass = { High: 'pri-high', Medium: 'pri-med', Low: 'pri-low', undefined: 'pri-low' }[t.priority] || 'pri-low';
-  const isMyTask = t.assignee_id === currentUser.id;
-  return `<div class="kcard" onclick="showTaskDetail('${t.id}')">
-    <div class="kcard-title">${escHtml(t.title)}${isMyTask ? ' <span style="color:var(--green);font-size:9px">◉ Mine</span>' : ''}</div>
-    <div class="kcard-meta">
-      <span class="priority ${priClass}">${t.priority?.toUpperCase() || 'MED'}</span>
-      <span class="assignee-pill">${escHtml(assigneeName)}</span>
-      ${t.due_date ? `<span class="due-label">${t.due_date}</span>` : ''}
-    </div>
+const claimedBy = t.claimedByProfile;
+const isUnclaimed = !t.claimed_by && t.status === ‘Queue’;
+const isCrossTeam = t.assigned_by_team && t.assigned_by_team !== activeTeamId;
+const originTeam = isCrossTeam ? teamsCache.find(tm => tm.id === t.assigned_by_team) : null;
+const myTeamMembership = teamsCache.find(tm => tm.id === activeTeamId)
+?.hub_team_members?.some(m => m.user_id === currentUser.id);
+const priColors = { High: ‘#ef5350’, Medium: ‘#ffd54f’, Low: ‘#69f0ae’ };
+
+return `<div class="kcard ${isUnclaimed ? 'kcard-unclaimed' : ''} ${isCrossTeam ? 'kcard-cross-team' : ''}" onclick="showTaskDetail('${t.id}')"> <div class="kcard-title"> ${t.task_body_type === 'code' ? '<span style="color:#4fc3f7;font-size:9px">&lt;/&gt; </span>' : ''} ${escHtml(t.title)} </div> ${isCrossTeam && originTeam ? `<div style="font-size:9px;color:#ce93d8;margin:2px 0">from ${escHtml(originTeam.name)}</div>`: ''} <div class="kcard-meta" style="margin-top:4px"> <span style="font-size:9px;color:${priColors[t.priority] || 'var(--muted)'}">● ${t.priority || 'Med'}</span> ${claimedBy ?`<span class="assignee-pill">⚡ ${escHtml(claimedBy.full_name?.split(’ ’)[0] || ‘?’)}</span>`:`<span style="font-size:9px;color:#ffd54f">Unclaimed</span>`} ${t.due_date ? `<span class="due-label">${t.due_date}</span>` : ‘’}
+</div>
+
   </div>`;
 }
 
 function showTaskDetail(taskId) {
-  const t = tasksCache.find(t => t.id === taskId);
-  if (!t) return;
-  const p = t.profiles || {};
-  document.getElementById('rpTitle').textContent = '◈ Task Detail';
-  document.getElementById('threadPanel').style.display = 'none';
-  document.getElementById('rpContent').innerHTML = `
-    <div style="margin-bottom:8px;font-size:13px;color:var(--orange)">${escHtml(t.title)}</div>
-    <div style="font-size:11px;color:var(--text);line-height:1.7;margin-bottom:14px">${escHtml(t.description || 'No description')}</div>
-    <div style="display:flex;flex-direction:column;gap:7px;font-size:11px;margin-bottom:16px">
-      <div><span style="color:var(--muted)">Assignee: </span>${escHtml(p.full_name || 'Unassigned')}</div>
-      <div><span style="color:var(--muted)">Priority: </span><span style="color:var(--orange)">${t.priority || '—'}</span></div>
-      <div><span style="color:var(--muted)">Status: </span>${t.status}</div>
-      <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div>
-    </div>
-    ${(canManageProjects() || t.assignee_id === currentUser.id) ? `
-    <div style="display:flex;flex-direction:column;gap:6px">
-      ${['Backlog','In Progress','In Review','Done'].map(s =>
-        `<button class="btn sm${t.status===s?' primary':''}" onclick="moveTask('${t.id}','${s}')">→ ${s}</button>`
-      ).join('')}
-    </div>` : '<div style="font-size:10px;color:var(--muted)">Only the assignee can move this task</div>'}
-    ${canManageProjects() ? `<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete Task</button>` : ''}`;
+const t = tasksCache.find(t => t.id === taskId);
+if (!t) return;
+const claimed = t.claimedByProfile;
+const team = teamsCache.find(tm => tm.id === t.team_id);
+const originTeam = teamsCache.find(tm => tm.id === t.assigned_by_team);
+const isMine = t.claimed_by === currentUser.id;
+const isUnclaimed = !t.claimed_by;
+const canClaim = isUnclaimed && (
+team?.hub_team_members?.some(m => m.user_id === currentUser.id) || canManageProjects()
+);
+// Review: requesting team or team lead confirms
+const isReviewer = t.review_by_team
+? teamsCache.find(tm => tm.id === t.review_by_team)?.hub_team_members?.some(m => m.user_id === currentUser.id)
+: canManageProjects();
+
+document.getElementById(‘rpTitle’).textContent = ‘◈ Task Detail’;
+document.getElementById(‘threadPanel’).style.display = ‘none’;
+
+const bodyHtml = t.task_body_type === ‘code’
+? `<pre style="background:var(--surface);padding:10px;font-size:11px;overflow-x:auto;white-space:pre-wrap;border:1px solid var(--border);margin-bottom:14px"><code>${escHtml(t.description || '')}</code></pre>`
+: `<div style="font-size:11px;color:var(--text);line-height:1.7;margin-bottom:14px;white-space:pre-wrap">${escHtml(t.description || 'No description')}</div>`;
+
+document.getElementById(‘rpContent’).innerHTML = `<div style="margin-bottom:6px;font-size:13px;color:var(--orange);font-weight:600">${escHtml(t.title)}</div> ${team ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}${originTeam ? ` ← from ${escHtml(originTeam.name)}` : ‘’}</div>`: ''} ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}`;
+}
+
+async function claimTask(taskId) {
+const t = tasksCache.find(t => t.id === taskId);
+if (!t) return;
+const { error } = await sb.from(‘hub_tasks’).update({
+claimed_by: currentUser.id, claimed_at: new Date().toISOString(), status: ‘Claimed’
+}).eq(‘id’, taskId);
+if (error) { showToast(’Failed: ’ + error.message, ‘error’); return; }
+// Log activity
+await sb.from(‘task_activity’).insert({ task_id: taskId, user_id: currentUser.id, action: ‘claimed’, note: `Claimed by ${currentProfile.full_name}` });
+showToast(‘Task claimed ✓’);
+// Notify origin team if cross-team
+if (t.assigned_by_team && t.assigned_by_team !== activeTeamId) {
+const { data: originMembers } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, t.assigned_by_team);
+const ids = (originMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
+if (ids.length) {
+const notifs = ids.map(uid => ({ user_id: uid, type: ‘project_update’, message: `"${t.title}" was claimed by ${currentProfile.full_name}` }));
+await sb.from(‘notifications’).insert(notifs);
+sendPush(ids, ‘Task Claimed’, `"${t.title}" picked up by ${currentProfile.full_name}`);
+}
+}
+// Notify team lead
+const team = teamsCache.find(tm => tm.id === activeTeamId);
+const lead = team?.hub_team_members?.find(m => m.role === ‘lead’ && m.user_id !== currentUser.id);
+if (lead) await addNotification(‘project_update’, `${currentProfile.full_name} claimed "${t.title}"`, null, lead.user_id);
+await loadTasks();
+showTaskDetail(taskId);
+}
+
+async function dropTask(taskId) {
+const t = tasksCache.find(t => t.id === taskId);
+if (!t) return;
+if (!confirm(‘Drop this task back to the queue?’)) return;
+await sb.from(‘hub_tasks’).update({ claimed_by: null, claimed_at: null, status: ‘Queue’ }).eq(‘id’, taskId);
+await sb.from(‘task_activity’).insert({ task_id: taskId, user_id: currentUser.id, action: ‘dropped’, note: `Dropped by ${currentProfile.full_name}` });
+showToast(‘Task dropped back to Queue’);
+// Notify team lead
+const team = teamsCache.find(tm => tm.id === activeTeamId);
+const lead = team?.hub_team_members?.find(m => m.role === ‘lead’ && m.user_id !== currentUser.id);
+if (lead) await addNotification(‘project_update’, `${currentProfile.full_name} dropped task: "${t.title}"`, null, lead.user_id);
+// Also notify all team members — task is up for grabs
+const { data: members } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, activeTeamId);
+const ids = (members || []).map(m => m.user_id).filter(id => id !== currentUser.id);
+if (ids.length) sendPush(ids, ‘Task Available’, `"${t.title}" was dropped — up for grabs`);
+await loadTasks();
+document.getElementById(‘rpContent’).innerHTML = ‘<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px">Task dropped back to Queue</div>’;
 }
 
 async function moveTask(taskId, newStatus) {
-  await sb.from('hub_tasks').update({ status: newStatus }).eq('id', taskId);
-  showToast(`Moved to ${newStatus}`);
-  await loadTasks();
+await sb.from(‘hub_tasks’).update({ status: newStatus }).eq(‘id’, taskId);
+await sb.from(‘task_activity’).insert({ task_id: taskId, user_id: currentUser.id, action: ‘status_changed’, note: `Status → ${newStatus}` });
+showToast(`→ ${newStatus}`);
+const task = tasksCache.find(t => t.id === taskId);
+if (!task) { await loadTasks(); return; }
+const moverName = currentProfile.full_name || ‘Someone’;
 
-  // Notify the task's assigned member and project team lead
-  const task = tasksCache.find(t => t.id === taskId);
-  if (!task) return;
-  const moverName = currentProfile.full_name || 'Someone';
-  const msg = `Task "${task.title}" moved to ${newStatus} by ${moverName}`;
+if (newStatus === ‘Review’) {
+// Notify review team (requesting team or team lead)
+if (task.review_by_team) {
+const { data: reviewMembers } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, task.review_by_team);
+const ids = (reviewMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
+if (ids.length) {
+const notifs = ids.map(uid => ({ user_id: uid, type: ‘project_update’, message: `Task ready for your review: "${task.title}"` }));
+await sb.from(‘notifications’).insert(notifs);
+sendPush(ids, ‘Review Needed’, `"${task.title}" is ready for review`);
+}
+} else {
+// Notify team lead
+const team = teamsCache.find(tm => tm.id === activeTeamId);
+const lead = team?.hub_team_members?.find(m => m.role === ‘lead’ && m.user_id !== currentUser.id);
+if (lead) await addNotification(‘project_update’, `Task ready for review: "${task.title}"`, null, lead.user_id);
+}
+}
 
-  // Notify assignee if they didn't move it themselves
-  if (task.assigned_to && task.assigned_to !== currentUser.id) {
-    await addNotification('task_assigned', msg, null, task.assigned_to);
-  }
+if (newStatus === ‘Done’) {
+// Notify origin team if cross-team
+if (task.assigned_by_team && task.assigned_by_team !== activeTeamId) {
+const { data: originMembers } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, task.assigned_by_team);
+const ids = (originMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
+if (ids.length) {
+const notifs = ids.map(uid => ({ user_id: uid, type: ‘project_update’, message: `"${task.title}" completed by ${moverName}` }));
+await sb.from(‘notifications’).insert(notifs);
+sendPush(ids, ‘Task Done ✓’, `"${task.title}" completed by ${moverName}`);
+}
+}
+// Always notify team lead on done
+const team = teamsCache.find(tm => tm.id === activeTeamId);
+const lead = team?.hub_team_members?.find(m => m.role === ‘lead’ && m.user_id !== currentUser.id);
+if (lead) await addNotification(‘project_update’, `${moverName} completed: "${task.title}"`, null, lead.user_id);
+}
 
-  // Notify project team lead
-  const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', activeProjectId).single();
-  if (proj?.created_by && proj.created_by !== currentUser.id && proj.created_by !== task.assigned_to) {
-    await addNotification('project_update', msg, null, proj.created_by);
-  }
+await loadTasks();
+showTaskDetail(taskId);
 }
 
 async function deleteTask(taskId) {
-  if (!confirm('Delete this task?')) return;
-  await sb.from('hub_tasks').delete().eq('id', taskId);
-  document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px">Task deleted</div>';
-  await loadTasks();
+if (!confirm(‘Delete this task?’)) return;
+await sb.from(‘hub_tasks’).delete().eq(‘id’, taskId);
+document.getElementById(‘rpContent’).innerHTML = ‘<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px">Task deleted</div>’;
+await loadTasks();
 }
 
-function openTaskModalWithStatus(status) {
-  openTaskModal();
-  setTimeout(() => { document.getElementById('taskStatus').value = status; }, 50);
+async function populateAssigneeDropdown(forTeamId) {
+const sel = document.getElementById(‘taskAssignee’);
+const teamId = forTeamId || activeTeamId;
+sel.innerHTML = ‘<option value="">— whole team —</option>’;
+if (!teamId) return;
+const { data: members } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, teamId);
+const ids = (members || []).map(m => m.user_id);
+const people = [currentProfile, …allProfiles].filter((p, i, arr) =>
+p && ids.includes(p.id) && arr.findIndex(x => x?.id === p.id) === i
+);
+sel.innerHTML = ‘<option value="">— whole team —</option>’ +
+people.map(p => `<option value="${p.id}"${p.id === currentUser.id ? ' selected' : ''}>${escHtml(p.full_name)}${p.id === currentUser.id ? ' (you)' : ''}</option>`).join(’’);
+}
+
+function openTaskModalWithStatus(status) { openTaskModal(); }
+
+function openTaskModal() {
+openModal(‘taskModal’);
+taskBodyType = ‘text’;
+setTaskBodyType(‘text’);
+populateTaskTeamDropdown();
+populateAssigneeDropdown(activeTeamId);
 }
 
 async function createTask() {
-  if (!activeProjectId) { showToast('Open a project first', 'error'); return; }
-  const title = document.getElementById('taskTitle').value.trim();
-  if (!title) { showToast('Enter a task title', 'error'); return; }
-  const assigneeId = canManageProjects()
-    ? document.getElementById('taskAssignee').value
-    : currentUser.id;
-  const priority = document.getElementById('taskPriority').value;
-  const status = document.getElementById('taskStatus').value;
-  const due = document.getElementById('taskDue').value || null;
-  const desc = document.getElementById('taskDesc').value.trim();
+if (!activeProjectId) { showToast(‘Open a project first’, ‘error’); return; }
+const title = document.getElementById(‘taskTitle’).value.trim();
+if (!title) { showToast(‘Enter a task title’, ‘error’); return; }
+const assignedTeamId = document.getElementById(‘taskTeam’).value || activeTeamId;
+const assigneeId = document.getElementById(‘taskAssignee’).value || null;
+const priority = document.getElementById(‘taskPriority’).value;
+const due = document.getElementById(‘taskDue’).value || null;
+const desc = getTaskBodyContent();
+const isCrossTeam = assignedTeamId && assignedTeamId !== activeTeamId;
 
-  const { error } = await sb.from('hub_tasks').insert({
-    project_id: activeProjectId,
-    title, description: desc, assigned_to: assigneeId,
-    priority, status, due_date: due, created_by: currentUser.id
-  });
-  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+const taskData = {
+project_id: activeProjectId,
+team_id: assignedTeamId || activeTeamId,
+assigned_by_team: isCrossTeam ? activeTeamId : null,
+review_by_team: isCrossTeam ? activeTeamId : null, // requesting team reviews
+title, description: desc,
+assigned_to: assigneeId,
+claimed_by: assigneeId || null,
+claimed_at: assigneeId ? new Date().toISOString() : null,
+priority,
+status: assigneeId ? ‘Claimed’ : ‘Queue’,
+due_date: due,
+created_by: currentUser.id,
+task_body_type: taskBodyType,
+code_language: taskBodyType === ‘code’ ? document.getElementById(‘codeLangSelect’).value : null,
+};
 
-  closeModal('taskModal');
-  document.getElementById('taskTitle').value = '';
-  document.getElementById('taskDesc').value = '';
-  showToast(`Task created: ${title} ✓`);
-  await loadTasks();
+const { data: task, error } = await sb.from(‘hub_tasks’).insert(taskData).select().single();
+if (error) { showToast(’Failed: ’ + error.message, ‘error’); return; }
 
-  const creatorName = currentProfile.full_name || 'Someone';
-  const assigneeName = assigneeId === currentUser.id ? 'you'
-    : (allProfiles.find(p => p.id === assigneeId)?.full_name || 'a member');
+await sb.from(‘task_activity’).insert({ task_id: task.id, user_id: currentUser.id, action: ‘created’, note: `Created by ${currentProfile.full_name}` });
 
-  // Notify + push the assignee
-  if (assigneeId !== currentUser.id) {
-    await addNotification('task_assigned', `${creatorName} assigned you a task: "${title}"`, null, assigneeId);
-  }
+closeModal(‘taskModal’);
+document.getElementById(‘taskTitle’).value = ‘’;
+document.getElementById(‘taskDesc’).value = ‘’;
+if (document.getElementById(‘taskCodeContent’)) document.getElementById(‘taskCodeContent’).value = ‘’;
+showToast(`Task created: "${title}" ✓`);
+await loadTasks();
 
-  // Notify all other project members (excluding creator and assignee)
-  const { data: projMembers } = await sb.from('hub_project_members')
-    .select('user_id').eq('project_id', activeProjectId);
-  const otherIds = (projMembers || [])
-    .map(m => m.user_id)
-    .filter(id => id !== currentUser.id && id !== assigneeId);
-  if (otherIds.length) {
-    const notifs = otherIds.map(uid => ({
-      user_id: uid, type: 'project_update',
-      message: `New task in project: "${title}" — assigned to ${assigneeName}`
-    }));
-    await sb.from('notifications').insert(notifs);
-    sendPush(otherIds, 'New Task', `"${title}" assigned to ${assigneeName}`);
-  }
+const creatorName = currentProfile.full_name;
+const targetTeam = teamsCache.find(t => t.id === assignedTeamId);
 
-  // Notify team lead if creator is not team lead/admin
-  if (!canManageProjects()) {
-    const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', activeProjectId).single();
-    if (proj?.created_by && proj.created_by !== currentUser.id) {
-      await addNotification('project_update', `New task created: "${title}" by ${creatorName}`, null, proj.created_by);
-    }
-  }
+if (isCrossTeam && targetTeam) {
+// Notify all members of the receiving team
+const { data: recvMembers } = await sb.from(‘hub_team_members’).select(‘user_id’).eq(‘team_id’, assignedTeamId);
+const ids = (recvMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
+if (ids.length) {
+const notifs = ids.map(uid => ({ user_id: uid, type: ‘task_assigned’, message: `New task from ${creatorName}: "${title}"` }));
+await sb.from(‘notifications’).insert(notifs);
+sendPush(ids, ‘New Task Assigned’, `"${title}" from ${creatorName} (${teamsCache.find(t=>t.id===activeTeamId)?.name || 'another team'})`);
+}
+} else if (assigneeId && assigneeId !== currentUser.id) {
+await addNotification(‘task_assigned’, `${creatorName} assigned you: "${title}"`, null, assigneeId);
 }
 
-// ════════════════════════════════════════════════
-// NOTIFICATIONS
-// ════════════════════════════════════════════════
-async function loadNotifications() {
-  const { data } = await sb.from('notifications')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(30);
-  renderNotifications(data || []);
+// Notify team lead
+const team = teamsCache.find(t => t.id === (assignedTeamId || activeTeamId));
+const lead = team?.hub_team_members?.find(m => m.role === ‘lead’ && m.user_id !== currentUser.id);
+if (lead) await addNotification(‘project_update’, `New task created: "${title}" by ${creatorName}`, null, lead.user_id);
 }
+function openModal(id) { document.getElementById(id).classList.add(‘open’); }
+function closeModal(id) { document.getElementById(id).classList.remove(‘open’); }
 
-function renderNotifications(notifs) {
-  unreadNotifs = notifs.filter(n => !n.read).length;
-  updateNotifBadge(unreadNotifs);
-  document.getElementById('unreadNotifCount').textContent = unreadNotifs;
-  const wrap = document.getElementById('notifListWrap');
-  if (!notifs.length) { wrap.innerHTML = '<div class="empty-state"><div class="big">◉</div>No notifications yet</div>'; return; }
-  const iconMap = { mention: '#', email: '✉', email_sent: '✉', task_assigned: '◈', deadline: '⚡', dm: '◎', project_update: '◈' };
-  wrap.innerHTML = notifs.map(n => `
-    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')">
-      <div class="notif-icon">${iconMap[n.type] || '◉'}</div>
-      <div>
-        <div class="notif-text">${escHtml(n.message)}</div>
-        <div class="notif-when">${formatTime(n.created_at)}</div>
-      </div>
-    </div>`).join('');
-}
-
-// Global subscription — updates badges across all channels/DMs in background
-function subscribeToAllMessages() {
-  sb.channel('global-messages')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
-      payload => {
-        const msg = payload.new;
-        if (msg.sender_id === currentUser.id) return;
-
-        // Channel message badge (if not currently viewing that channel)
-        if (msg.channel_id && msg.channel_id !== activeChannel) {
-          const badge = document.getElementById('chbadge-' + msg.channel_id);
-          if (badge) {
-            badge.textContent = parseInt(badge.textContent || 0) + 1;
-            badge.style.display = 'inline-flex';
-          }
-        }
-
-        // DM badge
-        if (msg.dm_to === currentUser.id) {
-          // Notifications badge
-          const notifBadge = document.getElementById('notifBadge');
-          unreadNotifs++;
-          if (notifBadge) { notifBadge.textContent = unreadNotifs; notifBadge.style.display = 'inline-flex'; }
-          document.getElementById('unreadNotifCount').textContent = unreadNotifs;
-          // DM nav badge
-          const dmBadge = document.getElementById('dmbadge-' + msg.sender_id);
-          if (dmBadge) { dmBadge.textContent = parseInt(dmBadge.textContent || 0) + 1; dmBadge.style.display = 'inline-flex'; }
-        }
-      })
-    .subscribe();
-}
-
-function subscribeToNotifications() {
-  notifSubscription = sb.channel('notifs-' + currentUser.id)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public', table: 'notifications',
-      filter: `user_id=eq.${currentUser.id}`
-    }, payload => {
-      const n = payload.new;
-      unreadNotifs++;
-      updateNotifBadge(unreadNotifs);
-      document.getElementById('unreadNotifCount').textContent = unreadNotifs;
-      loadNotifications();
-      // Beautiful toast
-      const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
-      showNotifToast(titles[n.type] || 'Notification', n.message || '', n.type);
-      // Mobile badge
-      const mobBadge = document.getElementById('mobNotifBadge');
-      if (mobBadge) { mobBadge.textContent = unreadNotifs; mobBadge.style.display = 'inline-flex'; }
-    })
-    .subscribe();
-}
-
-// Send push notification via Supabase Edge Function
-async function sendPush(userIds, title, body, url) {
-  try {
-    const ids = Array.isArray(userIds) ? userIds : [userIds];
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session?.access_token) return; // ← bail, don't fallback to anon
-    await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
-    });
-  } catch(e) {
-    console.log('Push send failed:', e.message);
-  }
-}
-
-async function addNotification(type, message, refId, targetUserId) {
-  const userId = targetUserId || currentUser.id;
-  await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
-
-  const titles = {
-    mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned',
-    project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline'
-  };
-  const title = titles[type] || 'Prodeegee Hub';
-
-  // Show toast if targeting current user
-  if (!targetUserId || targetUserId === currentUser.id) {
-    showNotifToast(title, message, type);
-  }
-
-  // Send push to the target user
-  sendPush(userId, title, message);
-}
-
-// Send push to all members of a project (used for channel messages)
-async function notifyProjectMembers(projectId, title, message, excludeUserId) {
-  const { data } = await sb.from('hub_project_members').select('user_id').eq('project_id', projectId);
-  if (!data) return;
-  const ids = data.map(m => m.user_id).filter(id => id !== excludeUserId);
-  if (ids.length) sendPush(ids, title, message);
-  const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message, reference_id: projectId }));
-  if (notifs.length) await sb.from('notifications').insert(notifs);
-
-  // Also notify the project team lead if they're not already in the member list
-  const { data: proj } = await sb.from('hub_projects').select('created_by').eq('id', projectId).single();
-  if (proj?.created_by && proj.created_by !== excludeUserId && !ids.includes(proj.created_by)) {
-    await sb.from('notifications').insert([{
-      user_id: proj.created_by, type: 'project_update', message, reference_id: projectId
-    }]);
-    sendPush([proj.created_by], title, message);
-  }
-}
-
-async function markNotifRead(notifId) {
-  await sb.from('notifications').update({ read: true }).eq('id', notifId);
-  loadNotifications();
-}
-
-async function markAllNotifsRead() {
-  await sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false);
-  showToast('All notifications marked as read');
-  loadNotifications();
-}
-
-function updateNotifBadge(count) {
-  const badge = document.getElementById('notifBtnBadge');
-  const navBadge = document.getElementById('notifBadge');
-  if (count > 0) {
-    badge.textContent = count; badge.style.display = 'flex';
-    navBadge.textContent = count; navBadge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none'; navBadge.style.display = 'none';
-  }
-}
-
-// ════════════════════════════════════════════════
-// HOME FEED
-// ════════════════════════════════════════════════
-async function loadFeed() {
-  document.getElementById('feedLoading').style.display = 'flex';
-  const { data: msgs } = await sb.from('chat_messages')
-    .select('*, profiles(full_name)')
-    .is('dm_to', null)
-    .is('parent_id', null)
-    .order('created_at', { ascending: false })
-    .limit(5);
-  const { data: tasks } = await sb.from('hub_tasks')
-    .select('*')
-    .neq('status', 'Done')
-    .order('created_at', { ascending: false })
-    .limit(5);
-  document.getElementById('feedLoading').style.display = 'none';
-
-  const items = [];
-  (msgs || []).forEach(m => items.push({ type: 'msg', ts: m.created_at, data: m }));
-  (tasks || []).forEach(t => items.push({ type: 'task', ts: t.created_at, data: t }));
-  items.sort((a, b) => new Date(b.ts) - new Date(a.ts));
-
-  const container = document.getElementById('feedItems');
-  container.innerHTML = items.slice(0, 10).map(item => {
-    if (item.type === 'msg') {
-      const m = item.data;
-      const name = m.profiles?.full_name || 'Someone';
-      return `<div class="feed-item" onclick="openChannel('${m.channel_id}')">
-        <div class="feed-icon">#</div>
-        <div class="feed-body">
-          <div class="feed-label">Message · #${m.channel_id}</div>
-          <div class="feed-text"><span style="color:var(--orange)">${escHtml(name)}</span>: ${escHtml((m.body || '').slice(0, 80))}</div>
-          <div class="feed-time">${formatTime(m.created_at)}</div>
-        </div></div>`;
-    } else {
-      const t = item.data;
-      const assignee = allProfiles.find(p => p.id === t.assigned_to);
-      const name = assignee?.full_name || (t.assigned_to === currentUser.id ? currentProfile.full_name : 'Unassigned');
-      return `<div class="feed-item" onclick="switchSection('projects')">
-        <div class="feed-icon">◈</div>
-        <div class="feed-body">
-          <div class="feed-label">Task · ${t.status}</div>
-          <div class="feed-text"><span style="color:var(--green)">${escHtml(t.title)}</span> — ${escHtml(name)}</div>
-          <div class="feed-time">${formatTime(t.created_at)}</div>
-        </div></div>`;
-    }
-  }).join('') || '<div class="empty-state">No recent activity</div>';
-}
-
-// ════════════════════════════════════════════════
-// CHANNELS MANAGEMENT
-// ════════════════════════════════════════════════
-function openNewChannelModal() { openModal('channelModal'); }
-
-async function createChannel() {
-  const name = document.getElementById('newChannelName').value.trim().toLowerCase().replace(/\s+/g, '-');
-  if (!name) { showToast('Enter a channel name', 'error'); return; }
-  const { error } = await sb.from('channels').insert({ name, created_by: currentUser.id });
-  if (error) { showToast(error.code === '23505' ? 'Channel already exists' : error.message, 'error'); return; }
-  closeModal('channelModal');
-  document.getElementById('newChannelName').value = '';
-  showToast('#' + name + ' created ✓');
-  const nav = document.getElementById('dmNavList');
-  const div = document.createElement('div');
-  div.className = 'nav-item';
-  div.setAttribute('onclick', `openChannel('${name}')`);
-  div.innerHTML = `<span class="nav-icon">#</span> ${name}`;
-  document.querySelector('.nav').insertBefore(div, document.querySelector('[onclick="openNewChannelModal()"]'));
-  openChannel(name);
-}
-
-// ════════════════════════════════════════════════
-// MODALS
-// ════════════════════════════════════════════════
-function openComposeModal() { openModal('composeModal'); }
-function openTaskModal() { openModal('taskModal'); populateAssigneeDropdown(); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+document.querySelectorAll(’.modal-overlay’).forEach(overlay => {
+overlay.addEventListener(‘click’, e => { if (e.target === overlay) overlay.classList.remove(‘open’); });
 });
 
 // ════════════════════════════════════════════════
 // STATS
 // ════════════════════════════════════════════════
 function updateStats() {
-  document.getElementById('statOnline').textContent = allProfiles.length + 1;
+document.getElementById(‘statOnline’).textContent = allProfiles.length + 1;
 }
 
 // ════════════════════════════════════════════════
 // CONN STATUS
 // ════════════════════════════════════════════════
 function setConnStatus(connected) {
-  const dot = document.getElementById('connDot');
-  const txt = document.getElementById('connStatus');
-  dot.className = 'status-dot' + (connected ? '' : ' red');
-  txt.textContent = connected ? 'Connected' : 'Reconnecting...';
-  realtimeConnected = connected;
+const dot = document.getElementById(‘connDot’);
+const txt = document.getElementById(‘connStatus’);
+dot.className = ‘status-dot’ + (connected ? ‘’ : ’ red’);
+txt.textContent = connected ? ‘Connected’ : ‘Reconnecting…’;
+realtimeConnected = connected;
 }
 
 // ── Reconnection ─────────────────────────────────────────────────────────────
 function resubscribeAll() {
-  console.log('[realtime] Resubscribing all channels...');
-  setConnStatus(false);
+console.log(’[realtime] Resubscribing all channels…’);
+setConnStatus(false);
 
-  // Tear down existing subscriptions
-  try { if (channelSubscription) channelSubscription.unsubscribe(); } catch {}
-  try { if (dmSubscription) dmSubscription.unsubscribe(); } catch {}
-  try { if (notifSubscription) notifSubscription.unsubscribe(); } catch {}
+// Tear down existing subscriptions
+try { if (channelSubscription) channelSubscription.unsubscribe(); } catch {}
+try { if (dmSubscription) dmSubscription.unsubscribe(); } catch {}
+try { if (notifSubscription) notifSubscription.unsubscribe(); } catch {}
 
-  // Small delay before resubscribing to let the socket settle
-  setTimeout(() => {
-    subscribeToChannel(activeChannel);
-    subscribeToNotifications();
-    subscribeToAllMessages();
-    if (activeDMUserId) subscribeToAllMessages(); // re-sub DM if open
-    setConnStatus(true);
-    console.log('[realtime] Resubscribed');
-  }, 1500);
+// Small delay before resubscribing to let the socket settle
+setTimeout(() => {
+subscribeToChannel(activeChannel);
+subscribeToNotifications();
+subscribeToAllMessages();
+if (activeDMUserId) subscribeToAllMessages(); // re-sub DM if open
+setConnStatus(true);
+console.log(’[realtime] Resubscribed’);
+}, 1500);
 }
 
 function startHeartbeat() {
-  if (heartbeatTimer) clearInterval(heartbeatTimer);
-  // Ping Supabase every 25s to keep the websocket alive
-  // Supabase closes idle connections after ~60s
-  heartbeatTimer = setInterval(async () => {
-    if (!currentUser) return;
-    try {
-      // Lightweight ping — just check our own profile row
-      const { error } = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
-      if (error) throw error;
-    } catch (e) {
-      console.warn('[heartbeat] ping failed, triggering reconnect:', e.message);
-      resubscribeAll();
-    }
-  }, 25000);
+if (heartbeatTimer) clearInterval(heartbeatTimer);
+// Ping Supabase every 25s to keep the websocket alive
+// Supabase closes idle connections after ~60s
+heartbeatTimer = setInterval(async () => {
+if (!currentUser) return;
+try {
+// Lightweight ping — just check our own profile row
+const { error } = await sb.from(‘profiles’).select(‘id’).eq(‘id’, currentUser.id).single();
+if (error) throw error;
+} catch (e) {
+console.warn(’[heartbeat] ping failed, triggering reconnect:’, e.message);
+resubscribeAll();
+}
+}, 25000);
 }
 
 function startVisibilityReconnect() {
-  // When tab becomes visible again after being hidden, resubscribe
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      console.log('[realtime] Tab visible — checking connection');
-      // Always resubscribe when returning to tab — cheap and reliable
-      resubscribeAll();
-    }
-  });
+// When tab becomes visible again after being hidden, resubscribe
+document.addEventListener(‘visibilitychange’, () => {
+if (document.visibilityState === ‘visible’) {
+console.log(’[realtime] Tab visible — checking connection’);
+// Always resubscribe when returning to tab — cheap and reliable
+resubscribeAll();
+}
+});
 
-  // Also handle browser coming back online after network drop
-  window.addEventListener('online', () => {
-    console.log('[realtime] Network online — resubscribing');
-    resubscribeAll();
-  });
+// Also handle browser coming back online after network drop
+window.addEventListener(‘online’, () => {
+console.log(’[realtime] Network online — resubscribing’);
+resubscribeAll();
+});
 }
 
 // ════════════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════════════
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (type ? ' ' + type : '');
-  t.style.display = 'block';
-  clearTimeout(window._toastTimeout);
-  window._toastTimeout = setTimeout(() => t.style.display = 'none', 3500);
+function showToast(msg, type = ‘’) {
+const t = document.getElementById(‘toast’);
+t.textContent = msg;
+t.className = ‘toast’ + (type ? ’ ’ + type : ‘’);
+t.style.display = ‘block’;
+clearTimeout(window._toastTimeout);
+window._toastTimeout = setTimeout(() => t.style.display = ‘none’, 3500);
 }
 
 // ════════════════════════════════════════════════
 // KEYBOARD SHORTCUTS
 // ════════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'msgInput') {
-    e.preventDefault(); sendChannelMessage();
-  }
-  if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'dmInput') {
-    e.preventDefault(); sendDM();
-  }
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
-  }
+document.addEventListener(‘keydown’, e => {
+if (e.key === ‘Enter’ && !e.shiftKey && document.activeElement.id === ‘msgInput’) {
+e.preventDefault(); sendChannelMessage();
+}
+if (e.key === ‘Enter’ && !e.shiftKey && document.activeElement.id === ‘dmInput’) {
+e.preventDefault(); sendDM();
+}
+if (e.key === ‘Escape’) {
+document.querySelectorAll(’.modal-overlay.open’).forEach(m => m.classList.remove(‘open’));
+}
 });
 
 // ════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════
 function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+return String(str || ‘’).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);
 }
 
 function formatMsgBody(text) {
-  return text
-    .replace(/\n/g, '<br>')
-    .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
-    .replace(/@(\w+)/g, '<span class="mention">@$1</span>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+return text
+.replace(/\n/g, ‘<br>’)
+.replace(/*(.*?)*/g, ‘<strong>$1</strong>’)
+.replace(/@(\w+)/g, ‘<span class="mention">@$1</span>’)
+.replace(/`([^`]+)`/g, ‘<code>$1</code>’);
 }
 
 function formatTime(ts) {
-  if (!ts) return '';
-  const d = new Date(ts);
-  const now = new Date();
-  const diff = now - d;
-  if (diff < 60000) return 'just now';
-  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-  if (diff < 86400000) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+if (!ts) return ‘’;
+const d = new Date(ts);
+const now = new Date();
+const diff = now - d;
+if (diff < 60000) return ‘just now’;
+if (diff < 3600000) return Math.floor(diff / 60000) + ‘m ago’;
+if (diff < 86400000) return d.toLocaleTimeString([], { hour: ‘2-digit’, minute: ‘2-digit’ });
+return d.toLocaleDateString([], { month: ‘short’, day: ‘numeric’ });
 }
 
 function formatEmailDate(internalDate) {
-  if (!internalDate) return '';
-  const d = new Date(Number(internalDate));
-  const now = new Date();
-  const diff = now - d;
-  if (diff < 86400000) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (diff < 604800000) return d.toLocaleDateString([], { weekday: 'short' });
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+if (!internalDate) return ‘’;
+const d = new Date(Number(internalDate));
+const now = new Date();
+const diff = now - d;
+if (diff < 86400000) return d.toLocaleTimeString([], { hour: ‘2-digit’, minute: ‘2-digit’ });
+if (diff < 604800000) return d.toLocaleDateString([], { weekday: ‘short’ });
+return d.toLocaleDateString([], { month: ‘short’, day: ‘numeric’ });
 }
 
 function extractEmailName(from) {
-  const match = from?.match(/^(.+?)\s*</);
-  return match ? match[1].replace(/"/g, '') : from || '';
+const match = from?.match(/^(.+?)\s*</);
+return match ? match[1].replace(/”/g, ‘’) : from || ‘’;
 }
 
 function stringToColor(str) {
-  if (!str) return '#ff6b2b';
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  const colors = ['#4fc3f7','#ce93d8','#80cbc4','#ffb74d','#ef9a9a','#a5d6a7','#fff176','#90caf9'];
-  return colors[Math.abs(hash) % colors.length];
+if (!str) return ‘#ff6b2b’;
+let hash = 0;
+for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+const colors = [’#4fc3f7’,’#ce93d8’,’#80cbc4’,’#ffb74d’,’#ef9a9a’,’#a5d6a7’,’#fff176’,’#90caf9’];
+return colors[Math.abs(hash) % colors.length];
 }
 
 // ════════════════════════════════════════════════
 // PROJECT MANAGEMENT (admin/team lead only)
 // ════════════════════════════════════════════════
 function openNewProjectModal(parentId) {
-  if (parentId && !canManageProjects()) { showToast('Only admins and team leads can create sub-projects', 'error'); return; }
-  if (!parentId && !canCreateProjects()) { showToast('Only admins can create projects', 'error'); return; }
-  document.getElementById('projectName').value = '';
-  document.getElementById('projectDesc').value = '';
-  document.getElementById('projectStatus').value = 'active';
-  document.getElementById('projectParentId').value = parentId || '';
-  document.querySelector('#projectModal .modal-title').textContent = parentId ? '◈ New Sub-project' : '◈ New Project';
-  const membersList = document.getElementById('projectMembersList');
-  const allPeople = [currentProfile, ...allProfiles];
-  membersList.innerHTML = allPeople.map(p => `
-    <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:4px">
-      <input type="checkbox" value="${p.id}" ${p.id === currentUser.id ? 'checked' : ''} />
-      ${escHtml(p.full_name || p.email)}
-    </label>`).join('');
-  openModal('projectModal');
+if (parentId && !canManageProjects()) { showToast(‘Only admins and team leads can create sub-projects’, ‘error’); return; }
+if (!parentId && !canCreateProjects()) { showToast(‘Only admins can create projects’, ‘error’); return; }
+document.getElementById(‘projectName’).value = ‘’;
+document.getElementById(‘projectDesc’).value = ‘’;
+document.getElementById(‘projectStatus’).value = ‘active’;
+document.getElementById(‘projectParentId’).value = parentId || ‘’;
+document.querySelector(’#projectModal .modal-title’).textContent = parentId ? ‘◈ New Sub-project’ : ‘◈ New Project’;
+const membersList = document.getElementById(‘projectMembersList’);
+const allPeople = [currentProfile, …allProfiles];
+membersList.innerHTML = allPeople.map(p => ` <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:4px"> <input type="checkbox" value="${p.id}" ${p.id === currentUser.id ? 'checked' : ''} /> ${escHtml(p.full_name || p.email)} </label>`).join(’’);
+openModal(‘projectModal’);
 }
 
 function openNewSubProjectModal() {
-  if (!activeProjectId) return;
-  openNewProjectModal(activeProjectId);
+if (!activeProjectId) return;
+openNewProjectModal(activeProjectId);
 }
 
 async function createProject() {
-  const name = document.getElementById('projectName').value.trim();
-  if (!name) { showToast('Enter a project name', 'error'); return; }
-  const desc = document.getElementById('projectDesc').value.trim();
-  const status = document.getElementById('projectStatus').value;
-  const parentId = document.getElementById('projectParentId').value || null;
+const name = document.getElementById(‘projectName’).value.trim();
+if (!name) { showToast(‘Enter a project name’, ‘error’); return; }
+const desc = document.getElementById(‘projectDesc’).value.trim();
+const status = document.getElementById(‘projectStatus’).value;
+const parentId = document.getElementById(‘projectParentId’).value || null;
 
-  const { data: proj, error } = await sb.from('hub_projects').insert({
-    name, description: desc, status,
-    parent_id: parentId,
-    created_by: currentUser.id
-  }).select().single();
-  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+const { data: proj, error } = await sb.from(‘hub_projects’).insert({
+name, description: desc, status,
+parent_id: parentId,
+created_by: currentUser.id
+}).select().single();
+if (error) { showToast(’Failed: ’ + error.message, ‘error’); return; }
 
-  // Add selected members
-  const checked = [...document.querySelectorAll('#projectMembersList input[type=checkbox]:checked')];
-  if (checked.length) {
-    const memberInserts = checked.map(cb => ({
-      project_id: proj.id,
-      user_id: cb.value,
-      role: cb.value === currentUser.id ? 'lead' : 'member'
-    }));
-    await sb.from('hub_project_members').insert(memberInserts);
-  }
+// Add selected members
+const checked = […document.querySelectorAll(’#projectMembersList input[type=checkbox]:checked’)];
+if (checked.length) {
+const memberInserts = checked.map(cb => ({
+project_id: proj.id,
+user_id: cb.value,
+role: cb.value === currentUser.id ? ‘lead’ : ‘member’
+}));
+await sb.from(‘hub_project_members’).insert(memberInserts);
+}
 
-  closeModal('projectModal');
-  showToast(`Project "${name}" created ✓`);
-  await loadProjects();
-  if (parentId) {
-    const parent = projectsCache.find(p => p.id === parentId);
-    if (parent) openProject(parentId, parent.name);
-  }
+closeModal(‘projectModal’);
+showToast(`Project "${name}" created ✓`);
+await loadProjects();
+if (parentId) {
+const parent = projectsCache.find(p => p.id === parentId);
+if (parent) openProject(parentId, parent.name);
+}
 }
 
 // ════════════════════════════════════════════════
 // THEME TOGGLE
 // ════════════════════════════════════════════════
 function toggleTheme() {
-  const isLight = document.body.classList.toggle('light');
-  localStorage.setItem('hub_theme', isLight ? 'light' : 'dark');
+const isLight = document.body.classList.toggle(‘light’);
+localStorage.setItem(‘hub_theme’, isLight ? ‘light’ : ‘dark’);
 }
 
 function applyTheme() {
-  const saved = localStorage.getItem('hub_theme');
-  if (saved === 'light') document.body.classList.add('light');
+const saved = localStorage.getItem(‘hub_theme’);
+if (saved === ‘light’) document.body.classList.add(‘light’);
 }
 applyTheme();
 
@@ -2615,228 +2807,232 @@ applyTheme();
 // iOS INSTALL PROMPT
 // ════════════════════════════════════════════════
 function checkIosPrompt() {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const isStandalone = window.navigator.standalone === true;
-  const dismissed = localStorage.getItem('ios_prompt_dismissed');
-  if (isIOS && !isStandalone && !dismissed) {
-    document.getElementById('iosPrompt').style.display = 'block';
-  }
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.navigator.standalone === true;
+const dismissed = localStorage.getItem(‘ios_prompt_dismissed’);
+if (isIOS && !isStandalone && !dismissed) {
+document.getElementById(‘iosPrompt’).style.display = ‘block’;
+}
 }
 
 function dismissIosPrompt() {
-  document.getElementById('iosPrompt').style.display = 'none';
-  localStorage.setItem('ios_prompt_dismissed', '1');
+document.getElementById(‘iosPrompt’).style.display = ‘none’;
+localStorage.setItem(‘ios_prompt_dismissed’, ‘1’);
 }
 
 // ════════════════════════════════════════════════
 // PUSH NOTIFICATIONS
 // ════════════════════════════════════════════════
-const VAPID_PUBLIC_KEY = 'BAecU5R4ibThjjZNkWpOjGiBYneSsI4pEt2mTsaa-mD2qva9MP3X004uYFnv8E0uwSdWSju_Oaa2F-Ujh8r85Ks';
+const VAPID_PUBLIC_KEY = ‘BAecU5R4ibThjjZNkWpOjGiBYneSsI4pEt2mTsaa-mD2qva9MP3X004uYFnv8E0uwSdWSju_Oaa2F-Ujh8r85Ks’;
 // ↑ Replace with your actual VAPID public key from web-push library
 
 async function initPushNotifications() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  try {
-    const reg = await navigator.serviceWorker.register('/sw.js');
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return;
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-    });
-    const subStr = JSON.stringify(sub);
-    const deviceHint = `${getBrowserName()} on ${getOSName()}`;
+if (!(‘serviceWorker’ in navigator) || !(‘PushManager’ in window)) return;
+try {
+const reg = await navigator.serviceWorker.register(’/sw.js’);
+const permission = await Notification.requestPermission();
+if (permission !== ‘granted’) return;
+const sub = await reg.pushManager.subscribe({
+userVisibleOnly: true,
+applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+});
+const subStr = JSON.stringify(sub);
+const deviceHint = `${getBrowserName()} on ${getOSName()}`;
 
-    // Check if this exact subscription already exists
-    const { data: existing } = await sb.from('push_subscriptions')
-      .select('id')
-      .eq('user_id', currentUser.id)
-      .eq('subscription', subStr)
-      .maybeSingle();
+```
+// Check if this exact subscription already exists
+const { data: existing } = await sb.from('push_subscriptions')
+  .select('id')
+  .eq('user_id', currentUser.id)
+  .eq('subscription', subStr)
+  .maybeSingle();
 
-    if (!existing) {
-      await sb.from('push_subscriptions').insert({
-        user_id: currentUser.id,
-        subscription: subStr,
-        device_hint: deviceHint,
-        updated_at: new Date().toISOString()
-      });
-    }
-    console.log('Push notifications enabled on', deviceHint);
-  } catch(e) {
-    console.log('Push setup failed:', e.message);
-  }
+if (!existing) {
+  await sb.from('push_subscriptions').insert({
+    user_id: currentUser.id,
+    subscription: subStr,
+    device_hint: deviceHint,
+    updated_at: new Date().toISOString()
+  });
+}
+console.log('Push notifications enabled on', deviceHint);
+```
+
+} catch(e) {
+console.log(‘Push setup failed:’, e.message);
+}
 }
 
 function getBrowserName() {
-  const ua = navigator.userAgent;
-  if (ua.includes('Edg/')) return 'Edge';
-  if (ua.includes('Chrome/')) return 'Chrome';
-  if (ua.includes('Firefox/')) return 'Firefox';
-  if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari';
-  return 'Browser';
+const ua = navigator.userAgent;
+if (ua.includes(‘Edg/’)) return ‘Edge’;
+if (ua.includes(‘Chrome/’)) return ‘Chrome’;
+if (ua.includes(‘Firefox/’)) return ‘Firefox’;
+if (ua.includes(‘Safari/’) && !ua.includes(‘Chrome’)) return ‘Safari’;
+return ‘Browser’;
 }
 
 function getOSName() {
-  const ua = navigator.userAgent;
-  if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
-  if (ua.includes('Android')) return 'Android';
-  if (ua.includes('Win')) return 'Windows';
-  if (ua.includes('Mac')) return 'Mac';
-  if (ua.includes('Linux')) return 'Linux';
-  return 'Unknown';
+const ua = navigator.userAgent;
+if (ua.includes(‘iPhone’) || ua.includes(‘iPad’)) return ‘iOS’;
+if (ua.includes(‘Android’)) return ‘Android’;
+if (ua.includes(‘Win’)) return ‘Windows’;
+if (ua.includes(‘Mac’)) return ‘Mac’;
+if (ua.includes(‘Linux’)) return ‘Linux’;
+return ‘Unknown’;
 }
 
 function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+const padding = ‘=’.repeat((4 - base64String.length % 4) % 4);
+const base64 = (base64String + padding).replace(/-/g, ‘+’).replace(/_/g, ‘/’);
+const raw = atob(base64);
+return Uint8Array.from([…raw].map(c => c.charCodeAt(0)));
 }
 
 // ════════════════════════════════════════════════
 // PROJECT SETTINGS
 // ════════════════════════════════════════════════
 async function openProjectSettings(projectId, projectName) {
-  activeProjectId = projectId;
-  await loadProjectMembers(projectId, projectName);
-  switchSection('projects');
+activeProjectId = projectId;
+await loadProjectMembers(projectId, projectName);
+switchSection(‘projects’);
 }
 
 // ════════════════════════════════════════════════
 // MOBILE NAV & DRAWER
 // ════════════════════════════════════════════════
 function mobNav(section) {
-  // Update bottom nav active state
-  document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
-  const navEl = document.getElementById('mobnav-' + section);
-  if (navEl) navEl.classList.add('active');
-  // Clear badge on nav
-  const badge = document.getElementById('mobbadge-' + section);
-  if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
-  switchSection(section);
+// Update bottom nav active state
+document.querySelectorAll(’.mob-nav-item’).forEach(el => el.classList.remove(‘active’));
+const navEl = document.getElementById(‘mobnav-’ + section);
+if (navEl) navEl.classList.add(‘active’);
+// Clear badge on nav
+const badge = document.getElementById(‘mobbadge-’ + section);
+if (badge) { badge.textContent = ‘0’; badge.style.display = ‘none’; }
+switchSection(section);
 }
 
 function openMobDrawer() {
-  const overlay = document.getElementById('mobDrawerOverlay');
-  const drawer  = document.getElementById('mobDrawer');
-  overlay.style.display = 'block';
-  drawer.style.display  = 'block';
-  requestAnimationFrame(() => {
-    overlay.classList.add('open');
-    drawer.classList.add('open');
-  });
-  // Sync drawer channel/dm lists
-  syncMobDrawer();
+const overlay = document.getElementById(‘mobDrawerOverlay’);
+const drawer  = document.getElementById(‘mobDrawer’);
+overlay.style.display = ‘block’;
+drawer.style.display  = ‘block’;
+requestAnimationFrame(() => {
+overlay.classList.add(‘open’);
+drawer.classList.add(‘open’);
+});
+// Sync drawer channel/dm lists
+syncMobDrawer();
 }
 
 function closeMobDrawer() {
-  const overlay = document.getElementById('mobDrawerOverlay');
-  const drawer  = document.getElementById('mobDrawer');
-  overlay.classList.remove('open');
-  drawer.classList.remove('open');
-  setTimeout(() => {
-    overlay.style.display = 'none';
-    drawer.style.display  = 'none';
-  }, 300);
+const overlay = document.getElementById(‘mobDrawerOverlay’);
+const drawer  = document.getElementById(‘mobDrawer’);
+overlay.classList.remove(‘open’);
+drawer.classList.remove(‘open’);
+setTimeout(() => {
+overlay.style.display = ‘none’;
+drawer.style.display  = ‘none’;
+}, 300);
 }
 
 function syncMobDrawer() {
-  // Sync profile info
-  if (currentProfile) {
-    const name = currentProfile.full_name || '';
-    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
-    const av = document.getElementById('mobAvatar');
-    if (av) av.innerHTML = currentProfile.avatar_url
-      ? `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
-      : initials;
-    const mobName = document.getElementById('mobName');
-    const mobEmail = document.getElementById('mobEmail');
-    const mobRole = document.getElementById('mobRole');
-    if (mobName) mobName.textContent = name;
-    if (mobEmail) mobEmail.textContent = currentProfile.prodeegee_email || '';
-    if (mobRole) mobRole.textContent = (currentProfile.role || 'member').replace('_',' ').toUpperCase();
-  }
-  // Sync channels
-  const chList = document.getElementById('mobChannelList');
-  if (chList) {
-    const chNav = document.getElementById('channelNavList');
-    if (chNav) chList.innerHTML = chNav.innerHTML;
-  }
-  // Sync DMs
-  const dmList = document.getElementById('mobDMList');
-  if (dmList) {
-    const dmNav = document.getElementById('dmNavList');
-    if (dmNav) dmList.innerHTML = dmNav.innerHTML;
-  }
+// Sync profile info
+if (currentProfile) {
+const name = currentProfile.full_name || ‘’;
+const initials = name.split(’ ‘).map(w => w[0]).join(’’).toUpperCase().slice(0, 2) || ‘?’;
+const av = document.getElementById(‘mobAvatar’);
+if (av) av.innerHTML = currentProfile.avatar_url
+? `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
+: initials;
+const mobName = document.getElementById(‘mobName’);
+const mobEmail = document.getElementById(‘mobEmail’);
+const mobRole = document.getElementById(‘mobRole’);
+if (mobName) mobName.textContent = name;
+if (mobEmail) mobEmail.textContent = currentProfile.prodeegee_email || ‘’;
+if (mobRole) mobRole.textContent = (currentProfile.role || ‘member’).replace(’_’,’ ’).toUpperCase();
+}
+// Sync channels
+const chList = document.getElementById(‘mobChannelList’);
+if (chList) {
+const chNav = document.getElementById(‘channelNavList’);
+if (chNav) chList.innerHTML = chNav.innerHTML;
+}
+// Sync DMs
+const dmList = document.getElementById(‘mobDMList’);
+if (dmList) {
+const dmNav = document.getElementById(‘dmNavList’);
+if (dmNav) dmList.innerHTML = dmNav.innerHTML;
+}
 }
 
 // ── Beautiful notification toast ──────────────────
 let notifToastTimer = null;
 const notifIcons = {
-  mention: '💬', dm: '◎', email_sent: '✉', task_assigned: '◈',
-  deadline: '⚡', project_update: '◈', default: '◉'
+mention: ‘💬’, dm: ‘◎’, email_sent: ‘✉’, task_assigned: ‘◈’,
+deadline: ‘⚡’, project_update: ‘◈’, default: ‘◉’
 };
 
 function showNotifToast(title, message, type) {
-  const toast = document.getElementById('notifToast');
-  const iconEl = document.getElementById('notifToastIcon');
-  const titleEl = document.getElementById('notifToastTitle');
-  const msgEl   = document.getElementById('notifToastMsg');
-  const timeEl  = document.getElementById('notifToastTime');
+const toast = document.getElementById(‘notifToast’);
+const iconEl = document.getElementById(‘notifToastIcon’);
+const titleEl = document.getElementById(‘notifToastTitle’);
+const msgEl   = document.getElementById(‘notifToastMsg’);
+const timeEl  = document.getElementById(‘notifToastTime’);
 
-  iconEl.textContent  = notifIcons[type] || notifIcons.default;
-  titleEl.textContent = title;
-  msgEl.textContent   = message;
-  timeEl.textContent  = 'Just now';
+iconEl.textContent  = notifIcons[type] || notifIcons.default;
+titleEl.textContent = title;
+msgEl.textContent   = message;
+timeEl.textContent  = ‘Just now’;
 
-  // Color by type
-  const colors = { mention: '#4fc3f7', dm: 'var(--green)', task_assigned: 'var(--orange)', default: 'var(--orange)' };
-  const col = colors[type] || colors.default;
-  iconEl.parentElement.style.background = col.replace(')', ',.15)').replace('(', 'a(').replace('vara', 'var');
-  iconEl.parentElement.style.borderColor = col.replace(')', ',.3)').replace('(', 'a(').replace('vara', 'var');
-  titleEl.style.color = col;
+// Color by type
+const colors = { mention: ‘#4fc3f7’, dm: ‘var(–green)’, task_assigned: ‘var(–orange)’, default: ‘var(–orange)’ };
+const col = colors[type] || colors.default;
+iconEl.parentElement.style.background = col.replace(’)’, ‘,.15)’).replace(’(’, ‘a(’).replace(‘vara’, ‘var’);
+iconEl.parentElement.style.borderColor = col.replace(’)’, ‘,.3)’).replace(’(’, ‘a(’).replace(‘vara’, ‘var’);
+titleEl.style.color = col;
 
-  // Show with spring animation
-  toast.classList.remove('show');
-  void toast.offsetWidth; // force reflow
-  toast.classList.add('show');
+// Show with spring animation
+toast.classList.remove(‘show’);
+void toast.offsetWidth; // force reflow
+toast.classList.add(‘show’);
 
-  // Auto-hide after 4s
-  clearTimeout(notifToastTimer);
-  notifToastTimer = setTimeout(hideNotifToast, 4000);
+// Auto-hide after 4s
+clearTimeout(notifToastTimer);
+notifToastTimer = setTimeout(hideNotifToast, 4000);
 
-  // Update mobile notif badge
-  const mobBadge = document.getElementById('mobbadge-notif');
-  if (mobBadge) {
-    mobBadge.textContent = parseInt(mobBadge.textContent || 0) + 1;
-    mobBadge.style.display = 'flex';
-  }
+// Update mobile notif badge
+const mobBadge = document.getElementById(‘mobbadge-notif’);
+if (mobBadge) {
+mobBadge.textContent = parseInt(mobBadge.textContent || 0) + 1;
+mobBadge.style.display = ‘flex’;
+}
 }
 
 function hideNotifToast() {
-  document.getElementById('notifToast').classList.remove('show');
+document.getElementById(‘notifToast’).classList.remove(‘show’);
 }
 
 // ════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
-    await initApp(session);
-  } else {
-    window.location.href = '/login.html';
-  }
+const { data: { session } } = await sb.auth.getSession();
+if (session) {
+await initApp(session);
+} else {
+window.location.href = ‘/login.html’;
+}
 
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      await initApp(session);
-    } else if (event === 'SIGNED_OUT') {
-      window.location.href = '/login.html';
-    }
-  });
+sb.auth.onAuthStateChange(async (event, session) => {
+if (event === ‘SIGNED_IN’ && session) {
+await initApp(session);
+} else if (event === ‘SIGNED_OUT’) {
+window.location.href = ‘/login.html’;
+}
+});
 })();
 </script>
+
 </body>
 </html>
