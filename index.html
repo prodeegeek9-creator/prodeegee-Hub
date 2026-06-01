@@ -2916,11 +2916,27 @@ function startVisibilityReconnect() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       const state = channelSubscription?.state;
-      console.log('[realtime] Tab visible, channel state:', state);
+      // ── DIAGNOSTIC — paste what you see in console ──
+      const allSections = {};
+      document.querySelectorAll('.section').forEach(s => {
+        allSections[s.id] = {
+          active: s.classList.contains('active'),
+          display: s.style.display || window.getComputedStyle(s).display,
+          height: s.offsetHeight
+        };
+      });
+      console.group('[TAB RETURN DIAGNOSTIC]');
+      console.log('activeSection var:', activeSection);
+      console.log('activeProjectId:', activeProjectId);
+      console.log('activeTeamId:', activeTeamId);
+      console.log('channel state:', state);
+      console.log('isReconnecting:', isReconnecting);
+      console.log('sections:', JSON.stringify(allSections, null, 2));
+      console.groupEnd();
+      // ── END DIAGNOSTIC ──
       if (state === 'closed' || state === 'errored' || !state) {
         resubscribeAll();
       }
-      // Always refresh the current section's data so spinners resolve
       refreshActiveSection();
     }
   });
