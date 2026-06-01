@@ -2164,7 +2164,8 @@ async function sendPush(userIds, title, body, url) {
       },
       body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
     });
-    if (!res.ok) console.log('sendPush response:', res.status);
+    const resData = await res.json().catch(() => ({}));
+    console.log('[sendPush] status:', res.status, '| response:', JSON.stringify(resData));
   } catch(e) {
     console.log('Push send failed:', e.message);
   }
@@ -2544,7 +2545,8 @@ async function initPushNotifications() {
         updated_at: new Date().toISOString()
       });
     }
-    console.log('Push notifications enabled on', deviceHint);
+    console.log('[push] Notifications enabled on', deviceHint);
+    console.log('[push] Subscription saved:', subStr.slice(0, 80) + '...');
   } catch(e) {
     console.log('Push setup failed:', e.message);
   }
