@@ -929,6 +929,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ════════════════════════════════════════════════
 let currentUser = null;
 let currentProfile = null;
+let cachedAccessToken = null; // cached at login, used by sendPush
 let activeChannel = 'general';
 let activeDMUserId = null;
 let activeDMUserName = '';
@@ -953,6 +954,7 @@ async function signOut() {
 
 async function initApp(session) {
   currentUser = session.user;
+  cachedAccessToken = session.access_token; // cache for sendPush
 
   document.getElementById('hubApp').style.display = 'grid';
 
@@ -2147,16 +2149,22 @@ function subscribeToNotifications() {
 async function sendPush(userIds, title, body, url) {
   try {
     const ids = Array.isArray(userIds) ? userIds : [userIds];
-    const { data: { session } } = await sb.auth.getSession();
-    if (!session?.access_token) return; // ← bail, don't fallback to anon
-    await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+    // Use cached token from login; fall back to live session if somehow not set
+    let token = cachedAccessToken;
+    if (!token) {
+      const { data: { session } } = await sb.auth.getSession();
+      token = session?.access_token;
+    }
+    if (!token) { console.log('sendPush: no auth token, skipping'); return; }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ user_id: ids, title, body, url: url || 'https://hub.prodeegee.com' })
     });
+    if (!res.ok) console.log('sendPush response:', res.status);
   } catch(e) {
     console.log('Push send failed:', e.message);
   }
@@ -2686,6 +2694,8 @@ function hideNotifToast() {
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await initApp(session);
+    } else if (event === 'TOKEN_REFRESHED' && session) {
+      cachedAccessToken = session.access_token; // keep token fresh
     } else if (event === 'SIGNED_OUT') {
       window.location.href = '/login.html';
     }
