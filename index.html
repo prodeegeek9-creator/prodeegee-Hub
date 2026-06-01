@@ -651,7 +651,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
 
       <!-- PROJECT TASKS BOARD -->
-      <div class="section" id="section-project-tasks" style="overflow:hidden;display:flex;flex-direction:column">
+      <div class="section" id="section-project-tasks" style="overflow:hidden;flex-direction:column">
         <!-- Project header bar -->
         <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
           <div style="display:flex;align-items:center;gap:10px">
@@ -1407,7 +1407,7 @@ async function populateAssigneeDropdown() {
 // NAVIGATION
 // ════════════════════════════════════════════════
 function switchSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
   document.querySelectorAll('.nav-item[id^="nav-"]').forEach(n => n.classList.remove('active'));
   const sec = document.getElementById('section-' + id);
   if (sec) sec.classList.add('active');
@@ -2025,8 +2025,10 @@ async function openProject(projectId, projectName) {
   document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
   document.getElementById('newTaskBtn').style.display = 'none';
   // Switch view
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('section-project-tasks').classList.add('active');
+  document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
+  const ptSection = document.getElementById('section-project-tasks');
+  ptSection.classList.add('active');
+  ptSection.style.display = 'flex';
   document.getElementById('teamOverviewWrap').style.display = 'block';
   document.getElementById('teamBoardWrap').style.display = 'none';
   // Update breadcrumb
@@ -2205,8 +2207,24 @@ async function createTeam() {
 async function openTeamSettings(teamId) {
   const team = teamsCache.find(t => t.id === teamId);
   if (!team) return;
-  // For now open add member modal — can expand later
-  openAddTeamMemberModal(teamId);
+  const action = confirm(`Team: ${team.name}\n\nClick OK to manage members, Cancel to delete this team.`);
+  if (action) {
+    openAddTeamMemberModal(teamId);
+  } else {
+    if (confirm(`Delete team "${team.name}"? This will unlink all tasks from this team but NOT delete them.`)) {
+      await deleteTeam(teamId);
+    }
+  }
+}
+
+async function deleteTeam(teamId) {
+  // Nullify team_id on tasks before deleting team to avoid FK constraint
+  await sb.from('hub_tasks').update({ team_id: null, assigned_by_team: null, review_by_team: null }).eq('team_id', teamId);
+  await sb.from('hub_team_members').delete().eq('team_id', teamId);
+  const { error } = await sb.from('hub_teams').delete().eq('id', teamId);
+  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  showToast('Team deleted');
+  await loadTeamOverview(activeProjectId);
 }
 
 async function openAddTeamMemberModal(teamId) {
@@ -2795,37 +2813,47 @@ function setConnStatus(connected) {
 function resubscribeAll() {
   console.log('[realtime] Resubscribing all channels...');
   setConnStatus(false);
-
-  // Tear down existing subscriptions
-  try { if (channelSubscription) channelSubscription.unsubscribe(); } catch {}
-  try { if (dmSubscription) dmSubscription.unsubscribe(); } catch {}
-  try { if (notifSubscription) notifSubscription.unsubscribe(); } catch {}
-
-  // Small delay before resubscribing to let the socket settle
-  setTimeout(() => {
-    subscribeToChannel(activeChannel);
-    subscribeToNotifications();
-    subscribeToAllMessages();
-    setConnStatus(true);
-    console.log('[realtime] Resubscribed');
-  }, 1500);
+  // Tear down existing subscriptions cleanly
+  try { if (channelSubscription) { channelSubscription.unsubscribe(); channelSubscription = null; } } catch {}
+  try { if (dmSubscription) { dmSubscription.unsubscribe(); dmSubscription = null; } } catch {}
+  try { if (notifSubscription) { notifSubscription.unsubscribe(); notifSubscription = null; } } catch {}
+  try { sb.removeAllChannels(); } catch {}
+  // Delay before resubscribing to let socket settle
+  if (reconnectTimer) clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(async () => {
+    try {
+      subscribeToChannel(activeChannel);
+      subscribeToNotifications();
+      subscribeToAllMessages();
+      if (activeDMUserId) subscribeToDM(activeDMUserId);
+      setConnStatus(true);
+      console.log('[realtime] Resubscribed OK');
+    } catch(e) {
+      console.error('[realtime] Resubscribe failed:', e);
+      setConnStatus(false);
+    }
+  }, 2000);
 }
 
 function startHeartbeat() {
   if (heartbeatTimer) clearInterval(heartbeatTimer);
-  // Ping Supabase every 25s to keep the websocket alive
-  // Supabase closes idle connections after ~60s
+  // Ping every 20s — Supabase closes idle WS after ~60s
   heartbeatTimer = setInterval(async () => {
     if (!currentUser) return;
     try {
-      // Lightweight ping — just check our own profile row
       const { error } = await sb.from('profiles').select('id').eq('id', currentUser.id).single();
       if (error) throw error;
+      // Also verify channel subscription is still alive
+      const state = channelSubscription?.state;
+      if (state && state !== 'joined') {
+        console.warn('[heartbeat] channel state:', state, '— resubscribing');
+        resubscribeAll();
+      }
     } catch (e) {
       console.warn('[heartbeat] ping failed, triggering reconnect:', e.message);
       resubscribeAll();
     }
-  }, 25000);
+  }, 20000);
 }
 
 function startVisibilityReconnect() {
