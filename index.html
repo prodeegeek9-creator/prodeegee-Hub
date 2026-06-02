@@ -541,10 +541,6 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="nav-item active" id="nav-home" onclick="switchSection('home')">
     <span class="nav-icon">⌂</span> Home
   </div>
-  <div class="nav-item" id="nav-channels" onclick="switchSection('channels')">
-    <span class="nav-icon">#</span> Channels
-    <span class="badge" id="channelBadge" style="display:none">0</span>
-  </div>
   <div class="nav-item" id="nav-dm" onclick="switchSection('dm')">
     <span class="nav-icon">◎</span> Direct Messages
   </div>
@@ -1952,13 +1948,13 @@ function openThread(msgId, preview) {
 
 async function loadThreadMessages(parentId) {
   const { data } = await sb.from('chat_messages')
-    .select('*')
+    .select('*, profiles!chat_messages_sender_id_fkey(id, full_name, avatar_url)')
     .eq('parent_id', parentId)
     .order('created_at', { ascending: true });
   const container = document.getElementById('threadMessages');
   container.innerHTML = data && data.length
     ? data.map(m => {
-        const p = m.profiles || {};
+        const p = m.profiles || allProfiles.find(q => q.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : {});
         const name = p.full_name || 'Unknown';
         return `<div style="display:flex;gap:8px;align-items:flex-start">
           <div class="msg-av" style="width:22px;height:22px;font-size:9px;background:${stringToColor(m.sender_id)}">${name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</div>
