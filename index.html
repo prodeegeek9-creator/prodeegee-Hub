@@ -1965,10 +1965,12 @@ let taskBodyType = 'text';
 async function loadProjects() {
   const grid = document.getElementById('projectsGrid');
   grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  const { data, error } = await sb.from('hub_projects')
-    .select('*, hub_project_members(user_id)').order('created_at', { ascending: false });
+  const data = await sbFetch(
+    'hub_projects?select=*,hub_project_members(user_id)&order=created_at.desc'
+  ).catch(() => null);
+  const error = data === null ? { message: 'Failed to load projects' } : null;
   if (error) { grid.innerHTML = `<div style="color:#ef5350;padding:20px;font-size:11px">${error.message}</div>`; return; }
-  let projects = data || [];
+  let projects = Array.isArray(data) ? data : [];
   if (!isAdmin()) {
     projects = projects.filter(p =>
       p.hub_project_members?.some(m => m.user_id === currentUser.id) || p.created_by === currentUser.id
@@ -2735,14 +2737,13 @@ async function openAddMemberModal(projectId) {
 async function loadFeed() {
   const wrap = document.getElementById('feedList');
   if (!wrap) return;
-  const { data: msgs } = await sb.from('chat_messages')
-    .select('*, profiles(full_name)').is('dm_to', null).is('parent_id', null)
-    .order('created_at', { ascending: false }).limit(5);
-  const { data: tasks } = await sb.from('hub_tasks')
-    .select('*').neq('status', 'Done').order('created_at', { ascending: false }).limit(5);
+  const [msgs, tasks] = await Promise.all([
+    sbFetch('chat_messages?select=*,profiles(full_name)&dm_to=is.null&parent_id=is.null&order=created_at.desc&limit=5').catch(() => []),
+    sbFetch('hub_tasks?select=*&status=neq.Done&order=created_at.desc&limit=5').catch(() => []),
+  ]);
   const feedItems = [
-    ...(msgs || []).map(m => ({ type: 'msg', time: m.created_at, html: `<div class="feed-item"><span style="color:var(--muted);font-size:9px">MSG</span> <b>${escHtml(m.profiles?.full_name||'?')}</b>: ${escHtml((m.body||'').slice(0,80))}</div>` })),
-    ...(tasks || []).map(t => ({ type: 'task', time: t.created_at, html: `<div class="feed-item"><span style="color:var(--orange);font-size:9px">TASK</span> ${escHtml(t.title)} — <span style="color:var(--muted)">${t.status}</span></div>` }))
+    ...(Array.isArray(msgs) ? msgs : []).map(m => ({ type: 'msg', time: m.created_at, html: `<div class="feed-item"><span style="color:var(--muted);font-size:9px">MSG</span> <b>${escHtml(m.profiles?.full_name||'?')}</b>: ${escHtml((m.body||'').slice(0,80))}</div>` })),
+    ...(Array.isArray(tasks) ? tasks : []).map(t => ({ type: 'task', time: t.created_at, html: `<div class="feed-item"><span style="color:var(--orange);font-size:9px">TASK</span> ${escHtml(t.title)} — <span style="color:var(--muted)">${t.status}</span></div>` }))
   ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,8);
   wrap.innerHTML = feedItems.length ? feedItems.map(f => f.html).join('') : '<div style="color:var(--muted);font-size:11px;padding:12px">No recent activity</div>';
 }
@@ -3005,27 +3006,19 @@ function startVisibilityReconnect() {
   // Tab becomes visible — refresh data for current section + reconnect only if dead
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      // Refresh Supabase auth session on tab return — resets internal fetch state
-      sb.auth.refreshSession().catch(() => {});
-      const state = channelSubscription?.state;
-      // ── DIAGNOSTIC — paste what you see in console ──
-      const allSections = {};
-      document.querySelectorAll('.section').forEach(s => {
-        allSections[s.id] = {
-          active: s.classList.contains('active'),
-          display: s.style.display || window.getComputedStyle(s).display,
-          height: s.offsetHeight
-        };
+      // Refresh session then force reload current section
+      sb.auth.refreshSession().then(({ data }) => {
+        if (data?.session?.access_token) {
+          cachedAccessToken = data.session.access_token;
+          cachedRefreshToken = data.session.refresh_token;
+        }
+        // Always force reload current section after tab return
+        setTimeout(refreshActiveSection, 200);
+      }).catch(() => {
+        setTimeout(refreshActiveSection, 200);
       });
-      console.group('[TAB RETURN DIAGNOSTIC]');
-      console.log('activeSection var:', activeSection);
-      console.log('activeProjectId:', activeProjectId);
-      console.log('activeTeamId:', activeTeamId);
-      console.log('channel state:', state);
-      console.log('isReconnecting:', isReconnecting);
-      console.log('sections:', JSON.stringify(allSections, null, 2));
-      console.groupEnd();
-      // ── END DIAGNOSTIC ──
+      const state = channelSubscription?.state;
+
       if (state === 'closed' || state === 'errored' || !state) {
         resubscribeAll();
       }
