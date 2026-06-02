@@ -1033,6 +1033,30 @@ const EVENTS_WORKER_URL = 'https://hub-events.prodeegeek9.workers.dev';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Native fetch wrapper — bypasses Supabase JS client entirely
+// Used for load functions to avoid frozen client queue after tab hibernation
+async function sbFetch(path, opts = {}) {
+  const token = cachedAccessToken || (await sb.auth.getSession()).data?.session?.access_token;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method: opts.method || 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'apikey': SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Prefer': opts.prefer || 'return=representation',
+      ...opts.headers,
+    },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    signal: opts.signal,
+  });
+  if (!res.ok) {
+    const err = await res.text().catch(() => res.statusText);
+    throw new Error(`sbFetch ${path}: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
 // ════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════
@@ -1461,19 +1485,17 @@ async function loadDMInbox() {
   if (!inbox) return;
   inbox.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-  // Get latest message per conversation partner
-  const { data } = await sb.from('chat_messages')
-    .select('*')
-    .is('channel_id', null)
-    .is('parent_id', null)
-    .or(`sender_id.eq.${currentUser.id},dm_to.eq.${currentUser.id}`)
-    .order('created_at', { ascending: false })
-    .limit(100);
+  // Get latest message per conversation partner — use native fetch to avoid frozen client
+  const uid = currentUser.id;
+  const data = await sbFetch(
+    `chat_messages?select=*&channel_id=is.null&parent_id=is.null&or=(sender_id.eq.${uid},dm_to.eq.${uid})&order=created_at.desc&limit=100`
+  ).catch(() => null);
 
   if (!data || !data.length) {
     inbox.innerHTML = '<div class="empty-state"><div class="big">◎</div>No messages yet. Start a conversation from the sidebar.</div>';
     return;
   }
+  // data is array directly from sbFetch (not wrapped in {data})
 
   // Group by conversation partner
   const conversations = {};
@@ -1528,13 +1550,9 @@ async function loadChannelMessages(channel) {
   if (!list) return;
   if (loading) loading.style.display = 'flex';
   try {
-    const { data } = await sb.from('chat_messages')
-      .select('*')
-      .eq('channel_id', channel)
-      .is('dm_to', null)
-      .is('parent_id', null)
-      .order('created_at', { ascending: true })
-      .limit(50);
+    const data = await sbFetch(
+      `chat_messages?select=*&channel_id=eq.${encodeURIComponent(channel)}&dm_to=is.null&parent_id=is.null&order=created_at.asc&limit=50`
+    ).catch(() => null);
     if (loading) loading.style.display = 'none';
     list.innerHTML = '';
     if (data && data.length) {
@@ -1622,13 +1640,10 @@ function openDM(userId, userName) {
 async function loadDMMessages(toUserId) {
   const list = document.getElementById('dmList');
   list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  const { data } = await sb.from('chat_messages')
-    .select('*')
-    .is('channel_id', null)
-    .is('parent_id', null)
-    .or(`and(sender_id.eq.${currentUser.id},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${currentUser.id})`)
-    .order('created_at', { ascending: true })
-    .limit(50);
+  const uid = currentUser.id;
+  const data = await sbFetch(
+    `chat_messages?select=*&channel_id=is.null&parent_id=is.null&or=(and(sender_id.eq.${uid},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${uid}))&order=created_at.asc&limit=50`
+  ).catch(() => null);
   list.innerHTML = '';
   if (data && data.length) {
     const msgs = data.map(m => ({
@@ -2590,9 +2605,9 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 // NOTIFICATIONS
 // ════════════════════════════════════════════════
 async function loadNotifications() {
-  const { data } = await sb.from('notifications')
-    .select('*').eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false }).limit(30);
+  const data = await sbFetch(
+    `notifications?select=*&user_id=eq.${currentUser.id}&order=created_at.desc&limit=30`
+  ).catch(() => null);
   renderNotifications(data || []);
 }
 
