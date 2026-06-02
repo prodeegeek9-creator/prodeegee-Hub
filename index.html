@@ -204,6 +204,11 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .kcard-outgoing{background:rgba(79,195,247,.05);border-left:3px solid #4fc3f7 !important}
 .kcard-outgoing-banner{background:rgba(79,195,247,.18);color:#4fc3f7;font-size:9px;font-weight:700;padding:3px 8px;margin:-10px -12px 8px;letter-spacing:1px;display:block;border-bottom:1px solid rgba(79,195,247,.25)}
 .incoming-badge{background:#ce93d8;color:#000;font-size:9px;font-weight:700;padding:2px 7px;letter-spacing:.5px;margin-left:6px;vertical-align:middle;display:none}
+.attach-zone{border:1px dashed var(--border);padding:10px 12px;text-align:center;cursor:pointer;transition:border-color .15s;font-size:11px;color:var(--muted);user-select:none}
+.attach-zone:hover,.attach-zone.drag-over{border-color:var(--orange);color:var(--orange)}
+.attach-item{display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--surface);border:1px solid var(--border);font-size:11px}
+.attach-item-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.attach-size{color:var(--muted);font-size:10px;flex-shrink:0}
 .cm-editor-wrap{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.5;background:var(--surface);color:var(--text);padding:8px;min-height:120px;border:none;outline:none;resize:vertical;width:100%;box-sizing:border-box;white-space:pre;overflow-x:auto}
 
 /* ── NOTIFICATIONS ── */
@@ -1060,8 +1065,21 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <input class="field-input" id="taskDue" type="date" />
         </div>
       </div>
+      <!-- Attachments -->
+      <div class="field-group">
+        <div class="field-label">Attachments <span style="color:var(--muted);font-weight:400">(optional · max 5 · 10 MB each)</span></div>
+        <div class="attach-zone" id="taskAttachZone"
+          onclick="document.getElementById('taskFileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="onFileDrop(event)">
+          📎 Click or drag files here
+          <input type="file" id="taskFileInput" multiple style="display:none" onchange="onFileSelect(event)" />
+        </div>
+        <div id="stagedFilesList" style="margin-top:4px;display:flex;flex-direction:column;gap:3px"></div>
+      </div>
       <input type="hidden" id="taskProjectId" value="" />
-      <button class="btn primary" onclick="createTask()" style="width:100%;padding:10px">Create Task →</button>
+      <button class="btn primary" id="createTaskBtn" onclick="createTask()" style="width:100%;padding:10px">Create Task →</button>
     </div>
   </div>
 </div>
@@ -2621,6 +2639,18 @@ ${isOutgoing && destTeam ? `<div style="font-size:9px;font-weight:700;padding:3p
 ${team && !isOutgoing ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}</div>`: ''}
 ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
 <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+    <span>Attachments</span>
+    <label style="cursor:pointer;color:var(--orange);font-size:10px;font-weight:600">
+      + Attach
+      <input type="file" multiple style="display:none" onchange="onDetailFileSelect(event,'${t.id}')" />
+    </label>
+  </div>
+  <div id="taskAttachmentsList" style="display:flex;flex-direction:column;gap:3px;margin-bottom:4px">
+    <div style="font-size:11px;color:var(--muted)">Loading...</div>
+  </div>
+</div>
+<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
   <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Activity</div>
   <div id="taskActivityLog" style="display:flex;flex-direction:column;max-height:220px;overflow-y:auto;margin-bottom:10px">
     <div style="font-size:11px;color:var(--muted)">Loading...</div>
@@ -2637,6 +2667,7 @@ if (window.innerWidth <= 768) {
   document.getElementById('taskDetailModal').classList.add('open');
 }
 loadTaskActivity(taskId);
+renderAttachments(taskId, 'taskAttachmentsList');
 }
 
 async function loadTaskActivity(taskId) {
@@ -2799,6 +2830,140 @@ taskBodyType = 'text';
 setTaskBodyType('text');
 populateTaskTeamDropdown();
 populateAssigneeDropdown(activeTeamId);
+stagedFiles = [];
+renderStagedFiles();
+}
+
+// ── File attachment helpers ────────────────────────────────────────────────────
+let stagedFiles = [];
+
+function fileIcon(name) {
+const ext = (name.split('.').pop() || '').toLowerCase();
+if (['jpg','jpeg','png','gif','webp','svg','avif'].includes(ext)) return '🖼';
+if (ext === 'pdf') return '📄';
+if (['zip','tar','gz','rar','7z'].includes(ext)) return '📦';
+if (['js','ts','jsx','tsx','py','sql','json','html','css','sh'].includes(ext)) return '📝';
+if (['mp4','mov','avi','webm','mkv'].includes(ext)) return '🎬';
+if (['mp3','wav','ogg','m4a'].includes(ext)) return '🎵';
+return '📎';
+}
+
+function formatFileSize(bytes) {
+if (!bytes) return '—';
+if (bytes < 1024) return bytes + ' B';
+if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function onFileSelect(event) {
+addStagedFiles([...event.target.files]);
+event.target.value = '';
+}
+
+function onFileDrop(event) {
+event.preventDefault();
+const zone = document.getElementById('taskAttachZone');
+if (zone) zone.classList.remove('drag-over');
+addStagedFiles([...event.dataTransfer.files]);
+}
+
+function addStagedFiles(files) {
+for (const f of files) {
+  if (stagedFiles.length >= 5) { showToast('Max 5 files per task', 'error'); break; }
+  if (f.size > 10 * 1024 * 1024) { showToast(`${f.name} exceeds 10 MB limit`, 'error'); continue; }
+  stagedFiles.push(f);
+}
+renderStagedFiles();
+}
+
+function renderStagedFiles() {
+const el = document.getElementById('stagedFilesList');
+if (!el) return;
+el.innerHTML = stagedFiles.map((f, i) => `
+<div class="attach-item">
+  <span>${fileIcon(f.name)}</span>
+  <span class="attach-item-name">${escHtml(f.name)}</span>
+  <span class="attach-size">${formatFileSize(f.size)}</span>
+  <span style="cursor:pointer;color:var(--muted);flex-shrink:0" onclick="removeStagedFile(${i})">✕</span>
+</div>`).join('');
+}
+
+function removeStagedFile(i) {
+stagedFiles.splice(i, 1);
+renderStagedFiles();
+}
+
+async function uploadTaskFile(taskId, file) {
+const token = cachedAccessToken || (await sb.auth.getSession()).data?.session?.access_token;
+const safeName = file.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
+const path = `${taskId}/${Date.now()}-${safeName}`;
+const res = await fetch(`${SUPABASE_URL}/storage/v1/object/task-attachments/${path}`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'apikey': SUPABASE_ANON_KEY,
+    'Content-Type': file.type || 'application/octet-stream',
+    'x-upsert': 'false'
+  },
+  body: file
+});
+if (!res.ok) {
+  const txt = await res.text().catch(() => res.status);
+  throw new Error(txt);
+}
+return path;
+}
+
+async function fetchTaskAttachments(taskId) {
+return sbFetch(`task_attachments?task_id=eq.${taskId}&order=created_at.asc`).catch(() => []);
+}
+
+async function renderAttachments(taskId, containerId) {
+const el = document.getElementById(containerId);
+if (!el) return;
+const attachments = await fetchTaskAttachments(taskId);
+if (!Array.isArray(attachments) || !attachments.length) {
+  el.innerHTML = '<div style="font-size:11px;color:var(--muted)">No files attached</div>';
+  return;
+}
+// Batch-sign URLs
+const paths = attachments.map(a => a.file_path);
+const { data: signed } = await sb.storage.from('task-attachments').createSignedUrls(paths, 3600);
+const urlMap = {};
+(signed || []).forEach(s => { if (s.signedUrl) urlMap[s.path] = s.signedUrl; });
+
+el.innerHTML = attachments.map(a => {
+  const url = urlMap[a.file_path] || '#';
+  return `<div class="attach-item">
+    <span>${fileIcon(a.file_name)}</span>
+    <a class="attach-item-name" href="${escHtml(url)}" target="_blank" style="color:var(--orange);text-decoration:none" title="${escHtml(a.file_name)}">${escHtml(a.file_name)}</a>
+    <span class="attach-size">${formatFileSize(a.file_size)}</span>
+  </div>`;
+}).join('');
+}
+
+async function onDetailFileSelect(event, taskId) {
+const files = [...event.target.files];
+event.target.value = '';
+const el = document.getElementById('taskAttachmentsList');
+if (el) el.innerHTML = '<div style="font-size:11px;color:var(--muted)">Uploading...</div>';
+let anyFailed = false;
+for (const file of files) {
+  if (file.size > 10 * 1024 * 1024) { showToast(`${file.name} exceeds 10 MB`, 'error'); continue; }
+  try {
+    const path = await uploadTaskFile(taskId, file);
+    const { error } = await sb.from('task_attachments').insert({
+      task_id: taskId, file_name: file.name, file_path: path,
+      file_size: file.size, mime_type: file.type || null, uploaded_by: currentUser.id
+    });
+    if (error) throw new Error(error.message);
+  } catch(e) {
+    showToast('Upload failed: ' + e.message, 'error');
+    anyFailed = true;
+  }
+}
+if (!anyFailed) showToast('File uploaded ✓');
+renderAttachments(taskId, 'taskAttachmentsList');
 }
 
 async function createTask() {
@@ -2829,10 +2994,33 @@ task_body_type: taskBodyType,
 code_language: taskBodyType === 'code' ? document.getElementById('codeLangSelect').value : null,
 };
 
+const btn = document.getElementById('createTaskBtn');
+if (btn) { btn.textContent = 'Creating...'; btn.disabled = true; }
 const { data: task, error } = await sb.from('hub_tasks').insert(taskData).select().single();
+if (btn) { btn.textContent = 'Create Task →'; btn.disabled = false; }
 if (error) { showToast('Failed: ' + error.message, 'error'); return; }
 
 await sb.from('task_activity').insert({ task_id: task.id, user_id: currentUser.id, action: 'created', note: `Created by ${currentProfile.full_name}` });
+
+// Upload any staged files
+if (stagedFiles.length) {
+  if (btn) { btn.textContent = 'Uploading files...'; btn.disabled = true; }
+  const filesToUpload = [...stagedFiles];
+  stagedFiles = [];
+  renderStagedFiles();
+  for (const file of filesToUpload) {
+    try {
+      const path = await uploadTaskFile(task.id, file);
+      await sb.from('task_attachments').insert({
+        task_id: task.id, file_name: file.name, file_path: path,
+        file_size: file.size, mime_type: file.type || null, uploaded_by: currentUser.id
+      });
+    } catch(e) {
+      showToast(`Could not upload ${file.name}: ${e.message}`, 'error');
+    }
+  }
+  if (btn) { btn.textContent = 'Create Task →'; btn.disabled = false; }
+}
 
 closeModal('taskModal');
 document.getElementById('taskTitle').value = '';
