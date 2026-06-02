@@ -168,20 +168,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
 body.light .theme-toggle{background:var(--orange)}
 body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
-.kol{background:var(--surface);border:1px solid var(--border);width:220px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
-.kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.kol{background:var(--surface);border:1px solid var(--border);width:240px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
+.kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
 .kol-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
-.kcard{background:var(--panel);border:1px solid var(--border);padding:10px;cursor:pointer;transition:border-color .15s;animation:fadeIn .2s ease}
-.kcard:hover{border-color:var(--orange)}
-.kcard-title{font-size:12px;color:var(--text);margin-bottom:7px;line-height:1.4}
+.kcard{background:var(--panel);border:1px solid var(--border);border-left:3px solid transparent;padding:10px 12px;cursor:pointer;transition:all .15s;animation:fadeIn .2s ease}
+.kcard:hover{border-color:var(--orange);border-left-color:var(--orange);box-shadow:0 2px 8px rgba(255,107,43,.1);transform:translateX(1px)}
+.kcard-title{font-size:11px;color:var(--text);font-weight:600;margin-bottom:7px;line-height:1.5}
 .kcard-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .priority{font-size:9px;padding:2px 5px;font-weight:600;letter-spacing:.5px}
 .pri-high{background:rgba(229,57,53,.2);color:#ef9a9a}
 .pri-med{background:rgba(255,213,79,.15);color:#ffd54f}
 .pri-low{background:rgba(0,255,157,.1);color:var(--green)}
 .pri-done{background:rgba(100,100,100,.15);color:var(--muted)}
-.assignee-pill{font-size:9px;color:var(--muted);background:var(--dim);padding:2px 6px}
-.due-label{font-size:9px;color:var(--muted);margin-left:auto}
+.assignee-pill{font-size:9px;color:var(--green);background:rgba(0,255,157,.08);border:1px solid rgba(0,255,157,.2);padding:2px 7px;font-weight:500}
+.due-label{font-size:9px;color:#ff6b6b;background:rgba(239,83,80,.08);border:1px solid rgba(239,83,80,.2);padding:1px 5px;margin-left:auto}
 .add-task-btn{margin:8px;padding:6px;font-size:11px;color:var(--muted);background:none;border:1px dashed var(--dim);cursor:pointer;font-family:var(--font);width:calc(100% - 16px);transition:all .15s}
 .add-task-btn:hover{border-color:var(--orange);color:var(--orange)}
 .team-card{background:var(--panel);border:1px solid var(--border);padding:14px;cursor:pointer;transition:all .15s;position:relative;border-radius:2px}
@@ -235,7 +235,7 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 #homeStatsRow .home-stat-card:nth-child(2){animation-delay:.1s}
 #homeStatsRow .home-stat-card:nth-child(3){animation-delay:.15s}
 #homeStatsRow .home-stat-card:nth-child(4){animation-delay:.2s}
-@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}}
+@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}#homeContent{padding:12px;gap:12px}#homeHero{padding:16px 14px}#homeName{font-size:19px}#homeClock{font-size:20px;letter-spacing:1px}.home-stat-card{padding:10px 12px}.home-stat-num{font-size:20px}.home-member-chip{padding:5px 8px}.kanban-wrap{gap:8px;padding:8px}.kol{width:200px}}
 .feed-item{background:var(--surface);border:1px solid var(--border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
 .feed-item:hover{border-color:var(--dim)}
 .feed-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
@@ -342,11 +342,26 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
   .email-list-col{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:40vh}
 
   /* Kanban mobile - horizontal scroll */
-  .kanban-wrap{padding:10px}
-  .kol{width:180px}
+  .kanban-wrap{padding:8px;gap:8px}
+  .kol{width:190px}
+  .kcard{padding:9px 10px}
+  .kcard-title{font-size:11px}
 
   /* Projects grid mobile */
   #projectsGrid{grid-template-columns:1fr 1fr !important;gap:10px;padding:10px}
+  .project-card{padding:12px}
+  .project-card-name{font-size:12px}
+
+  /* Teams grid mobile */
+  #teamsGrid{grid-template-columns:1fr 1fr !important;gap:8px}
+  .team-card{padding:10px 12px}
+
+  /* Home mobile */
+  #homeHero{padding:14px 12px}
+  #homeClock{font-size:22px}
+  #homeName{font-size:18px}
+  #homeWeather{font-size:10px;padding:3px 8px}
+  .home-stat-num{font-size:20px}
 
   /* Modals mobile */
   .modal{width:calc(100vw - 32px) !important;margin:16px;max-height:85vh;overflow-y:auto}
@@ -561,18 +576,20 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
             <!-- orange accent bar -->
             <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--orange)"></div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
-              <div>
-                <div id="homeGreeting" style="font-size:11px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'IBM Plex Mono',monospace">// INITIALIZING...</div>
-                <div id="homeName" style="font-size:26px;font-weight:700;color:var(--text);letter-spacing:-0.5px;line-height:1.1">Welcome back</div>
-                <div id="homeRole" style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:2px;text-transform:uppercase"></div>
-              </div>
-              <div style="text-align:right">
-                <div id="homeClock" style="font-size:32px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1">00:00</div>
-                <div id="homeDate" style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px"></div>
-                <div id="homeWeather" style="margin-top:8px;font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px;justify-content:flex-end">
-                  <span id="homeWeatherIcon">◌</span>
-                  <span id="homeWeatherText">Fetching weather...</span>
+              <div style="flex:1;min-width:0">
+                <div id="homeGreeting" style="font-size:10px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'IBM Plex Mono',monospace">// INITIALIZING...</div>
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                  <div id="homeName" style="font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.5px;line-height:1.1">Welcome back</div>
+                  <div id="homeWeather" style="display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);padding:4px 10px;font-size:11px;color:var(--green)">
+                    <span id="homeWeatherIcon">◌</span>
+                    <span id="homeWeatherText">...</span>
+                  </div>
                 </div>
+                <div id="homeRole" style="font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:2px;text-transform:uppercase"></div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div id="homeClock" style="font-size:30px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1;letter-spacing:2px">00:00:00</div>
+                <div id="homeDate" style="font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:1px"></div>
               </div>
             </div>
             <!-- quick action bar -->
@@ -3011,11 +3028,10 @@ function connectSSE() {
     if (!list) return;
     messages.forEach(msg => {
       if (msg.sender_id === currentUser.id) return; // own messages already shown
-      if (list.querySelector(`[data-id="${msg.id}"]`)) return; // dedupe
+      if (list.querySelector(`[data-msgId="${msg.id}"]`)) return; // dedupe
       const profile = allProfiles.find(p => p.id === msg.sender_id);
       msg.profiles = profile;
       const el = buildMsgEl(msg);
-      el.dataset.id = msg.id;
       list.appendChild(el);
       list.scrollTop = list.scrollHeight;
     });
@@ -3037,15 +3053,14 @@ function connectSSE() {
   es.addEventListener('dm_message', e => {
     const { messages, dm_user } = JSON.parse(e.data);
     if (dm_user !== activeDMUserId) return;
-    const list = document.getElementById('dmMsgList');
+    const list = document.getElementById('dmList');
     if (!list) return;
     messages.forEach(msg => {
       if (msg.sender_id === currentUser.id) return;
-      if (list.querySelector(`[data-id="${msg.id}"]`)) return;
+      if (list.querySelector(`[data-msgId="${msg.id}"]`)) return;
       const profile = allProfiles.find(p => p.id === msg.sender_id);
       msg.profiles = profile;
-      const el = buildDMBubble(msg);
-      el.dataset.id = msg.id;
+      const el = buildMsgEl(msg, true);
       list.appendChild(el);
       list.scrollTop = list.scrollHeight;
     });
@@ -3069,11 +3084,10 @@ function connectSSE() {
     messages
       .filter(m => m.parent_id === activeThreadMsgId && m.sender_id !== currentUser.id)
       .forEach(msg => {
-        if (list.querySelector(`[data-id="${msg.id}"]`)) return;
+        if (list.querySelector(`[data-msgId="${msg.id}"]`)) return;
         const profile = allProfiles.find(p => p.id === msg.sender_id);
         msg.profiles = profile;
         const el = buildMsgEl(msg);
-        el.dataset.id = msg.id;
         list.appendChild(el);
       });
   });
