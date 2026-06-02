@@ -211,6 +211,31 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 
 /* ── HOME FEED ── */
 .feed-wrap{padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1}
+.home-stat-card{background:var(--panel);border:1px solid var(--border);padding:14px 16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.home-stat-card:hover{border-color:var(--orange);transform:translateY(-1px)}
+.home-stat-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--orange);transform:scaleX(0);transition:transform .2s;transform-origin:left}
+.home-stat-card:hover::before{transform:scaleX(1)}
+.home-stat-num{font-size:28px;font-weight:700;color:var(--text);font-family:'IBM Plex Mono',monospace;line-height:1;margin:4px 0}
+.home-stat-label{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.home-stat-icon{font-size:14px;margin-bottom:2px}
+.home-task-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.home-task-row:last-child{border-bottom:none}
+.home-task-row:hover{background:var(--surface)}
+.home-task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.home-task-title{font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-task-badge{font-size:8px;padding:2px 6px;background:var(--surface);border:1px solid var(--border);color:var(--muted);letter-spacing:.5px}
+.feed-item{padding:8px 14px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.5;transition:background .1s}
+.feed-item:hover{background:var(--surface)}
+.feed-item:last-child{border-bottom:none}
+.home-member-chip{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.home-member-chip:hover{border-color:var(--green)}
+@keyframes homeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.home-stat-card,.homeHero{animation:homeSlideIn .3s ease both}
+#homeStatsRow .home-stat-card:nth-child(1){animation-delay:.05s}
+#homeStatsRow .home-stat-card:nth-child(2){animation-delay:.1s}
+#homeStatsRow .home-stat-card:nth-child(3){animation-delay:.15s}
+#homeStatsRow .home-stat-card:nth-child(4){animation-delay:.2s}
+@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}}
 .feed-item{background:var(--surface);border:1px solid var(--border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
 .feed-item:hover{border-color:var(--dim)}
 .feed-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
@@ -526,16 +551,98 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
       </div>
 
       <!-- HOME -->
-      <div class="section active" id="section-home">
-        <div class="feed-wrap" id="feedWrap">
-          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding-bottom:4px;flex-shrink:0">Recent Activity</div>
-          <div class="loading" id="feedLoading"><div class="spinner"></div>Loading activity...</div>
-          <div id="feedItems"></div>
-          <div style="display:flex;gap:8px;padding-top:4px;flex-shrink:0">
-            <button class="btn sm" onclick="openChannel('general')">+ Message</button>
-            <button class="btn sm" onclick="openTaskModal()">+ Task</button>
-            <button class="btn sm" onclick="openComposeModal()">+ Email</button>
+      <div class="section active" id="section-home" style="overflow-y:auto">
+        <div id="homeContent" style="padding:20px;display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%">
+
+          <!-- HERO: greeting + time + weather -->
+          <div id="homeHero" style="position:relative;background:var(--panel);border:1px solid var(--border);padding:24px 28px;overflow:hidden">
+            <!-- animated grid lines background -->
+            <div style="position:absolute;inset:0;opacity:.04;background-image:linear-gradient(var(--orange) 1px,transparent 1px),linear-gradient(90deg,var(--orange) 1px,transparent 1px);background-size:32px 32px;pointer-events:none"></div>
+            <!-- orange accent bar -->
+            <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--orange)"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+              <div>
+                <div id="homeGreeting" style="font-size:11px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'IBM Plex Mono',monospace">// INITIALIZING...</div>
+                <div id="homeName" style="font-size:26px;font-weight:700;color:var(--text);letter-spacing:-0.5px;line-height:1.1">Welcome back</div>
+                <div id="homeRole" style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:2px;text-transform:uppercase"></div>
+              </div>
+              <div style="text-align:right">
+                <div id="homeClock" style="font-size:32px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1">00:00</div>
+                <div id="homeDate" style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px"></div>
+                <div id="homeWeather" style="margin-top:8px;font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px;justify-content:flex-end">
+                  <span id="homeWeatherIcon">◌</span>
+                  <span id="homeWeatherText">Fetching weather...</span>
+                </div>
+              </div>
+            </div>
+            <!-- quick action bar -->
+            <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">
+              <button class="btn sm primary" onclick="openChannel('general')" style="font-size:10px;letter-spacing:1px">⌘ MESSAGE</button>
+              <button class="btn sm" onclick="openTaskModal()" style="font-size:10px;letter-spacing:1px">◈ NEW TASK</button>
+              <button class="btn sm" onclick="openComposeModal()" style="font-size:10px;letter-spacing:1px">✉ COMPOSE</button>
+              <button class="btn sm" onclick="switchSection('projects')" style="font-size:10px;letter-spacing:1px">▦ PROJECTS</button>
+            </div>
           </div>
+
+          <!-- STATS ROW -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="homeStatsRow">
+            <div class="home-stat-card" onclick="switchSection('projects')">
+              <div class="home-stat-icon" style="color:var(--orange)">◈</div>
+              <div class="home-stat-num" id="hstatTasks">—</div>
+              <div class="home-stat-label">Active Tasks</div>
+            </div>
+            <div class="home-stat-card" onclick="switchSection('notifications')">
+              <div class="home-stat-icon" style="color:#ffd54f">◉</div>
+              <div class="home-stat-num" id="hstatNotifs">—</div>
+              <div class="home-stat-label">Unread Notifs</div>
+            </div>
+            <div class="home-stat-card" onclick="switchSection('email')">
+              <div class="home-stat-icon" style="color:var(--green)">✉</div>
+              <div class="home-stat-num" id="hstatEmails">—</div>
+              <div class="home-stat-label">New Emails</div>
+            </div>
+            <div class="home-stat-card">
+              <div class="home-stat-icon" style="color:#4fc3f7">◎</div>
+              <div class="home-stat-num" id="hstatOnline">—</div>
+              <div class="home-stat-label">Online Now</div>
+            </div>
+          </div>
+
+          <!-- MY TASKS + ACTIVITY -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="homeGridRow">
+
+            <!-- MY TASKS -->
+            <div style="background:var(--panel);border:1px solid var(--border)">
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase">◈ My Tasks</span>
+                <button class="btn sm" onclick="openTaskModal()" style="font-size:9px;padding:2px 8px">+ New</button>
+              </div>
+              <div id="homeMyTasks" style="padding:8px 0;max-height:220px;overflow-y:auto">
+                <div class="loading" style="padding:20px"><div class="spinner"></div></div>
+              </div>
+            </div>
+
+            <!-- RECENT ACTIVITY -->
+            <div style="background:var(--panel);border:1px solid var(--border)">
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+                <span style="font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase">▸ Activity Feed</span>
+              </div>
+              <div id="feedList" style="padding:8px 0;max-height:220px;overflow-y:auto">
+                <div class="loading" style="padding:20px"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ONLINE TEAM -->
+          <div style="background:var(--panel);border:1px solid var(--border)">
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+              <span style="font-size:10px;color:#4fc3f7;letter-spacing:2px;text-transform:uppercase">◎ Team Online</span>
+            </div>
+            <div id="homeTeamOnline" style="padding:12px 14px;display:flex;gap:12px;flex-wrap:wrap">
+              <div class="loading" style="padding:8px"><div class="spinner"></div></div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -2727,18 +2834,126 @@ async function openAddMemberModal(projectId) {
 // ════════════════════════════════════════════════
 // FEED
 // ════════════════════════════════════════════════
-async function loadFeed() {
-  const wrap = document.getElementById('feedList');
-  if (!wrap) return;
-  const [msgs, tasks] = await Promise.all([
-    sbFetch('chat_messages?select=*,profiles(full_name)&dm_to=is.null&parent_id=is.null&order=created_at.desc&limit=5').catch(() => []),
-    sbFetch('hub_tasks?select=*&status=neq.Done&order=created_at.desc&limit=5').catch(() => []),
+async function loadFeed() { loadHomeDashboard(); }
+
+async function loadHomeDashboard() {
+  if (!currentUser) return;
+  startHomeClock();
+
+  // Greeting
+  const hour = new Date().getHours();
+  const greetMap = hour < 5 ? '// BURNING MIDNIGHT OIL' : hour < 12 ? '// GOOD MORNING' : hour < 17 ? '// GOOD AFTERNOON' : hour < 21 ? '// GOOD EVENING' : '// BURNING MIDNIGHT OIL';
+  const el = (id) => document.getElementById(id);
+  if (el('homeGreeting')) el('homeGreeting').textContent = greetMap;
+  if (el('homeName'))     el('homeName').textContent     = currentProfile?.full_name || currentUser.email.split('@')[0];
+  if (el('homeRole'))     el('homeRole').textContent     = (currentProfile?.role || 'member').toUpperCase() + ' · PRODEEGEE HUB';
+
+  loadHomeWeather();
+
+  // Data
+  const uid = currentUser.id;
+  const [myTasks, recentMsgs, notifs] = await Promise.all([
+    sbFetch(`hub_tasks?select=*&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&status=neq.Done&order=created_at.desc&limit=8`).catch(() => []),
+    sbFetch('chat_messages?select=*,profiles(full_name)&dm_to=is.null&parent_id=is.null&order=created_at.desc&limit=10').catch(() => []),
+    sbFetch(`notifications?select=*&user_id=eq.${uid}&read=eq.false&order=created_at.desc&limit=5`).catch(() => []),
   ]);
-  const feedItems = [
-    ...(Array.isArray(msgs) ? msgs : []).map(m => ({ type: 'msg', time: m.created_at, html: `<div class="feed-item"><span style="color:var(--muted);font-size:9px">MSG</span> <b>${escHtml(m.profiles?.full_name||'?')}</b>: ${escHtml((m.body||'').slice(0,80))}</div>` })),
-    ...(Array.isArray(tasks) ? tasks : []).map(t => ({ type: 'task', time: t.created_at, html: `<div class="feed-item"><span style="color:var(--orange);font-size:9px">TASK</span> ${escHtml(t.title)} — <span style="color:var(--muted)">${t.status}</span></div>` }))
-  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,8);
-  wrap.innerHTML = feedItems.length ? feedItems.map(f => f.html).join('') : '<div style="color:var(--muted);font-size:11px;padding:12px">No recent activity</div>';
+
+  // Stats
+  const setEl = (id, val) => { const e = el(id); if (e) e.textContent = val; };
+  setEl('hstatTasks',  Array.isArray(myTasks) ? myTasks.length : '—');
+  setEl('hstatNotifs', Array.isArray(notifs)  ? notifs.length  : '—');
+  setEl('hstatOnline', allProfiles.length + 1);
+  setEl('hstatEmails', el('emailBadge')?.textContent || '0');
+  setEl('statOnline',  allProfiles.length + 1);
+
+  // My Tasks
+  const tasksEl = el('homeMyTasks');
+  if (tasksEl) {
+    const priC = { High:'#ef5350', Medium:'#ffd54f', Low:'#69f0ae' };
+    const stC  = { Queue:'var(--muted)', Claimed:'#4fc3f7', 'In Progress':'var(--orange)', Review:'#ffd54f', Done:'var(--green)' };
+    tasksEl.innerHTML = !myTasks?.length
+      ? '<div style="padding:16px 14px;font-size:10px;color:var(--muted)">No active tasks ✓</div>'
+      : myTasks.map(t => `<div class="home-task-row" onclick="switchSection('projects')">
+          <div class="home-task-dot" style="background:${priC[t.priority]||'var(--muted)'}"></div>
+          <div class="home-task-title">${escHtml(t.title)}</div>
+          <div class="home-task-badge" style="color:${stC[t.status]||'var(--muted)'}">${t.status}</div>
+        </div>`).join('');
+  }
+
+  // Activity feed
+  const feedEl = el('feedList');
+  if (feedEl) {
+    const items = (Array.isArray(recentMsgs) ? recentMsgs : []).map(m => ({
+      time: m.created_at,
+      html: `<div class="feed-item">
+        <span style="color:var(--muted);font-size:9px;letter-spacing:1px"># ${escHtml((m.channel_id||'dm').toString().toUpperCase())}</span>
+        <span style="color:var(--text);margin:0 4px">${escHtml(m.profiles?.full_name||'?')}</span>
+        <span style="color:var(--muted)">${escHtml((m.body||'').slice(0,60))}${(m.body||'').length>60?'…':''}</span>
+        <span style="float:right;font-size:9px;color:var(--dim)">${formatTime(m.created_at)}</span>
+      </div>`
+    })).sort((a,b) => new Date(b.time)-new Date(a.time)).slice(0,10);
+    feedEl.innerHTML = items.length ? items.map(i=>i.html).join('')
+      : '<div style="padding:16px 14px;font-size:10px;color:var(--muted)">No recent activity</div>';
+  }
+
+  // Team online
+  const teamEl = el('homeTeamOnline');
+  if (teamEl) {
+    const everyone = [currentProfile, ...allProfiles].filter(Boolean);
+    teamEl.innerHTML = everyone.map(p => {
+      const initials = (p.full_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const isMe = p.id === currentUser.id;
+      return `<div class="home-member-chip" onclick="${isMe ? "switchSection('profile')" : `openDM('${p.id}','${escHtml(p.full_name||'')}')`}">
+        <div class="member-av" style="background:${stringToColor(p.id)};width:24px;height:24px;font-size:9px;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-size:10px;color:var(--text)">${escHtml(p.full_name||'')}${isMe?' (you)':''}</div>
+          <div style="font-size:8px;color:var(--green)">● Active</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+let homeClockTimer = null;
+function startHomeClock() {
+  if (homeClockTimer) return;
+  const tick = () => {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const clockEl = document.getElementById('homeClock');
+    if (clockEl) clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const dateEl = document.getElementById('homeDate');
+    if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  };
+  tick();
+  homeClockTimer = setInterval(tick, 1000);
+}
+
+async function loadHomeWeather() {
+  const iconEl = document.getElementById('homeWeatherIcon');
+  const textEl = document.getElementById('homeWeatherText');
+  if (!iconEl || !textEl) return;
+  try {
+    const pos = await new Promise((res,rej) =>
+      navigator.geolocation.getCurrentPosition(res, rej, {timeout:5000})
+    ).catch(() => null);
+    const lat = pos?.coords.latitude  ?? 6.5244;  // Lagos fallback
+    const lon = pos?.coords.longitude ?? 3.3792;
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
+    const wx  = await res.json();
+    const code = wx.current_weather?.weathercode ?? 0;
+    const temp = Math.round(wx.current_weather?.temperature ?? 0);
+    const wind = Math.round(wx.current_weather?.windspeed ?? 0);
+    const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
+    const descs = {0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',61:'Rain',71:'Snow',80:'Showers',95:'Thunderstorm'};
+    const icon = icons[code] || icons[Math.floor(code/10)*10] || '🌡️';
+    const desc = descs[code] || descs[Math.floor(code/10)*10] || 'Unknown';
+    iconEl.textContent = icon;
+    textEl.textContent = `${temp}°C · ${desc} · ${wind}km/h`;
+  } catch {
+    iconEl.textContent = '🌡️';
+    textEl.textContent = 'Lagos, NG';
+  }
 }
 
 // ════════════════════════════════════════════════
