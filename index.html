@@ -1513,7 +1513,6 @@ function setUserUI() {
 // PROFILES / MEMBERS
 // ════════════════════════════════════════════════
 let myProjectIds = []; // project IDs current user belongs to
-let myProjectMemberIds = []; // user IDs of people sharing projects with me
 
 async function loadAllProfiles() {
   const { data: myMemberships } = await sb.from('hub_project_members')
@@ -1774,7 +1773,7 @@ async function loadChannelMessages(channel) {
   if (loading) loading.style.display = 'flex';
   try {
     const data = await sbFetch(
-      `chat_messages?select=*,profiles!sender_id(id,full_name,avatar_url)&channel_id=eq.${encodeURIComponent(channel)}&dm_to=is.null&parent_id=is.null&order=created_at.asc&limit=50`
+      `chat_messages?select=*,profiles!chat_messages_sender_id_fkey(id,full_name,avatar_url)&channel_id=eq.${encodeURIComponent(channel)}&dm_to=is.null&parent_id=is.null&order=created_at.asc&limit=50`
     ).catch(() => null);
     if (loading) loading.style.display = 'none';
     list.innerHTML = '';
@@ -1887,7 +1886,7 @@ async function loadDMMessages(toUserId) {
   list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const uid = currentUser.id;
   const data = await sbFetch(
-    `chat_messages?select=*,profiles!sender_id(id,full_name,avatar_url)&channel_id=is.null&parent_id=is.null&or=(and(sender_id.eq.${uid},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${uid}))&order=created_at.asc&limit=50`
+    `chat_messages?select=*,profiles!chat_messages_sender_id_fkey(id,full_name,avatar_url)&channel_id=is.null&parent_id=is.null&or=(and(sender_id.eq.${uid},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${uid}))&order=created_at.asc&limit=50`
   ).catch(() => null);
   list.innerHTML = '';
   if (data && data.length) {
@@ -2695,6 +2694,12 @@ ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11p
 // On mobile the right panel is hidden — open the task detail modal instead
 if (window.innerWidth <= 768) {
   document.getElementById('taskDetailContent').innerHTML = document.getElementById('rpContent').innerHTML;
+  // Clear IDs in the hidden rpContent copy so getElementById always resolves
+  // to the visible modal copy, not the hidden panel copy.
+  ['taskAttachmentsList','taskActivityLog','taskCommentInput'].forEach(id => {
+    const el = document.querySelector('#rpContent #' + id);
+    if (el) el.removeAttribute('id');
+  });
   document.getElementById('taskDetailModal').classList.add('open');
 }
 loadTaskActivity(taskId);
@@ -2959,7 +2964,11 @@ if (!Array.isArray(attachments) || !attachments.length) {
 }
 // Batch-sign URLs
 const paths = attachments.map(a => a.file_path);
-const { data: signed } = await sb.storage.from('task-attachments').createSignedUrls(paths, 3600);
+const { data: signed, error: signErr } = await sb.storage.from('task-attachments').createSignedUrls(paths, 3600);
+if (signErr) {
+  el.innerHTML = '<div style="font-size:11px;color:var(--muted)">Could not load files — check storage bucket setup</div>';
+  return;
+}
 const urlMap = {};
 (signed || []).forEach(s => { if (s.signedUrl) urlMap[s.path] = s.signedUrl; });
 
