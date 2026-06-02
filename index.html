@@ -1173,6 +1173,18 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   </div>
 </div>
 
+<!-- TASK DETAIL MODAL (mobile) -->
+
+<div class="modal-overlay" id="taskDetailModal">
+  <div class="modal" style="width:100%;max-height:90vh">
+    <div class="modal-header">
+      <div class="modal-title">◈ Task Detail</div>
+      <button class="modal-close" onclick="closeModal('taskDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="taskDetailContent" style="overflow-y:auto"></div>
+  </div>
+</div>
+
 <!-- TOAST -->
 
 <div class="toast" id="toast"></div>
@@ -2563,7 +2575,61 @@ const bodyHtml = t.task_body_type === 'code'
 ? `<pre style="background:var(--surface);padding:10px;font-size:11px;overflow-x:auto;white-space:pre-wrap;border:1px solid var(--border);margin-bottom:14px"><code>${escHtml(t.description || '')}</code></pre>`
 : `<div style="font-size:11px;color:var(--text);line-height:1.7;margin-bottom:14px;white-space:pre-wrap">${escHtml(t.description || 'No description')}</div>`;
 
-document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;font-size:13px;color:var(--orange);font-weight:600">${escHtml(t.title)}</div> ${team ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}${originTeam ? ` ← from ${escHtml(originTeam.name)}` : ''}</div>`: ''} ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}`;
+document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;font-size:13px;color:var(--orange);font-weight:600">${escHtml(t.title)}</div> ${team ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}${originTeam ? ` ← from ${escHtml(originTeam.name)}` : ''}</div>`: ''} ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
+<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Activity</div>
+  <div id="taskActivityLog" style="display:flex;flex-direction:column;max-height:220px;overflow-y:auto;margin-bottom:10px">
+    <div style="font-size:11px;color:var(--muted)">Loading...</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <textarea id="taskCommentInput" class="msg-input" rows="2" placeholder="Add a comment..." style="flex:1;min-width:0;resize:none;font-size:13px"></textarea>
+    <button class="btn sm primary" onclick="addTaskComment('${t.id}')" style="align-self:flex-end;flex-shrink:0">Post</button>
+  </div>
+</div>`;
+
+// On mobile the right panel is hidden — open the task detail modal instead
+if (window.innerWidth <= 768) {
+  document.getElementById('taskDetailContent').innerHTML = document.getElementById('rpContent').innerHTML;
+  document.getElementById('taskDetailModal').classList.add('open');
+}
+loadTaskActivity(taskId);
+}
+
+async function loadTaskActivity(taskId) {
+const el = document.getElementById('taskActivityLog');
+if (!el) return;
+const data = await sbFetch(
+  `task_activity?task_id=eq.${taskId}&order=created_at.desc&limit=60`
+).catch(() => []);
+if (!data || !data.length) {
+  el.innerHTML = '<div style="font-size:11px;color:var(--muted)">No activity yet</div>';
+  return;
+}
+const icons = { created:'◈', claimed:'⚡', dropped:'↩', status_changed:'→', comment:'💬', done:'✓' };
+el.innerHTML = data.map(a => `
+  <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+    <span style="color:var(--orange);font-size:12px;flex-shrink:0;margin-top:1px">${icons[a.action] || '●'}</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;color:var(--text);line-height:1.5;word-break:break-word">${escHtml(a.note || a.action)}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:1px">${formatTime(a.created_at)}</div>
+    </div>
+  </div>`).join('');
+}
+
+async function addTaskComment(taskId) {
+const input = document.getElementById('taskCommentInput');
+if (!input) return;
+const body = input.value.trim();
+if (!body) return;
+input.value = '';
+input.disabled = true;
+const { error } = await sb.from('task_activity').insert({
+  task_id: taskId, user_id: currentUser.id, action: 'comment',
+  note: `${currentProfile.full_name}: ${body}`
+});
+input.disabled = false;
+if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+loadTaskActivity(taskId);
 }
 
 async function claimTask(taskId) {
