@@ -1460,8 +1460,6 @@ async function loadDMInbox() {
   const inbox = document.getElementById('dmInbox');
   if (!inbox) return;
   inbox.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-  const _t = setTimeout(() => { console.warn('[loadDMInbox] timeout — retrying'); loadDMInbox(); }, 6000);
-  const _origDone = () => clearTimeout(_t);
 
   // Get latest message per conversation partner
   const { data } = await sb.from('chat_messages')
@@ -1529,15 +1527,6 @@ async function loadChannelMessages(channel) {
   const list = document.getElementById('msgList');
   if (!list) return;
   if (loading) loading.style.display = 'flex';
-  // Timeout guard — if fetch takes >6s, retry (catches browser hibernation freeze)
-  let retried = false;
-  const timeoutId = setTimeout(async () => {
-    if (retried) return;
-    retried = true;
-    console.warn('[loadChannelMessages] fetch timeout — retrying');
-    if (loading) loading.style.display = 'flex';
-    loadChannelMessages(channel);
-  }, 6000);
   try {
     const { data } = await sb.from('chat_messages')
       .select('*')
@@ -1546,8 +1535,6 @@ async function loadChannelMessages(channel) {
       .is('parent_id', null)
       .order('created_at', { ascending: true })
       .limit(50);
-    clearTimeout(timeoutId);
-    if (retried) return; // retry already fired, let it handle rendering
     if (loading) loading.style.display = 'none';
     list.innerHTML = '';
     if (data && data.length) {
@@ -1561,8 +1548,8 @@ async function loadChannelMessages(channel) {
     }
     list.scrollTop = list.scrollHeight;
   } catch(e) {
-    clearTimeout(timeoutId);
-    if (!retried) { retried = true; setTimeout(() => loadChannelMessages(channel), 1000); }
+    console.warn('[loadChannelMessages] error:', e.message);
+    if (loading) loading.style.display = 'none';
   }
 }
 
@@ -3003,6 +2990,8 @@ function startVisibilityReconnect() {
   // Tab becomes visible — refresh data for current section + reconnect only if dead
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      // Refresh Supabase auth session on tab return — resets internal fetch state
+      sb.auth.refreshSession().catch(() => {});
       const state = channelSubscription?.state;
       // ── DIAGNOSTIC — paste what you see in console ──
       const allSections = {};
