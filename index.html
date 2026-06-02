@@ -3647,13 +3647,13 @@ document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove
 // HELPERS
 // ════════════════════════════════════════════════
 function escHtml(str) {
-return String(str || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function formatMsgBody(text) {
 return text
 .replace(/\n/g, '<br>')
-.replace(/*(.*?)*/g, '<strong>$1</strong>')
+.replace(/\*(.*?)\*/g, '<strong>$1</strong>')
 .replace(/@(\w+)/g, '<span class="mention">@$1</span>')
 .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
