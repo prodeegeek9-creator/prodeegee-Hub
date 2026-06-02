@@ -1316,6 +1316,7 @@ async function initApp(session) {
   startHeartbeat();
   startVisibilityReconnect();
   connectSSE();
+  initPresence();
   updateStats();
   // Load channel messages after profiles are ready
   loadChannelMessages('general');
@@ -1515,29 +1516,13 @@ let myProjectIds = []; // project IDs current user belongs to
 let myProjectMemberIds = []; // user IDs of people sharing projects with me
 
 async function loadAllProfiles() {
-  // Load my project memberships first
   const { data: myMemberships } = await sb.from('hub_project_members')
     .select('project_id')
     .eq('user_id', currentUser.id);
   myProjectIds = (myMemberships || []).map(m => m.project_id);
-
-  if (isAdmin()) {
-    // Admins see everyone
-    const { data } = await sb.from('profiles').select('*').neq('id', currentUser.id);
-    allProfiles = data || [];
-  } else if (myProjectIds.length > 0) {
-    // Get all users sharing at least one project with me
-    const { data: sharedMembers } = await sb.from('hub_project_members')
-      .select('user_id')
-      .in('project_id', myProjectIds)
-      .neq('user_id', currentUser.id);
-    myProjectMemberIds = [...new Set((sharedMembers || []).map(m => m.user_id))];
-    const { data } = await sb.from('profiles').select('*').in('id', myProjectMemberIds.length ? myProjectMemberIds : ['00000000-0000-0000-0000-000000000000']);
-    allProfiles = data || [];
-  } else {
-    // No projects — see no one (basics only)
-    allProfiles = [];
-  }
+  // Always load all profiles — channels are shared across the whole org
+  const { data } = await sb.from('profiles').select('*').neq('id', currentUser.id);
+  allProfiles = data || [];
   renderMembers();
   renderDMNav();
   await populateAssigneeDropdown();
@@ -1576,22 +1561,63 @@ async function loadChannelNav() {
   if (mobCh) mobCh.innerHTML = nav.innerHTML;
 }
 
+// ── Presence ──────────────────────────────────────────────────────────────────
+let onlineUserIds = new Set();
+let presenceChannel = null;
+
+function initPresence() {
+  if (presenceChannel) { try { presenceChannel.unsubscribe(); } catch {} }
+  presenceChannel = sb.channel('hub-presence', {
+    config: { presence: { key: currentUser.id } }
+  });
+  presenceChannel
+    .on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      onlineUserIds = new Set(Object.keys(state));
+      renderMembers();
+    })
+    .on('presence', { event: 'join' }, ({ key }) => {
+      onlineUserIds.add(key);
+      renderMembers();
+    })
+    .on('presence', { event: 'leave' }, ({ key }) => {
+      onlineUserIds.delete(key);
+      renderMembers();
+    })
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({
+          user_id: currentUser.id,
+          full_name: currentProfile.full_name,
+          online_at: new Date().toISOString()
+        });
+      }
+    });
+}
+
 function renderMembers() {
   const list = document.getElementById('membersList');
-  document.getElementById('onlineCount').textContent = allProfiles.length + 1;
-  document.getElementById('statOnline').textContent = allProfiles.length + 1;
+  // Include self; filter to only users with active presence
+  const allPeople = [currentProfile, ...allProfiles].filter(Boolean);
+  const online = onlineUserIds.size > 0
+    ? allPeople.filter(p => onlineUserIds.has(p.id))
+    : allPeople.slice(0, 1); // fallback: show at least self while presence loads
 
-  list.innerHTML = allProfiles.slice(0, 4).map(p => {
+  const count = online.length;
+  const onlineCountEl = document.getElementById('onlineCount');
+  const statOnlineEl = document.getElementById('statOnline');
+  if (onlineCountEl) onlineCountEl.textContent = count;
+  if (statOnlineEl) statOnlineEl.textContent = count;
+
+  list.innerHTML = online.slice(0, 6).map(p => {
     const initials = (p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
     const color = stringToColor(p.id);
-    const imgTag = p.avatar_url
-      ? `<img src="${p.avatar_url}" alt="${p.full_name}">`
-      : initials;
+    const imgTag = p.avatar_url ? `<img src="${p.avatar_url}" alt="${p.full_name}">` : initials;
     return `<div class="member-row">
       <div class="member-av" style="background:${color}">${imgTag}</div>
       <div>
-        <div class="member-name-txt">${p.full_name}</div>
-        <div class="member-status-txt" style="color:var(--green)">● Active</div>
+        <div class="member-name-txt">${escHtml(p.full_name || '?')}</div>
+        <div class="member-status-txt" style="color:var(--green)">● Online</div>
       </div>
     </div>`;
   }).join('');
@@ -1748,14 +1774,14 @@ async function loadChannelMessages(channel) {
   if (loading) loading.style.display = 'flex';
   try {
     const data = await sbFetch(
-      `chat_messages?select=*&channel_id=eq.${encodeURIComponent(channel)}&dm_to=is.null&parent_id=is.null&order=created_at.asc&limit=50`
+      `chat_messages?select=*,profiles!sender_id(id,full_name,avatar_url)&channel_id=eq.${encodeURIComponent(channel)}&dm_to=is.null&parent_id=is.null&order=created_at.asc&limit=50`
     ).catch(() => null);
     if (loading) loading.style.display = 'none';
     list.innerHTML = '';
     if (data && data.length) {
       const msgs = data.map(m => ({
         ...m,
-        profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+        profiles: m.profiles || allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
       }));
       msgs.forEach(m => list.appendChild(buildMsgEl(m)));
     } else {
@@ -1861,13 +1887,13 @@ async function loadDMMessages(toUserId) {
   list.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   const uid = currentUser.id;
   const data = await sbFetch(
-    `chat_messages?select=*&channel_id=is.null&parent_id=is.null&or=(and(sender_id.eq.${uid},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${uid}))&order=created_at.asc&limit=50`
+    `chat_messages?select=*,profiles!sender_id(id,full_name,avatar_url)&channel_id=is.null&parent_id=is.null&or=(and(sender_id.eq.${uid},dm_to.eq.${toUserId}),and(sender_id.eq.${toUserId},dm_to.eq.${uid}))&order=created_at.asc&limit=50`
   ).catch(() => null);
   list.innerHTML = '';
   if (data && data.length) {
     const msgs = data.map(m => ({
       ...m,
-      profiles: allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+      profiles: m.profiles || allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
     }));
     msgs.forEach(m => list.appendChild(buildMsgEl(m, true)));
   } else {
@@ -2445,15 +2471,20 @@ async function deleteTeam(teamId) {
 
 async function openAddTeamMemberModal(teamId) {
   document.getElementById('addTeamMemberTeamId').value = teamId;
-  // Populate with project members not already in team
-  const { data: existing } = await sb.from('hub_team_members').select('user_id').eq('team_id', teamId);
-  const existingIds = (existing || []).map(m => m.user_id);
-  const { data: projMembers } = await sb.from('hub_project_members').select('user_id').eq('project_id', activeProjectId);
-  const projIds = (projMembers || []).map(m => m.user_id).filter(id => !existingIds.includes(id));
-  const candidates = [currentUser.id === projIds.find(id => id === currentUser.id) ? currentProfile : null,
-    ...allProfiles.filter(p => projIds.includes(p.id))].filter(Boolean);
+  const [{ data: existing }, { data: projMembers }] = await Promise.all([
+    sb.from('hub_team_members').select('user_id').eq('team_id', teamId),
+    sb.from('hub_project_members').select('user_id').eq('project_id', activeProjectId)
+  ]);
+  const existingIds = new Set((existing || []).map(m => m.user_id));
+  const projIds = (projMembers || []).map(m => m.user_id).filter(id => !existingIds.has(id));
+  if (!projIds.length) { showToast('All project members already in this team'); return; }
+  // Fetch profiles for all eligible project members directly
+  const { data: candidateProfiles } = await sb.from('profiles')
+    .select('id,full_name')
+    .in('id', projIds);
+  const candidates = candidateProfiles || [];
   const sel = document.getElementById('addTeamMemberSelect');
-  sel.innerHTML = candidates.map(p => `<option value="${p.id}">${escHtml(p.full_name)}</option>`).join('');
+  sel.innerHTML = candidates.map(p => `<option value="${p.id}">${escHtml(p.full_name || p.id)}</option>`).join('');
   if (!candidates.length) { showToast('All project members already in this team'); return; }
   openModal('addTeamMemberModal');
 }
@@ -3231,11 +3262,14 @@ feedEl.innerHTML = items.length ? items.map(i=>i.html).join('')
 // Team online
 const teamEl = el('homeTeamOnline');
 if (teamEl) {
-const everyone = [currentProfile, ...allProfiles].filter(Boolean);
-teamEl.innerHTML = everyone.map(p => {
+const allPeople = [currentProfile, ...allProfiles].filter(Boolean);
+const online = onlineUserIds.size > 0
+  ? allPeople.filter(p => onlineUserIds.has(p.id))
+  : allPeople.slice(0, 1);
+teamEl.innerHTML = online.map(p => {
 const initials = (p.full_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 const isMe = p.id === currentUser.id;
-return `<div class="home-member-chip" onclick="${isMe ? "switchSection('profile')" : `openDM('${p.id}','${escHtml(p.full_name||'')}')`}"> <div class="member-av" style="background:${stringToColor(p.id)};width:24px;height:24px;font-size:9px;flex-shrink:0">${initials}</div> <div> <div style="font-size:10px;color:var(--text)">${escHtml(p.full_name||'')}${isMe?' (you)':''}</div> <div style="font-size:8px;color:var(--green)">● Active</div> </div> </div>`;
+return `<div class="home-member-chip" onclick="${isMe ? "switchSection('profile')" : `openDM('${p.id}','${escHtml(p.full_name||'')}')`}"> <div class="member-av" style="background:${stringToColor(p.id)};width:24px;height:24px;font-size:9px;flex-shrink:0">${initials}</div> <div> <div style="font-size:10px;color:var(--text)">${escHtml(p.full_name||'')}${isMe?' (you)':''}</div> <div style="font-size:8px;color:var(--green)">● Online</div> </div> </div>`;
 }).join('');
 }
 }
