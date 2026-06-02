@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preview D — Deep Navy & Amber</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0d1321;color:#c9d6e3;font-size:13px;display:flex;height:100vh;overflow:hidden}
+
+.sidebar{width:252px;background:#0a0f1a;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;height:100vh;flex-shrink:0}
+.sidebar-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.brand-logo{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.brand-logo span{color:#f59e0b}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.25);letter-spacing:1.5px;margin-top:2px;text-transform:uppercase}
+
+.user-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.05)}
+.user-av{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:#e2e8f0}
+.user-role{font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.user-dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 5px #22c55e}
+
+.nav-section-label{padding:14px 16px 5px;font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;font-size:12.5px;color:rgba(255,255,255,.45);cursor:pointer;transition:all .12s}
+.nav-item:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.8)}
+.nav-item.active{background:rgba(245,158,11,.1);color:#fbbf24;border-left:2px solid #f59e0b;font-weight:500}
+.nav-icon{width:14px;text-align:center;font-size:11px;flex-shrink:0}
+.badge{background:#f59e0b;color:#000;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:auto}
+
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.conn-txt{font-size:10px;color:rgba(255,255,255,.25);display:flex;align-items:center;gap:5px}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:#22c55e}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#0d1321;border-bottom:1px solid rgba(255,255,255,.07);padding:0 24px;height:52px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-hash{font-size:16px;font-weight:800;color:#f59e0b}
+.topbar-title{font-size:14px;font-weight:700;color:#e2e8f0}
+.topbar-sub{font-size:11px;color:rgba(255,255,255,.25)}
+.topbar-actions{margin-left:auto;display:flex;gap:8px}
+.btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-primary{background:#f59e0b;color:#000}
+.btn-primary:hover{background:#d97706}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.8)}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px;background:#0d1321}
+.date-divider{text-align:center;font-size:10px;color:rgba(255,255,255,.15);margin:16px 0;display:flex;align-items:center;gap:10px}
+.date-divider::before,.date-divider::after{content:'';flex:1;border-top:1px solid rgba(255,255,255,.06)}
+.msg{display:flex;gap:12px;padding:8px 10px;margin:0 -10px;border-radius:8px;transition:background .1s}
+.msg:hover{background:rgba(255,255,255,.03)}
+.msg-av{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.msg-name{font-size:12.5px;font-weight:600;color:#e2e8f0}
+.msg-time{font-size:10px;color:rgba(255,255,255,.2);margin-left:8px;font-weight:400}
+.msg-text{font-size:12.5px;color:rgba(255,255,255,.5);margin-top:4px;line-height:1.65}
+.msg-input-area{background:#0d1321;border-top:1px solid rgba(255,255,255,.06);padding:14px 24px;flex-shrink:0}
+.msg-input-box{display:flex;gap:8px;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;align-items:flex-end;background:rgba(255,255,255,.03);transition:border-color .15s}
+.msg-input-box:focus-within{border-color:#f59e0b}
+.msg-input-box textarea{flex:1;border:none;outline:none;font-family:inherit;font-size:13px;color:#e2e8f0;resize:none;background:transparent;min-height:20px}
+.msg-input-box textarea::placeholder{color:rgba(255,255,255,.2)}
+.send-btn{background:#f59e0b;color:#000;border:none;border-radius:6px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+
+/* Right panel */
+.rp{width:268px;background:#0a0f1a;border-left:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;flex-shrink:0}
+.rp-header{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.05);font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2px;text-transform:uppercase}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.05)}
+.stat-card{background:#0a0f1a;padding:14px;text-align:center}
+.stat-num{font-size:22px;font-weight:700;color:#f59e0b}
+.stat-label{font-size:9px;color:rgba(255,255,255,.2);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.member-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
+.member-av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.member-name{font-size:12px;font-weight:500;color:#c9d6e3}
+.member-status{font-size:10px;color:#22c55e;margin-top:1px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">PRODE<span>EGEE</span></div>
+    <div class="brand-sub">Team Hub</div>
+  </div>
+  <div class="user-row">
+    <div class="user-av">JD</div>
+    <div>
+      <div class="user-name">John Doe</div>
+      <div class="user-role">Admin</div>
+    </div>
+    <div class="user-dot"></div>
+  </div>
+
+  <div class="nav-section-label">Navigate</div>
+  <div class="nav-item"><span class="nav-icon">⌂</span> Home</div>
+  <div class="nav-item"><span class="nav-icon">◎</span> Direct Messages</div>
+  <div class="nav-item"><span class="nav-icon">✉</span> Email Inbox</div>
+  <div class="nav-item"><span class="nav-icon">◈</span> Projects</div>
+  <div class="nav-item"><span class="nav-icon">◉</span> Notifications <span class="badge">5</span></div>
+
+  <div class="nav-section-label" style="margin-top:4px">Channels</div>
+  <div class="nav-item active"><span class="nav-icon">#</span> general</div>
+  <div class="nav-item"><span class="nav-icon">#</span> projects</div>
+  <div class="nav-item"><span class="nav-icon">#</span> social</div>
+
+  <div class="nav-section-label" style="margin-top:4px">Direct Messages</div>
+  <div class="nav-item"><span class="nav-icon">●</span> Adebayo A.</div>
+  <div class="nav-item"><span class="nav-icon">●</span> ogeoke</div>
+
+  <div class="sidebar-footer">
+    <span class="conn-txt"><div class="conn-dot"></div> Connected</span>
+    <span style="font-size:10px;color:rgba(255,255,255,.2);cursor:pointer">Sign out</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-hash">#</span>
+    <div class="topbar-title">general</div>
+    <div class="topbar-sub">&nbsp;· 6 members</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost">+ Compose</button>
+      <button class="btn btn-primary">+ Task</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="date-divider">Monday, June 1</div>
+    <div class="msg">
+      <div class="msg-av" style="background:#6d28d9">AA</div>
+      <div>
+        <div><span class="msg-name">Adebayo Abdulhafeez</span><span class="msg-time">9:14 AM</span></div>
+        <div class="msg-text">Happy new month to us all and have a great week ahead</div>
+      </div>
+    </div>
+    <div class="msg">
+      <div class="msg-av" style="background:#0369a1">OG</div>
+      <div>
+        <div><span class="msg-name">ogeoke</span><span class="msg-time">9:22 AM</span></div>
+        <div class="msg-text">May June be beautiful for us all.</div>
+      </div>
+    </div>
+    <div class="msg">
+      <div class="msg-av" style="background:#b91c1c">T</div>
+      <div>
+        <div><span class="msg-name">testing</span><span class="msg-time">10:05 AM</span></div>
+        <div class="msg-text">Reminder: standup in 10 minutes.</div>
+      </div>
+    </div>
+  </div>
+  <div class="msg-input-area">
+    <div class="msg-input-box">
+      <textarea rows="1" placeholder="Message #general..."></textarea>
+      <button class="send-btn">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="rp">
+  <div class="rp-header">Quick Stats</div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">7</div><div class="stat-label">Active Tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#ef4444">2</div><div class="stat-label">Due Today</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#22c55e">3</div><div class="stat-label">Online Now</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:rgba(255,255,255,.2)">0</div><div class="stat-label">New Emails</div></div>
+  </div>
+  <div class="rp-header" style="margin-top:12px">Online — 3</div>
+  <div class="member-row">
+    <div class="member-av" style="background:#f59e0b">JD</div>
+    <div><div class="member-name">John Doe</div><div class="member-status">● Online</div></div>
+  </div>
+  <div class="member-row">
+    <div class="member-av" style="background:#6d28d9">AA</div>
+    <div><div class="member-name">Adebayo A.</div><div class="member-status">● Online</div></div>
+  </div>
+  <div class="member-row">
+    <div class="member-av" style="background:#0369a1">OG</div>
+    <div><div class="member-name">ogeoke</div><div class="member-status">● Online</div></div>
+  </div>
+</div>
+
+</body>
+</html>
