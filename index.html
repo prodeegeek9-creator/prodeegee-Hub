@@ -1744,13 +1744,9 @@ async function loadInbox() {
   document.getElementById('emailListItems').innerHTML = '<div class="loading" style="padding:30px 0"><div class="spinner"></div></div>';
   try {
     const userEmail = currentProfile?.prodeegee_email || currentUser?.email;
-    const { data: emails, error } = await sb
-      .from('received_emails')
-      .select('*')
-      .eq('to_address', userEmail)
-      .order('received_at', { ascending: false })
-      .limit(50);
-    if (error) throw error;
+    const emails = await sbFetch(
+      `received_emails?select=*&to_address=eq.${encodeURIComponent(userEmail)}&order=received_at.desc&limit=50`
+    );
     if (!emails || !emails.length) {
       document.getElementById('emailListItems').innerHTML =
         `<div class="empty-state" style="padding:20px">No emails yet — send one to any @${PRODEEGEE_DOMAIN} address</div>`;
@@ -1907,12 +1903,9 @@ async function doSendEmail(to, subject, body, statusElId) {
 // SENT EMAILS
 // ════════════════════════════════════════════════
 async function loadSentEmails() {
-  const { data } = await sb.from('sent_emails')
-    .select('*')
-    .eq('from_email', currentProfile?.prodeegee_email || currentProfile?.email)
-    .order('sent_at', { ascending: false })
-    .limit(30);
-  sentEmailsCache = data || [];
+  const email = encodeURIComponent(currentProfile?.prodeegee_email || currentProfile?.email);
+  const data = await sbFetch(`sent_emails?select=*&from_email=eq.${email}&order=sent_at.desc&limit=30`).catch(() => []);
+  sentEmailsCache = Array.isArray(data) ? data : [];
   renderSentList();
 }
 
