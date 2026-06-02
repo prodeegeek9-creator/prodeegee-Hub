@@ -199,6 +199,11 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .kcard-team-badge{font-size:9px;padding:1px 5px;border-radius:2px;color:#000;margin-left:4px;font-weight:600}
 .kcard-unclaimed{border-left:3px solid #ffd54f !important}
 .kcard-cross-team{border-left:3px solid #ce93d8 !important}
+.kcard-incoming{background:rgba(206,147,216,.07);border-left:3px solid #ce93d8 !important}
+.kcard-incoming-banner{background:#ce93d8;color:#000;font-size:9px;font-weight:700;padding:3px 8px;margin:-10px -12px 8px;letter-spacing:1px;display:block}
+.kcard-outgoing{background:rgba(79,195,247,.05);border-left:3px solid #4fc3f7 !important}
+.kcard-outgoing-banner{background:rgba(79,195,247,.18);color:#4fc3f7;font-size:9px;font-weight:700;padding:3px 8px;margin:-10px -12px 8px;letter-spacing:1px;display:block;border-bottom:1px solid rgba(79,195,247,.25)}
+.incoming-badge{background:#ce93d8;color:#000;font-size:9px;font-weight:700;padding:2px 7px;letter-spacing:.5px;margin-left:6px;vertical-align:middle;display:none}
 .cm-editor-wrap{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.5;background:var(--surface);color:var(--text);padding:8px;min-height:120px;border:none;outline:none;resize:vertical;width:100%;box-sizing:border-box;white-space:pre;overflow-x:auto}
 
 /* ── NOTIFICATIONS ── */
@@ -831,6 +836,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
         <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="backToTeamOverview()">← Teams</span>
         <span style="font-size:12px;font-weight:600" id="activeBoardTeamName"></span>
         <span style="font-size:10px;color:var(--muted)" id="activeBoardTeamMeta"></span>
+        <span class="incoming-badge" id="incomingTasksBadge"></span>
       </div>
       <div class="kanban-wrap" id="kanbanWrap" style="flex:1">
         <div class="loading"><div class="spinner"></div>Loading tasks...</div>
@@ -2510,11 +2516,20 @@ await populateAssigneeDropdown(teamId);
 // ── Tasks ──────────────────────────────────────────────────────────────────────
 async function loadTasks() {
 if (!activeProjectId) return;
-const teamFilter = activeTeamId ? `&team_id=eq.${activeTeamId}` : '';
-const data = await sbFetch(
-`hub_tasks?select=*,profiles!hub_tasks_claimed_by_fkey(full_name)&project_id=eq.${activeProjectId}${teamFilter}&order=created_at.asc`
-).catch(() => []);
-tasksCache = (Array.isArray(data) ? data : []).map(t => ({
+const base = `hub_tasks?select=*,profiles!hub_tasks_claimed_by_fkey(full_name)&project_id=eq.${activeProjectId}`;
+const [teamData, outgoingData] = await Promise.all([
+  activeTeamId
+    ? sbFetch(`${base}&team_id=eq.${activeTeamId}&order=created_at.asc`).catch(() => [])
+    : sbFetch(`${base}&order=created_at.asc`).catch(() => []),
+  activeTeamId
+    ? sbFetch(`${base}&assigned_by_team=eq.${activeTeamId}&order=created_at.asc`).catch(() => [])
+    : Promise.resolve([])
+]);
+// Merge and deduplicate (outgoing tasks might already be in teamData if team_id matches)
+const seen = new Set();
+const allData = [...(Array.isArray(teamData) ? teamData : []), ...(Array.isArray(outgoingData) ? outgoingData : [])];
+const unique = allData.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+tasksCache = unique.map(t => ({
 ...t,
 assignee_id: t.assigned_to,
 assigneeProfile: allProfiles.find(p => p.id === t.assigned_to) || (t.assigned_to === currentUser.id ? currentProfile : null),
@@ -2529,26 +2544,48 @@ function renderKanban() {
 const columns = ['Queue', 'Claimed', 'In Progress', 'Review', 'Done'];
 const colors = { Queue: 'var(--muted)', Claimed: '#4fc3f7', 'In Progress': '#ff6b2b', Review: '#ffd54f', Done: 'var(--green)' };
 const wrap = document.getElementById('kanbanWrap');
+// Update incoming badge
+const incomingCount = tasksCache.filter(t =>
+  t.assigned_by_team && t.assigned_by_team !== activeTeamId && t.team_id === activeTeamId && t.status !== 'Done'
+).length;
+const badge = document.getElementById('incomingTasksBadge');
+if (badge) {
+  if (incomingCount > 0) { badge.textContent = `⬇ ${incomingCount} incoming`; badge.style.display = 'inline'; }
+  else { badge.style.display = 'none'; }
+}
 wrap.innerHTML = columns.map(col => {
 const cards = tasksCache.filter(t => t.status === col);
+// Sort: incoming first, then outgoing, then normal
+cards.sort((a, b) => {
+  const rank = t => (t.assigned_by_team && t.assigned_by_team !== activeTeamId && t.team_id === activeTeamId) ? 0
+    : (t.assigned_by_team === activeTeamId && t.team_id !== activeTeamId) ? 1 : 2;
+  return rank(a) - rank(b);
+});
 const canAdd = col === 'Queue';
-return `<div class="kol"> <div class="kol-header" style="color:${colors[col]}">${col} <span style="font-size:10px">${cards.length}</span></div> <div class="kol-cards" id="kol-${col.replace(' ','_')}"> ${cards.map(t => buildTaskCard(t)).join('')} </div> ${canAdd ? `<button class="add-task-btn" onclick="openTaskModal()">+ Add task</button>` : ''} </div>`;
+return `<div class="kol"><div class="kol-header" style="color:${colors[col]}">${col} <span style="font-size:10px">${cards.length}</span></div><div class="kol-cards" id="kol-${col.replace(' ','_')}">${cards.map(t => buildTaskCard(t)).join('')}</div>${canAdd ? `<button class="add-task-btn" onclick="openTaskModal()">+ Add task</button>` : ''}</div>`;
 }).join('');
 }
 
 function buildTaskCard(t) {
 const claimedBy = t.claimedByProfile;
 const isUnclaimed = !t.claimed_by && t.status === 'Queue';
-const isCrossTeam = t.assigned_by_team && t.assigned_by_team !== activeTeamId;
-const originTeam = isCrossTeam ? teamsCache.find(tm => tm.id === t.assigned_by_team) : null;
-const myTeamMembership = teamsCache.find(tm => tm.id === activeTeamId)
-?.hub_team_members?.some(m => m.user_id === currentUser.id);
+const isIncoming = t.assigned_by_team && t.assigned_by_team !== activeTeamId && t.team_id === activeTeamId;
+const isOutgoing = t.assigned_by_team === activeTeamId && t.team_id !== activeTeamId;
+const originTeam = isIncoming ? teamsCache.find(tm => tm.id === t.assigned_by_team) : null;
+const destTeam = isOutgoing ? teamsCache.find(tm => tm.id === t.team_id) : null;
 const priColors = { High: '#ef5350', Medium: '#ffd54f', Low: '#69f0ae' };
+const cardClass = `kcard ${isUnclaimed && !isIncoming && !isOutgoing ? 'kcard-unclaimed' : ''} ${isIncoming ? 'kcard-incoming' : ''} ${isOutgoing ? 'kcard-outgoing' : ''}`;
 
-return `<div class="kcard ${isUnclaimed ? 'kcard-unclaimed' : ''} ${isCrossTeam ? 'kcard-cross-team' : ''}" onclick="showTaskDetail('${t.id}')"> <div class="kcard-title"> ${t.task_body_type === 'code' ? '<span style="color:#4fc3f7;font-size:9px">&lt;/&gt; </span>' : ''} ${escHtml(t.title)} </div> ${isCrossTeam && originTeam ? `<div style="font-size:9px;color:#ce93d8;margin:2px 0">from ${escHtml(originTeam.name)}</div>`: ''} <div class="kcard-meta" style="margin-top:4px"> <span style="font-size:9px;color:${priColors[t.priority] || 'var(--muted)'}">● ${t.priority || 'Med'}</span> ${claimedBy ?`<span class="assignee-pill">⚡ ${escHtml(claimedBy.full_name?.split(' ')[0] || '?')}</span>`:`<span style="font-size:9px;color:#ffd54f">Unclaimed</span>`} ${t.due_date ? `<span class="due-label">${t.due_date}</span>` : ''}
+return `<div class="${cardClass}" onclick="showTaskDetail('${t.id}')">
+${isIncoming && originTeam ? `<span class="kcard-incoming-banner">⬇ INCOMING · ${escHtml(originTeam.name)}</span>` : ''}
+${isOutgoing && destTeam ? `<span class="kcard-outgoing-banner">↗ SENT TO · ${escHtml(destTeam.name)}</span>` : ''}
+<div class="kcard-title">${t.task_body_type === 'code' ? '<span style="color:#4fc3f7;font-size:9px">&lt;/&gt; </span>' : ''}${escHtml(t.title)}</div>
+<div class="kcard-meta" style="margin-top:4px">
+<span style="font-size:9px;color:${priColors[t.priority] || 'var(--muted)'}">● ${t.priority || 'Med'}</span>
+${claimedBy ? `<span class="assignee-pill">⚡ ${escHtml(claimedBy.full_name?.split(' ')[0] || '?')}</span>` : `<span style="font-size:9px;color:#ffd54f">Unclaimed</span>`}
+${t.due_date ? `<span class="due-label">${t.due_date}</span>` : ''}
 </div>
-
-  </div>`;
+</div>`;
 }
 
 function showTaskDetail(taskId) {
@@ -2556,7 +2593,10 @@ const t = tasksCache.find(t => t.id === taskId);
 if (!t) return;
 const claimed = t.claimedByProfile;
 const team = teamsCache.find(tm => tm.id === t.team_id);
-const originTeam = teamsCache.find(tm => tm.id === t.assigned_by_team);
+const isIncoming = t.assigned_by_team && t.assigned_by_team !== activeTeamId && t.team_id === activeTeamId;
+const isOutgoing = t.assigned_by_team === activeTeamId && t.team_id !== activeTeamId;
+const originTeam = isIncoming ? teamsCache.find(tm => tm.id === t.assigned_by_team) : null;
+const destTeam = isOutgoing ? teamsCache.find(tm => tm.id === t.team_id) : null;
 const isMine = t.claimed_by === currentUser.id;
 const isUnclaimed = !t.claimed_by;
 const canClaim = isUnclaimed && (
@@ -2575,7 +2615,11 @@ const bodyHtml = t.task_body_type === 'code'
 ? `<pre style="background:var(--surface);padding:10px;font-size:11px;overflow-x:auto;white-space:pre-wrap;border:1px solid var(--border);margin-bottom:14px"><code>${escHtml(t.description || '')}</code></pre>`
 : `<div style="font-size:11px;color:var(--text);line-height:1.7;margin-bottom:14px;white-space:pre-wrap">${escHtml(t.description || 'No description')}</div>`;
 
-document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;font-size:13px;color:var(--orange);font-weight:600">${escHtml(t.title)}</div> ${team ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}${originTeam ? ` ← from ${escHtml(originTeam.name)}` : ''}</div>`: ''} ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
+document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;font-size:13px;color:var(--orange);font-weight:600">${escHtml(t.title)}</div>
+${isIncoming && originTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:#ce93d8;color:#000;margin-bottom:8px;letter-spacing:1px;display:inline-block">⬇ INCOMING · ${escHtml(originTeam.name)}</div>` : ''}
+${isOutgoing && destTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:rgba(79,195,247,.18);color:#4fc3f7;margin-bottom:8px;letter-spacing:1px;display:inline-block;border:1px solid rgba(79,195,247,.3)">↗ SENT TO · ${escHtml(destTeam.name)}</div>` : ''}
+${team && !isOutgoing ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}</div>`: ''}
+${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
 <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
   <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Activity</div>
   <div id="taskActivityLog" style="display:flex;flex-direction:column;max-height:220px;overflow-y:auto;margin-bottom:10px">
