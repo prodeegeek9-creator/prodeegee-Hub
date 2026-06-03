@@ -3841,7 +3841,8 @@ if (locEl) locEl.textContent = '';
 // STATS
 // ════════════════════════════════════════════════
 function updateStats() {
-document.getElementById('statOnline').textContent = allProfiles.length + 1;
+const el = document.getElementById('statOnline');
+if (el) el.textContent = allProfiles.length + 1;
 }
 
 // ════════════════════════════════════════════════
