@@ -8,21 +8,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Prodeegee Hub">
-<meta name="theme-color" content="#ff6b2b">
+<meta name="theme-color" content="#f59e0b">
 <link rel="manifest" href="/manifest.json">
 <title>Prodeegee Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#0a0a0a;--sidebar:#0f0f0f;--panel:#111;--surface:#161616;--border:#1e1e1e;
-  --orange:#ff6b2b;--green:#00ff9d;--text:#e0e0e0;--muted:#555;--dim:#2a2a2a;
-  --font:'IBM Plex Mono',monospace;
+  --bg:#0d1321;--sidebar:#0a0f1a;--panel:#111827;--surface:#1a2030;--border:rgba(255,255,255,.07);
+  --orange:#f59e0b;--green:#22c55e;--text:#c9d6e3;--muted:rgba(201,214,227,.4);--dim:#1e2738;
+  --font:'Inter',sans-serif;
 }
 body.light{
-  --bg:#f0f2f5;--sidebar:#ffffff;--panel:#ffffff;--surface:#f5f7fa;--border:#e1e4e8;
-  --text:#1a1a2e;--muted:#8b95a1;--dim:#e8eaed;--green:#0a7c4e;
+  --bg:#f8fafc;--sidebar:#ffffff;--panel:#ffffff;--surface:#f1f5f9;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--dim:#e2e8f0;--orange:#d97706;--green:#15803d;
 }
 body.light .hub,body.light .center,body.light .section{background:var(--bg)}
 body.light .sidebar,body.light .topbar,body.light .right-panel,body.light .rp-content,body.light .rp-header{background:var(--panel)}
@@ -34,7 +34,7 @@ body.light .msg-input{background:var(--panel);color:var(--text);border-color:var
 body.light .msg-input-area{background:var(--panel);border-top-color:var(--border)}
 body.light .field-input{background:var(--surface);color:var(--text);border-color:var(--border)}
 body.light .dm-bubble.them .dm-bubble-inner{background:var(--surface);color:var(--text);border-color:var(--border)}
-body.light .nav-item.active{background:rgba(255,107,43,.1)}
+body.light .nav-item.active{background:rgba(217,119,6,.12);color:#92400e}
 body.light .mob-drawer{background:var(--panel)}
 body.light .modal-overlay{background:rgba(0,0,0,.4)}
 body.light code{background:#f0f0f0;color:#d45a00}
@@ -57,7 +57,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .hub{display:grid;grid-template-columns:240px 1fr;height:100vh;display:none}
 .sidebar{background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .sidebar-header{padding:16px;border-bottom:1px solid var(--border)}
-.logo{color:var(--orange);font-size:15px;font-weight:600;letter-spacing:2px;font-family:'Share Tech Mono',monospace}
+.logo{color:var(--orange);font-size:15px;font-weight:800;letter-spacing:-.3px;font-family:'Inter',sans-serif}
 .logo-sub{color:var(--green);font-size:10px;margin-top:2px;letter-spacing:1px}
 .user-row{display:flex;align-items:center;gap:10px;margin-top:14px}
 .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#000;flex-shrink:0;position:relative;background:var(--orange)}
@@ -69,7 +69,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .nav-section{padding:12px 16px 4px;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;cursor:pointer;color:var(--muted);transition:all .15s;font-size:12px}
 .nav-item:hover{background:var(--surface);color:var(--text)}
-.nav-item.active{color:var(--orange);background:rgba(255,107,43,.08);border-left:2px solid var(--orange)}
+.nav-item.active{background:rgba(245,158,11,.1);color:#fbbf24;border-left:2px solid var(--orange)}
 .nav-item .badge{margin-left:auto;background:var(--orange);color:#000;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
 .nav-item .badge.green{background:var(--green)}
 .nav-icon{width:16px;text-align:center;font-size:14px}
@@ -98,6 +98,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 /* ── MESSAGES ── */
 .msg-list{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .msg{display:flex;gap:10px;align-items:flex-start;animation:fadeIn .2s ease}
+.msg-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s;animation:fadeIn .2s ease;margin-bottom:8px}
+.msg-card:hover{border-color:var(--orange);box-shadow:0 2px 14px rgba(245,158,11,.08);transform:translateY(-1px)}
+.msg-card.active-msg{border-color:var(--orange);border-left:3px solid var(--orange)}
+.msg-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.msg-card-body{font-size:13px;color:var(--text);line-height:1.65;word-break:break-word;margin-bottom:12px;white-space:pre-wrap}
+.msg-card-footer{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:10px;flex-wrap:wrap}
+.msg-footer-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;padding:3px 8px;border-radius:6px;transition:all .15s;border:none;background:none;font-family:var(--font);letter-spacing:0}
+.msg-footer-btn:hover{background:var(--surface);color:var(--text)}
+.msg-footer-btn.liked{color:var(--orange);font-weight:600}
+.msg-detail-author{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.msg-detail-body{font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;margin-bottom:16px;word-break:break-word}
+.msg-detail-stats{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap}
+.msg-detail-replies{display:flex;flex-direction:column;gap:10px}
+.msg-detail-reply{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#000;flex-shrink:0}
 .msg-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
@@ -1277,6 +1291,7 @@ function abortPendingFetches() {
 let isReconnecting = false;
 let lastReconnectAt = 0;
 let activeThreadMsgId = null;
+let channelMsgCache = [];
 let allProfiles = [];
 let unreadNotifs = 0;
 let unreadEmails = 0;
@@ -1544,8 +1559,11 @@ async function loadChannelNav() {
     const isDefault = DEFAULT_CHANNELS.includes(ch.name);
     const label = isDefault ? `# ${ch.name}` : ch.name.toUpperCase();
     const style = isDefault ? '' : 'color:var(--orange);font-size:10px;letter-spacing:1px';
+    const delBtn = (!isDefault && canManageProjects())
+      ? `<span style="margin-left:auto;cursor:pointer;color:var(--muted);font-size:11px;padding:0 2px" onclick="event.stopPropagation();deleteChannel('${escHtml(ch.name)}')" title="Delete channel">✕</span>`
+      : `<span class="badge" id="chbadge-${ch.name}" style="display:none">0</span>`;
     return `<div class="nav-item" id="ch-${ch.name}" onclick="openChannel('${escHtml(ch.name)}')" style="${style}">
-      ${label} <span class="badge" id="chbadge-${ch.name}" style="display:none">0</span>
+      ${label} ${delBtn}
     </div>`;
   }).join('');
   // Show Add channel only for admins/team leads
@@ -1628,30 +1646,6 @@ function renderDMNav() {
   `).join('');
   const mobDM = document.getElementById('mobDMList');
   if (mobDM) mobDM.innerHTML = nav.innerHTML;
-}
-
-async function populateAssigneeDropdown() {
-  const sel = document.getElementById('taskAssignee');
-  const me = currentProfile;
-  if (canManageProjects()) {
-    // Admins and team leads can assign to anyone
-    sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>` +
-      allProfiles.map(p => `<option value="${p.id}">${p.full_name}</option>`).join('');
-    sel.disabled = false;
-  } else if (activeProjectId) {
-    // Members can assign to any fellow project member
-    const { data: projMembers } = await sb.from('hub_project_members')
-      .select('user_id').eq('project_id', activeProjectId);
-    const memberIds = (projMembers || []).map(m => m.user_id);
-    const options = [me, ...allProfiles.filter(p => memberIds.includes(p.id) && p.id !== me.id)];
-    sel.innerHTML = options.map(p =>
-      `<option value="${p.id}">${p.id === me.id ? p.full_name + ' (you)' : p.full_name}</option>`
-    ).join('');
-    sel.disabled = false;
-  } else {
-    sel.innerHTML = `<option value="${me.id}">${me.full_name} (you)</option>`;
-    sel.disabled = false;
-  }
 }
 
 // ════════════════════════════════════════════════
@@ -1773,15 +1767,32 @@ async function loadChannelMessages(channel) {
     ).catch(() => null);
     if (loading) loading.style.display = 'none';
     list.innerHTML = '';
-    if (data && data.length) {
-      const msgs = data.map(m => ({
-        ...m,
-        profiles: m.profiles || allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
-      }));
-      msgs.forEach(m => list.appendChild(buildMsgEl(m)));
-    } else {
+    if (!data || !data.length) {
       list.innerHTML = `<div class="empty-state"><div class="big">#</div>No messages in #${channel} yet. Say hello!</div>`;
+      return;
     }
+    const msgs = data.map(m => ({
+      ...m,
+      profiles: m.profiles || allProfiles.find(p => p.id === m.sender_id) || (m.sender_id === currentUser.id ? currentProfile : null)
+    }));
+    // Fetch reply counts
+    const ids = msgs.map(m => m.id);
+    if (ids.length) {
+      const [replies, likes] = await Promise.all([
+        sbFetch(`chat_messages?select=parent_id&parent_id=in.(${ids.join(',')})&limit=500`).catch(() => []),
+        sbFetch(`message_likes?select=message_id,user_id&message_id=in.(${ids.join(',')})&limit=2000`).catch(() => [])
+      ]);
+      const replyCounts = {};
+      (Array.isArray(replies) ? replies : []).forEach(r => { replyCounts[r.parent_id] = (replyCounts[r.parent_id] || 0) + 1; });
+      const likeCounts = {}, myLikes = new Set();
+      (Array.isArray(likes) ? likes : []).forEach(l => {
+        likeCounts[l.message_id] = (likeCounts[l.message_id] || 0) + 1;
+        if (l.user_id === currentUser.id) myLikes.add(l.message_id);
+      });
+      msgs.forEach(m => { m.reply_count = replyCounts[m.id] || 0; m.like_count = likeCounts[m.id] || 0; m.liked_by_me = myLikes.has(m.id); });
+    }
+    channelMsgCache = msgs;
+    msgs.forEach(m => list.appendChild(buildMsgEl(m)));
     list.scrollTop = list.scrollHeight;
   } catch(e) {
     console.warn('[loadChannelMessages] error:', e.message);
@@ -1792,37 +1803,235 @@ async function loadChannelMessages(channel) {
 // [subscribeToChannel replaced by SSE]
 
 function buildMsgEl(m, isDM) {
+  if (isDM) {
+    // DM bubble style — unchanged
+    const p = m.profiles || {};
+    const name = p.full_name || 'Unknown';
+    const isMe = m.sender_id === currentUser.id;
+    const time = formatTime(m.created_at);
+    const div = document.createElement('div');
+    div.dataset.msgId = m.id;
+    div.className = `dm-bubble ${isMe ? 'me' : 'them'}`;
+    div.innerHTML = `
+      <div class="dm-bubble-inner">${formatMsgBody(escHtml(m.body))}</div>
+      <div class="dm-bubble-meta">${isMe ? 'You' : escHtml(name)} · ${time}</div>`;
+    return div;
+  }
+  // Channel message card
   const p = m.profiles || {};
   const name = p.full_name || 'Unknown';
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const color = stringToColor(m.sender_id);
   const isMe = m.sender_id === currentUser.id;
   const time = formatTime(m.created_at);
+  const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}" alt="${escHtml(name)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : initials;
+  const likeCount = m.like_count || 0;
+  const replyCount = m.reply_count || 0;
+  const liked = m.liked_by_me;
   const div = document.createElement('div');
   div.dataset.msgId = m.id;
-
-  if (isDM) {
-    // Chat bubble style
-    div.className = `dm-bubble ${isMe ? 'me' : 'them'}`;
-    div.innerHTML = `
-      <div class="dm-bubble-inner">${formatMsgBody(escHtml(m.body))}</div>
-      <div class="dm-bubble-meta">${isMe ? 'You' : escHtml(name)} · ${time}</div>`;
-  } else {
-    // Channel message style
-    const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}" alt="${name}">` : initials;
-    div.className = 'msg';
-    div.innerHTML = `
-      <div class="msg-av" style="background:${color}">${avatarHtml}</div>
-      <div class="msg-body">
-        <div class="msg-header">
-          <span class="msg-name" style="${isMe ? 'color:var(--orange)' : ''}">${escHtml(name)}</span>
-          <span class="msg-time">${time}</span>
-          <span class="btn sm" style="margin-left:auto;font-size:9px;cursor:pointer" onclick="openThread('${m.id}','${escHtml(m.body.slice(0,40))}')">↗ Reply Thread</span>
-        </div>
-        <div class="msg-text">${formatMsgBody(escHtml(m.body))}</div>
-      </div>`;
-  }
+  div.className = 'msg-card';
+  div.onclick = () => openMsgDetail(m.id);
+  div.innerHTML = `
+    <div class="msg-card-header">
+      <div class="msg-av" style="background:${color};width:34px;height:34px;border-radius:8px;font-size:12px;flex-shrink:0">${avatarHtml}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:${isMe ? 'var(--orange)' : 'var(--text)'}">${escHtml(name)}</div>
+        <div style="font-size:10px;color:var(--muted)">${time}</div>
+      </div>
+    </div>
+    <div class="msg-card-body">${formatMsgBody(escHtml(m.body))}</div>
+    <div class="msg-card-footer">
+      <button class="msg-footer-btn ${liked ? 'liked' : ''}" onclick="event.stopPropagation();toggleLike('${m.id}',this)" title="Like">
+        ${liked ? '♥' : '♡'} ${likeCount > 0 ? likeCount : ''}
+      </button>
+      <button class="msg-footer-btn" onclick="event.stopPropagation();openMsgDetail('${m.id}')" title="View replies">
+        💬 ${replyCount > 0 ? replyCount + ' repl' + (replyCount === 1 ? 'y' : 'ies') : 'Reply'}
+      </button>
+      <button class="msg-footer-btn" style="margin-left:auto" onclick="event.stopPropagation();openThread('${m.id}','${escHtml((m.body||'').slice(0,40))}')" title="Open thread">
+        ↗ Thread
+      </button>
+      ${(isMe || canManageProjects()) ? `<button class="msg-footer-btn" style="color:#ef4444" onclick="event.stopPropagation();deleteMessage('${m.id}')" title="Delete">🗑</button>` : ''}
+    </div>`;
   return div;
+}
+
+function openMsgDetail(msgId) {
+  const m = channelMsgCache.find(x => x.id === msgId);
+  if (!m) return;
+  // Mark active card
+  document.querySelectorAll('.msg-card').forEach(c => c.classList.remove('active-msg'));
+  const card = document.querySelector(`.msg-card[data-msg-id="${msgId}"]`);
+  if (card) card.classList.add('active-msg');
+
+  const p = m.profiles || {};
+  const name = p.full_name || 'Unknown';
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const color = stringToColor(m.sender_id);
+  const avatarHtml = p.avatar_url ? `<img src="${p.avatar_url}" alt="${escHtml(name)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : initials;
+  const likeCount = m.like_count || 0;
+  const replyCount = m.reply_count || 0;
+  const liked = m.liked_by_me;
+
+  document.getElementById('rpTitle').textContent = '◈ Message';
+  const threadPanel = document.getElementById('threadPanel');
+  if (threadPanel) threadPanel.style.display = 'none';
+
+  document.getElementById('rpContent').innerHTML = `
+    <div class="msg-detail-author">
+      <div class="msg-av" style="background:${color};width:38px;height:38px;border-radius:10px;font-size:13px;flex-shrink:0">${avatarHtml}</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(name)}</div>
+        <div style="font-size:10px;color:var(--muted)">${new Date(m.created_at).toLocaleString()}</div>
+        <div style="font-size:10px;color:var(--muted)"># ${escHtml(activeChannel || '')}</div>
+      </div>
+    </div>
+    <div class="msg-detail-body">${formatMsgBody(escHtml(m.body))}</div>
+    <div class="msg-detail-stats">
+      <button class="msg-footer-btn ${liked ? 'liked' : ''}" id="rpLikeBtn" onclick="toggleLike('${m.id}',this)" style="font-size:12px;padding:4px 10px">
+        ${liked ? '♥' : '♡'} <span id="rpLikeCount">${likeCount}</span> ${likeCount === 1 ? 'Like' : 'Likes'}
+      </button>
+      <span style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px">
+        💬 <strong style="color:var(--text)">${replyCount}</strong> ${replyCount === 1 ? 'Reply' : 'Replies'}
+      </span>
+    </div>
+    ${(m.sender_id === currentUser.id || canManageProjects()) ? `
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      ${m.sender_id === currentUser.id ? `<button class="btn sm" style="font-size:11px" onclick="editMessagePrompt('${m.id}')">✏ Edit</button>` : ''}
+      <button class="btn danger sm" style="font-size:11px" onclick="deleteMessage('${m.id}')">🗑 Delete</button>
+    </div>` : ''}
+    <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Replies</div>
+    <div id="msgDetailReplies"><div style="font-size:11px;color:var(--muted)">Loading...</div></div>`;
+
+  // Load replies
+  loadMsgDetailReplies(msgId);
+}
+
+async function loadMsgDetailReplies(parentId) {
+  const container = document.getElementById('msgDetailReplies');
+  if (!container) return;
+  const { data } = await sb.from('chat_messages')
+    .select('*, profiles!chat_messages_sender_id_fkey(id, full_name, avatar_url)')
+    .eq('parent_id', parentId)
+    .order('created_at', { ascending: true });
+  if (!data || !data.length) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--muted)">No replies yet — use ↗ Thread to reply.</div>';
+    return;
+  }
+  container.innerHTML = data.map(r => {
+    const rp = r.profiles || allProfiles.find(x => x.id === r.sender_id) || (r.sender_id === currentUser.id ? currentProfile : {});
+    const rname = rp.full_name || 'Unknown';
+    const rinitials = rname.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const rcolor = stringToColor(r.sender_id);
+    const rAvatar = rp.avatar_url ? `<img src="${rp.avatar_url}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">` : rinitials;
+    return `<div class="msg-detail-reply">
+      <div class="msg-av" style="background:${rcolor};width:26px;height:26px;border-radius:6px;font-size:9px;flex-shrink:0">${rAvatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:600;color:var(--text)">${escHtml(rname)} <span style="font-size:9px;color:var(--muted);font-weight:400">${formatTime(r.created_at)}</span></div>
+        <div style="font-size:12px;color:var(--text);margin-top:3px;line-height:1.55;word-break:break-word">${formatMsgBody(escHtml(r.body))}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleLike(msgId, btnEl) {
+  const m = channelMsgCache.find(x => x.id === msgId);
+  if (!m) return;
+  const isLiked = m.liked_by_me;
+  if (isLiked) {
+    await sb.from('message_likes').delete().eq('message_id', msgId).eq('user_id', currentUser.id);
+    m.liked_by_me = false;
+    m.like_count = Math.max(0, (m.like_count || 1) - 1);
+  } else {
+    await sb.from('message_likes').insert({ message_id: msgId, user_id: currentUser.id });
+    m.liked_by_me = true;
+    m.like_count = (m.like_count || 0) + 1;
+  }
+  // Update all like buttons for this message (card + detail panel)
+  document.querySelectorAll(`[data-msg-id="${msgId}"] .msg-footer-btn.liked, [data-msg-id="${msgId}"] .msg-footer-btn`).forEach(b => {
+    if (b.title === 'Like' || b.onclick?.toString().includes('toggleLike')) {
+      b.className = `msg-footer-btn ${m.liked_by_me ? 'liked' : ''}`;
+      b.querySelector ? null : null; // noop
+    }
+  });
+  // Refresh the card in-place
+  const card = document.querySelector(`.msg-card[data-msg-id="${msgId}"]`);
+  if (card) {
+    const likeBtn = card.querySelector('.msg-footer-btn[title="Like"]');
+    if (likeBtn) {
+      likeBtn.className = `msg-footer-btn ${m.liked_by_me ? 'liked' : ''}`;
+      likeBtn.innerHTML = `${m.liked_by_me ? '♥' : '♡'} ${m.like_count > 0 ? m.like_count : ''}`;
+    }
+  }
+  // Update right panel if open for this message
+  const rpLikeBtn = document.getElementById('rpLikeBtn');
+  const rpLikeCount = document.getElementById('rpLikeCount');
+  if (rpLikeBtn) {
+    rpLikeBtn.className = `msg-footer-btn ${m.liked_by_me ? 'liked' : ''}`;
+    if (rpLikeCount) rpLikeCount.textContent = m.like_count;
+  }
+}
+
+async function deleteMessage(msgId) {
+  const m = channelMsgCache.find(x => x.id === msgId);
+  if (!m) return;
+  const canDel = m.sender_id === currentUser.id || canManageProjects();
+  if (!canDel) { showToast('Not authorized', 'error'); return; }
+  if (!confirm('Delete this message?')) return;
+  const { error } = await sb.from('chat_messages').delete().eq('id', msgId);
+  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  // Remove from cache
+  const idx = channelMsgCache.findIndex(x => x.id === msgId);
+  if (idx !== -1) channelMsgCache.splice(idx, 1);
+  // Remove card from DOM
+  const card = document.querySelector(`.msg-card[data-msg-id="${msgId}"]`);
+  if (card) card.remove();
+  // Clear right panel if it was showing this message
+  const rpTitle = document.getElementById('rpTitle');
+  if (rpTitle && rpTitle.textContent === '◈ Message') {
+    rpTitle.textContent = 'THREAD / DETAILS';
+    const rpContent = document.getElementById('rpContent');
+    if (rpContent) rpContent.innerHTML = '';
+  }
+  showToast('Message deleted');
+}
+
+async function editMessagePrompt(msgId) {
+  const m = channelMsgCache.find(x => x.id === msgId);
+  if (!m || m.sender_id !== currentUser.id) { showToast('Not authorized', 'error'); return; }
+  const newBody = prompt('Edit message:', m.body);
+  if (newBody === null || newBody.trim() === '') return;
+  const { error } = await sb.from('chat_messages').update({ body: newBody.trim() }).eq('id', msgId);
+  if (error) { showToast('Update failed: ' + error.message, 'error'); return; }
+  m.body = newBody.trim();
+  // Update card body in DOM
+  const card = document.querySelector(`.msg-card[data-msg-id="${msgId}"]`);
+  if (card) {
+    const bodyEl = card.querySelector('.msg-card-body');
+    if (bodyEl) bodyEl.innerHTML = formatMsgBody(escHtml(m.body));
+  }
+  // Refresh detail panel if open for this message
+  const rpTitle = document.getElementById('rpTitle');
+  if (rpTitle && rpTitle.textContent === '◈ Message') openMsgDetail(msgId);
+  showToast('Message updated');
+}
+
+async function deleteChannel(channelName) {
+  if (!canManageProjects()) { showToast('Not authorized', 'error'); return; }
+  if (!confirm(`Delete channel "${channelName}"? All messages will be lost.`)) return;
+  const { error } = await sb.from('channels').delete().eq('name', channelName);
+  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
+  if (activeChannel === channelName) {
+    activeChannel = null;
+    const msgList = document.getElementById('msgList');
+    if (msgList) msgList.innerHTML = '';
+    const rpTitle = document.getElementById('rpTitle');
+    if (rpTitle) rpTitle.textContent = 'THREAD / DETAILS';
+    const rpContent = document.getElementById('rpContent');
+    if (rpContent) rpContent.innerHTML = '';
+  }
+  await loadChannelNav();
+  showToast(`Channel "${channelName}" deleted`);
 }
 
 async function sendChannelMessage() {
@@ -2663,7 +2872,7 @@ document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;
 ${isIncoming && originTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:#ce93d8;color:#000;margin-bottom:8px;letter-spacing:1px;display:inline-block">⬇ INCOMING · ${escHtml(originTeam.name)}</div>` : ''}
 ${isOutgoing && destTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:rgba(79,195,247,.18);color:#4fc3f7;margin-bottom:8px;letter-spacing:1px;display:inline-block;border:1px solid rgba(79,195,247,.3)">↗ SENT TO · ${escHtml(destTeam.name)}</div>` : ''}
 ${team && !isOutgoing ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}</div>`: ''}
-${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${canManageProjects() ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
+${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${(t.created_by === currentUser.id || canManageProjects()) ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
 <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
   <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
     <span>Attachments</span>
@@ -3379,6 +3588,10 @@ if (msg.sender_id === currentUser.id) return; // own messages already shown
 if (list.querySelector(`[data-msgId="${msg.id}"]`)) return; // dedupe
 const profile = allProfiles.find(p => p.id === msg.sender_id);
 msg.profiles = profile;
+msg.reply_count = 0;
+msg.like_count = 0;
+msg.liked_by_me = false;
+channelMsgCache.push(msg);
 const el = buildMsgEl(msg);
 list.appendChild(el);
 list.scrollTop = list.scrollHeight;
@@ -3456,35 +3669,6 @@ sseRetryTimer = setTimeout(connectSSE, delay);
 function reconnectSSE() {
 sseRetryCount = 0;
 connectSSE();
-}
-
-// Keep-alive: if SSE closes unexpectedly, reconnect
-function startHeartbeat() {
-setInterval(() => {
-if (!sseConnection || sseConnection.readyState === EventSource.CLOSED) {
-console.warn('[SSE] found closed — reconnecting');
-reconnectSSE();
-}
-}, 10000);
-}
-
-function startVisibilityReconnect() {
-// SSE reconnects automatically, but force immediate reconnect on tab return
-document.addEventListener('visibilitychange', () => {
-if (document.visibilityState === 'visible') {
-console.log('[SSE] tab visible — reconnecting');
-reconnectSSE();
-refreshActiveSection();
-}
-});
-window.addEventListener('online', () => {
-console.log('[SSE] network online — reconnecting');
-reconnectSSE();
-});
-}
-
-function resubscribeAll() {
-reconnectSSE();
 }
 
 // Stub out old Supabase channel functions — no-ops now
