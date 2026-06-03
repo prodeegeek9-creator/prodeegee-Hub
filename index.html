@@ -3449,138 +3449,162 @@ async function loadFeed() { loadHomeDashboard(); }
 // ════════════════════════════════════════════════
 // ANALYTICS
 // ════════════════════════════════════════════════
-async function loadAnalytics() {
+let analyticsRange = 30;
+
+async function loadAnalytics(range) {
+if (range !== undefined) analyticsRange = parseInt(range);
 const content = document.getElementById('analyticsContent');
 if (!content) return;
 content.innerHTML = '<div class="loading" style="padding:40px"><div class="spinner"></div></div>';
 
 const today = new Date().toISOString().split('T')[0];
-const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+const in3 = new Date(); in3.setDate(in3.getDate() + 3);
+const in3str = in3.toISOString().split('T')[0];
+const periodStart = analyticsRange ? new Date(Date.now() - analyticsRange * 86400000) : new Date('2000-01-01');
 
-// Fetch all tasks with claimant profiles
-const tasks = await sbFetch(
-  `hub_tasks?select=*,profiles!hub_tasks_claimed_by_fkey(id,full_name,avatar_url)&order=created_at.desc`
-).catch(() => []);
+const [tasks, projects] = await Promise.all([
+  sbFetch('hub_tasks?select=*,profiles!hub_tasks_claimed_by_fkey(id,full_name,avatar_url)&order=created_at.desc').catch(() => []),
+  sbFetch('hub_projects?select=id,name&order=name.asc').catch(() => [])
+]);
 
 if (!Array.isArray(tasks) || !tasks.length) {
-  content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--muted);font-size:13px">No task data yet</div>`;
+  content.innerHTML = buildRangeTabs() + '<div style="text-align:center;padding:60px;color:var(--muted);font-size:13px">No task data yet</div>';
   return;
 }
 
-// Overview counts
-const totalActive  = tasks.filter(t => t.status !== 'Done').length;
-const doneMonth    = tasks.filter(t => t.status === 'Done' && t.updated_at >= monthStart.toISOString()).length;
-const overdueCount = tasks.filter(t => t.status !== 'Done' && t.due_date && t.due_date < today).length;
-const activeMembers = new Set(tasks.filter(t => t.claimed_by).map(t => t.claimed_by)).size;
+const periodTasks = tasks.filter(t => new Date(t.created_at) >= periodStart);
+const totalActive  = periodTasks.filter(t => t.status !== 'Done').length;
+const donePeriod   = periodTasks.filter(t => t.status === 'Done').length;
+const overdueCount = periodTasks.filter(t => t.status !== 'Done' && t.due_date && t.due_date < today).length;
+const compRate     = (donePeriod + totalActive) ? Math.round(donePeriod / (donePeriod + totalActive) * 100) : 0;
 
-// Per-member aggregation
+// At-risk (due in next 3 days, not done)
+const atRisk = tasks
+  .filter(t => t.status !== 'Done' && t.due_date && t.due_date >= today && t.due_date <= in3str)
+  .sort((a, b) => a.due_date.localeCompare(b.due_date));
+
+// Per-member
 const memberMap = {};
-for (const t of tasks) {
-  const uid = t.claimed_by;
-  if (!uid) continue;
+for (const t of periodTasks) {
+  const uid = t.claimed_by; if (!uid) continue;
   if (!memberMap[uid]) {
     const p = t.profiles || allProfiles.find(x => x.id === uid) || {};
-    memberMap[uid] = { id: uid, name: p.full_name || 'Unknown', avatar_url: p.avatar_url, active: 0, done: 0, overdue: 0 };
+    memberMap[uid] = { id: uid, name: p.full_name || 'Unknown', active: 0, done: 0, overdue: 0 };
   }
   const m = memberMap[uid];
   if (t.status === 'Done') m.done++;
   else if (t.due_date && t.due_date < today) m.overdue++;
   else m.active++;
 }
-
-const members = Object.values(memberMap).sort((a, b) => (b.done + b.active + b.overdue) - (a.done + a.active + a.overdue));
+const members = Object.values(memberMap).sort((a, b) => b.done - a.done);
 const maxTotal = members.reduce((mx, m) => Math.max(mx, m.done + m.active + m.overdue), 1);
 
-// Status breakdown
-const statusCounts = { Queue: 0, Claimed: 0, 'In Progress': 0, Review: 0, Done: 0 };
-tasks.forEach(t => { if (statusCounts[t.status] !== undefined) statusCounts[t.status]++; });
+// Pipeline
+const sc = { Queue: 0, Claimed: 0, 'In Progress': 0, Review: 0, Done: 0 };
+periodTasks.forEach(t => { if (sc[t.status] !== undefined) sc[t.status]++; });
 
-content.innerHTML = `
-<div style="font-size:10px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px">▦ Analytics Overview</div>
+// Per-project
+const projMap = {};
+for (const t of periodTasks) {
+  if (!t.project_id) continue;
+  if (!projMap[t.project_id]) {
+    const proj = Array.isArray(projects) ? projects.find(p => p.id === t.project_id) : null;
+    projMap[t.project_id] = { name: proj?.name || 'Project', done: 0, total: 0 };
+  }
+  projMap[t.project_id].total++;
+  if (t.status === 'Done') projMap[t.project_id].done++;
+}
+const projList = Object.values(projMap).sort((a, b) => b.total - a.total);
+const scColors = { Queue:'#64748b', Claimed:'#f59e0b', 'In Progress':'#4fc3f7', Review:'#a78bfa', Done:'#22c55e' };
 
+content.innerHTML = buildRangeTabs() + `
 <div class="an-overview">
-  <div class="an-stat">
-    <div class="an-stat-num">${totalActive}</div>
-    <div class="an-stat-label">Active Tasks</div>
-  </div>
-  <div class="an-stat">
-    <div class="an-stat-num" style="color:var(--green)">${doneMonth}</div>
-    <div class="an-stat-label">Done This Month</div>
-  </div>
-  <div class="an-stat">
-    <div class="an-stat-num" style="color:#ef4444">${overdueCount}</div>
-    <div class="an-stat-label">Overdue</div>
-  </div>
-  <div class="an-stat">
-    <div class="an-stat-num" style="color:#4fc3f7">${activeMembers}</div>
-    <div class="an-stat-label">Active Members</div>
-  </div>
+  <div class="an-stat"><div class="an-stat-num">${totalActive}</div><div class="an-stat-label">Active</div></div>
+  <div class="an-stat"><div class="an-stat-num" style="color:var(--green)">${donePeriod}</div><div class="an-stat-label">Completed</div></div>
+  <div class="an-stat"><div class="an-stat-num" style="color:#ef4444">${overdueCount}</div><div class="an-stat-label">Overdue</div></div>
+  <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${compRate}%</div><div class="an-stat-label">Completion Rate</div></div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
   <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
-    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Pipeline Breakdown</div>
-    ${Object.entries(statusCounts).map(([s, n]) => {
-      const colors = { Queue:'#64748b', Claimed:'#f59e0b', 'In Progress':'#4fc3f7', Review:'#a78bfa', Done:'#22c55e' };
-      const pct = tasks.length ? Math.round(n / tasks.length * 100) : 0;
-      return `<div class="an-bar-row" style="margin-bottom:8px">
-        <div class="an-bar-label">${s}</div>
-        <div class="an-bar-track"><div class="an-bar-fill" style="width:${pct}%;background:${colors[s]}"></div></div>
-        <div class="an-bar-count" style="color:${colors[s]}">${n}</div>
-      </div>`;
-    }).join('')}
+    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Completion Trend</div>
+    ${buildTrendChart(tasks.filter(t => t.status === 'Done'), analyticsRange || 90)}
   </div>
   <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
-    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Completion Rate</div>
-    ${members.slice(0, 5).map(m => {
-      const total = m.done + m.active + m.overdue;
-      const rate = total ? Math.round(m.done / total * 100) : 0;
-      const initials = m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div class="msg-av" style="background:${stringToColor(m.id)};width:22px;height:22px;font-size:8px;flex-shrink:0;border-radius:5px">${initials}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(m.name)}</div>
-          <div class="an-bar-track" style="margin-top:3px"><div class="an-bar-fill" style="width:${rate}%;background:var(--green)"></div></div>
-        </div>
-        <div style="font-size:10px;color:var(--muted);flex-shrink:0">${rate}%</div>
-      </div>`;
+    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Pipeline</div>
+    ${Object.entries(sc).map(([s, n]) => {
+      const pct = periodTasks.length ? Math.round(n / periodTasks.length * 100) : 0;
+      return '<div class="an-bar-row" style="margin-bottom:7px"><div class="an-bar-label">' + s + '</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + pct + '%;background:' + scColors[s] + '"></div></div><div class="an-bar-count" style="color:' + scColors[s] + '">' + n + '</div></div>';
     }).join('')}
   </div>
 </div>
 
-<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Per-Member Breakdown</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+  <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+    <div style="font-size:9px;color:${atRisk.length ? '#ef4444' : 'var(--muted)'};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">⚠ At Risk · Next 3 Days · ${atRisk.length}</div>
+    ${atRisk.length ? atRisk.slice(0, 6).map(t => {
+      const daysLeft = Math.ceil((new Date(t.due_date) - new Date(today)) / 86400000);
+      const assignee = t.profiles || allProfiles.find(p => p.id === t.claimed_by);
+      return '<div style="padding:7px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(t.title) + '</div><div style="font-size:9px;color:var(--muted);margin-top:2px">' + escHtml(assignee?.full_name || 'Unclaimed') + ' · <span style="color:#f59e0b">' + (daysLeft === 0 ? 'Due today' : daysLeft + 'd left') + '</span></div></div>';
+    }).join('') : '<div style="font-size:11px;color:var(--green)">✓ No tasks due in the next 3 days</div>'}
+  </div>
+  <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+    <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">By Project</div>
+    ${projList.length ? projList.slice(0, 6).map(p => {
+      const pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+      return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text);margin-bottom:3px"><span>' + escHtml(p.name) + '</span><span style="color:var(--muted)">' + p.done + '/' + p.total + ' · ' + pct + '%</span></div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + pct + '%;background:var(--orange)"></div></div></div>';
+    }).join('') : '<div style="font-size:11px;color:var(--muted)">No project data</div>'}
+  </div>
+</div>
+
+<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Member Leaderboard</div>
 ${members.length ? members.map(m => {
   const total = m.done + m.active + m.overdue;
   const rate = total ? Math.round(m.done / total * 100) : 0;
-  const initials = m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  return `<div class="an-member-card">
-    <div class="an-member-head">
-      <div class="msg-av" style="background:${stringToColor(m.id)};width:32px;height:32px;font-size:11px;flex-shrink:0;border-radius:8px">${initials}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(m.name)}</div>
-        <div style="font-size:10px;color:var(--muted)">${total} task${total !== 1 ? 's' : ''} · ${rate}% complete</div>
-      </div>
-      ${m.overdue ? `<div style="font-size:9px;background:#ef4444;color:#fff;padding:2px 7px;border-radius:10px;font-weight:700">${m.overdue} OVERDUE</div>` : ''}
-    </div>
-    <div class="an-bar-wrap">
-      <div class="an-bar-row">
-        <div class="an-bar-label">Done</div>
-        <div class="an-bar-track"><div class="an-bar-fill" style="width:${Math.round(m.done/maxTotal*100)}%;background:var(--green)"></div></div>
-        <div class="an-bar-count">${m.done}</div>
-      </div>
-      <div class="an-bar-row">
-        <div class="an-bar-label">Active</div>
-        <div class="an-bar-track"><div class="an-bar-fill" style="width:${Math.round(m.active/maxTotal*100)}%;background:var(--orange)"></div></div>
-        <div class="an-bar-count">${m.active}</div>
-      </div>
-      <div class="an-bar-row">
-        <div class="an-bar-label" style="color:#ef4444">Overdue</div>
-        <div class="an-bar-track"><div class="an-bar-fill" style="width:${Math.round(m.overdue/maxTotal*100)}%;background:#ef4444"></div></div>
-        <div class="an-bar-count" style="color:#ef4444">${m.overdue}</div>
-      </div>
-    </div>
-  </div>`;
-}).join('') : '<div style="color:var(--muted);font-size:12px;padding:16px">No members have claimed tasks yet.</div>'}`;
+  const initials = m.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  return '<div class="an-member-card"><div class="an-member-head"><div class="msg-av" style="background:' + stringToColor(m.id) + ';width:32px;height:32px;font-size:11px;flex-shrink:0;border-radius:8px">' + initials + '</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(m.name) + '</div><div style="font-size:10px;color:var(--muted)">' + total + ' task' + (total !== 1 ? 's' : '') + ' · ' + rate + '% complete</div></div>' + (m.overdue ? '<div style="font-size:9px;background:#ef4444;color:#fff;padding:2px 7px;border-radius:10px;font-weight:700">' + m.overdue + ' OVERDUE</div>' : '') + '</div><div class="an-bar-wrap"><div class="an-bar-row"><div class="an-bar-label">Done</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.done / maxTotal * 100) + '%;background:var(--green)"></div></div><div class="an-bar-count">' + m.done + '</div></div><div class="an-bar-row"><div class="an-bar-label">Active</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.active / maxTotal * 100) + '%;background:var(--orange)"></div></div><div class="an-bar-count">' + m.active + '</div></div><div class="an-bar-row"><div class="an-bar-label" style="color:#ef4444">Overdue</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.overdue / maxTotal * 100) + '%;background:#ef4444"></div></div><div class="an-bar-count" style="color:#ef4444">' + m.overdue + '</div></div></div></div>';
+}).join('') : '<div style="color:var(--muted);font-size:12px;padding:16px">No members with claimed tasks yet</div>'}`;
+}
+
+function buildRangeTabs() {
+const tabs = [['7','7d'],['30','30d'],['0','All']];
+return '<div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">' +
+  '<span style="font-size:10px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;flex:1">▦ Analytics</span>' +
+  '<button class="btn sm" onclick="loadAnalytics()" style="font-size:10px;padding:3px 8px">↺</button>' +
+  tabs.map(([v, l]) => {
+    const active = analyticsRange === parseInt(v);
+    return '<button onclick="loadAnalytics(' + v + ')" style="font-size:10px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-family:var(--font);background:' + (active ? 'var(--orange)' : 'var(--surface)') + ';color:' + (active ? '#000' : 'var(--muted)') + '">' + l + '</button>';
+  }).join('') +
+  '</div>';
+}
+
+function buildTrendChart(doneTasks, days) {
+const bucketCount = Math.min(days, 7);
+const now = Date.now();
+const bucketMs = (days * 86400000) / bucketCount;
+const buckets = Array.from({ length: bucketCount }, (_, i) => {
+  const end = now - (bucketCount - 1 - i) * bucketMs;
+  const start = end - bucketMs;
+  return {
+    label: new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    count: doneTasks.filter(t => { const ts = new Date(t.updated_at).getTime(); return ts >= start && ts < end; }).length
+  };
+});
+if (buckets.every(b => b.count === 0)) return '<div style="font-size:11px;color:var(--muted);padding:20px 0;text-align:center">No completions in this period</div>';
+const max = Math.max(...buckets.map(b => b.count), 1);
+const W = 300, H = 60, PX = 6, PY = 6;
+const pts = buckets.map((b, i) => [PX + (i / Math.max(bucketCount - 1, 1)) * (W - 2 * PX), H - PY - (b.count / max) * (H - 2 * PY)]);
+const line = pts.map(([x, y]) => x + ',' + y).join(' ');
+const fill = [...pts, [pts[pts.length-1][0], H], [pts[0][0], H]].map(([x, y]) => x + ',' + y).join(' ');
+return '<svg viewBox="0 0 300 60" style="width:100%;height:70px;overflow:visible">' +
+  '<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e" stop-opacity=".2"/><stop offset="100%" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>' +
+  '<polygon points="' + fill + '" fill="url(#tg)"/>' +
+  '<polyline points="' + line + '" fill="none" stroke="#22c55e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+  pts.map(([x, y], i) => '<circle cx="' + x + '" cy="' + y + '" r="3" fill="#22c55e"><title>' + buckets[i].count + ' completed</title></circle>').join('') +
+  '</svg>' +
+  '<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:2px">' +
+  buckets.map((b, i) => (i === 0 || i === bucketCount - 1) ? '<span>' + b.label + '</span>' : '<span></span>').join('') +
+  '</div>';
 }
 
 async function loadHomeDashboard() {
