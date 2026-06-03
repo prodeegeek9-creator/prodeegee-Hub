@@ -1,0 +1,3 @@
+[functions.overdue-tasks]
+# Runs daily at 8:00 AM UTC — adjust to your team's timezone
+schedule = "0 8 * * *"
