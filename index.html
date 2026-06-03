@@ -2273,7 +2273,8 @@ async function sendDM() {
 function openThread(msgId, preview) {
   activeThreadMsgId = msgId;
   document.getElementById('rpTitle').textContent = '↗ Thread: ' + preview + '...';
-  document.getElementById('threadPanel').style.display = 'block';
+  const tp = document.getElementById('threadPanel');
+  if (tp) tp.style.display = 'block';
   loadThreadMessages(msgId);
 }
 
@@ -4701,7 +4702,7 @@ async function loadCalendar(year, month) {
   if (!content) return;
   content.innerHTML = '<div class="loading" style="padding:40px"><div class="spinner"></div></div>';
 
-  const tasks = await sbFetch('hub_tasks?select=id,title,due_date,status,priority,claimed_by&not.is.null=due_date&order=due_date.asc').catch(() => []);
+  const tasks = await sbFetch('hub_tasks?select=id,title,due_date,status,priority,claimed_by&due_date=not.is.null&order=due_date.asc').catch(() => []);
 
   const firstDay = new Date(calYear, calMonth, 1);
   const lastDay  = new Date(calYear, calMonth + 1, 0);
