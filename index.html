@@ -447,6 +447,53 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 .topbar-actions .btn:not(.primary){display:none}
 #homeStatsRow{grid-template-columns:1fr 1fr !important}
 }
+
+/* ── GLOBAL SEARCH ── */
+#globalSearch:focus{border-color:var(--orange);width:220px;transition:width .2s}
+.sr-section{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px 4px}
+.sr-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;transition:background .1s}
+.sr-item:hover{background:var(--surface)}
+.sr-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+.sr-text{flex:1;min-width:0}
+.sr-title{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-sub{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* ── @MENTIONS AUTOCOMPLETE ── */
+.mention-menu{position:absolute;bottom:calc(100% + 4px);left:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:200;min-width:200px;max-height:200px;overflow-y:auto;display:none}
+.mention-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--text)}
+.mention-item:hover,.mention-item.selected{background:var(--surface)}
+.mention-highlight{color:var(--orange);font-weight:600}
+
+/* ── PINNED MESSAGES ── */
+.pinned-banner{background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);padding:7px 16px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);cursor:pointer;flex-shrink:0}
+.pinned-banner:hover{background:rgba(245,158,11,.12)}
+.pinned-banner strong{color:var(--orange)}
+
+/* ── MEMBER AVAILABILITY STATUS ── */
+.status-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;letter-spacing:.3px}
+.status-badge.active{background:rgba(34,197,94,.15);color:var(--green)}
+.status-badge.busy{background:rgba(239,68,68,.15);color:#ef4444}
+.status-badge.meeting{background:rgba(245,158,11,.15);color:var(--orange)}
+.status-badge.leave{background:rgba(100,116,139,.15);color:#64748b}
+
+/* ── CALENDAR ── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+.cal-header-cell{background:var(--panel);padding:6px;text-align:center;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.cal-day{background:var(--panel);min-height:80px;padding:5px;position:relative;transition:background .1s}
+.cal-day:hover{background:var(--surface)}
+.cal-day-num{font-size:11px;color:var(--muted);margin-bottom:3px}
+.cal-day.today .cal-day-num{color:var(--orange);font-weight:700}
+.cal-day.other-month{opacity:.35}
+.cal-task-chip{font-size:9px;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;display:block}
+@media(max-width:600px){.cal-day{min-height:50px}.cal-task-chip{display:none}.cal-day-num{font-size:10px}}
+
+/* ── HOME STAT CARD ENHANCED ── */
+.home-stat-card{background:var(--panel);border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.home-stat-card:hover{border-color:var(--orange);transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,158,11,.1)}
+.home-stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),transparent);transform:scaleX(0);transition:transform .25s;transform-origin:left}
+.home-stat-card:hover::after{transform:scaleX(1)}
+.home-stat-num{font-size:28px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1}
+.home-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
 </style>
 
 </head>
@@ -562,6 +609,12 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <div class="user-name" id="sideName">Loading...</div>
           <div class="user-email" id="sideProEmail" style="color:var(--green)">@prodeegee.com</div>
           <div class="user-email" id="sideRole" style="color:var(--muted);font-size:9px;letter-spacing:1px">MEMBER</div>
+          <select id="myStatusSelect" onchange="setMyStatus(this.value)" style="font-size:9px;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:1px 4px;margin-top:2px;cursor:pointer;font-family:var(--font)">
+            <option value="active">● Active</option>
+            <option value="busy">🔴 Busy</option>
+            <option value="meeting">🟡 In Meeting</option>
+            <option value="leave">⚫ On Leave</option>
+          </select>
         </div>
       </div>
     </div>
@@ -587,6 +640,9 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   </div>
   <div class="nav-item" id="nav-analytics" onclick="switchSection('analytics')">
     <span class="nav-icon">▦</span> Analytics
+  </div>
+  <div class="nav-item" id="nav-calendar" onclick="switchSection('calendar')">
+    <span class="nav-icon">📅</span> Calendar
   </div>
 
   <div class="nav-section" style="margin-top:8px">Channels</div>
@@ -623,6 +679,13 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="main">
     <div class="center">
       <div class="topbar">
+        <div style="position:relative;margin-right:10px" id="searchWrap">
+          <input id="globalSearch" type="text" placeholder="Search…" autocomplete="off"
+            style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 10px 5px 28px;font-size:12px;color:var(--text);width:180px;font-family:var(--font);outline:none"
+            oninput="onSearchInput(this.value)" onfocus="onSearchInput(this.value)" onblur="setTimeout(()=>closeSearch(),200)">
+          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none">⌕</span>
+          <div id="searchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;width:320px;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:300;max-height:380px;overflow-y:auto"></div>
+        </div>
         <div class="topbar-title" id="topbarTitle">⌂ HOME FEED</div>
         <div class="topbar-actions">
           <button class="btn sm" onclick="openComposeModal()">+ Compose</button>
@@ -639,7 +702,9 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
     <div id="homeContent" style="padding:20px;display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%">
 
       <!-- HERO: greeting + time + weather -->
-      <div id="homeHero" style="position:relative;background:var(--panel);border:1px solid var(--border);padding:24px 28px;overflow:hidden">
+      <div id="homeHero" style="position:relative;background:linear-gradient(135deg,var(--panel) 0%,var(--sidebar) 100%);border:1px solid var(--border);padding:28px 32px;overflow:hidden">
+        <!-- gradient orb -->
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,158,11,.08) 0%,transparent 70%);pointer-events:none"></div>
         <!-- animated grid lines background -->
         <div style="position:absolute;inset:0;opacity:.04;background-image:linear-gradient(var(--orange) 1px,transparent 1px),linear-gradient(90deg,var(--orange) 1px,transparent 1px);background-size:32px 32px;pointer-events:none"></div>
         <!-- orange accent bar -->
@@ -693,6 +758,14 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
         </div>
       </div>
 
+      <!-- QUICK ACTIONS -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="quickActions">
+        <button class="btn sm" onclick="switchSection('analytics')" style="font-size:11px">▦ Analytics</button>
+        <button class="btn sm" onclick="switchSection('calendar')" style="font-size:11px">📅 Calendar</button>
+        <button class="btn sm" onclick="openTaskModal()" style="font-size:11px">+ New Task</button>
+        <button class="btn sm" onclick="switchSection('notifications')" style="font-size:11px">◉ Notifications</button>
+      </div>
+
       <!-- MY TASKS + ACTIVITY -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="homeGridRow">
 
@@ -736,10 +809,14 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
     <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;color:var(--green);flex-shrink:0">
       # <span id="activeChannelName">general</span>
     </div>
+    <div id="pinnedBanner" class="pinned-banner" style="display:none" onclick="scrollToPinned()">
+      📌 <strong id="pinnedText">Pinned message</strong>
+    </div>
     <div class="msg-list" id="msgList">
       <div class="loading" id="msgLoading"><div class="spinner"></div>Loading messages...</div>
     </div>
-    <div class="msg-input-area">
+    <div class="msg-input-area" style="position:relative">
+      <div id="mentionMenu" class="mention-menu"></div>
       <div class="typing-indicator" id="typingIndicator"></div>
       <div class="msg-input-row">
         <textarea class="msg-input" id="msgInput" rows="2" placeholder="Message #general..."></textarea>
@@ -765,9 +842,10 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
       ◎ <span id="dmRecipientName">—</span>
     </div>
     <div class="msg-list" id="dmList"></div>
-    <div class="msg-input-area">
+    <div class="msg-input-area" style="position:relative">
+      <div id="dmMentionMenu" class="mention-menu"></div>
       <div class="msg-input-row">
-        <textarea class="msg-input" id="dmInput" rows="2" placeholder="Send a direct message..."></textarea>
+        <textarea class="msg-input" id="dmMsgInput" rows="2" placeholder="Send a direct message..."></textarea>
         <button class="btn primary" onclick="sendDM()">Send</button>
       </div>
     </div>
@@ -891,6 +969,11 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <!-- ANALYTICS SECTION -->
   <div class="section" id="section-analytics" style="overflow-y:auto">
     <div id="analyticsContent" style="padding:20px;max-width:860px;margin:0 auto;width:100%"></div>
+  </div>
+
+  <!-- CALENDAR SECTION -->
+  <div class="section" id="section-calendar" style="overflow-y:auto">
+    <div id="calContent" style="padding:20px;max-width:900px;margin:0 auto;width:100%"></div>
   </div>
 
   <!-- PROFILE SECTION -->
@@ -1352,6 +1435,11 @@ async function initApp(session) {
   connectSSE();
   initPresence();
   updateStats();
+  // Wire up @mention autocomplete
+  const msgInput = document.getElementById('msgInput');
+  if (msgInput) initMentionAutocomplete(msgInput);
+  const dmMsgInputEl = document.getElementById('dmMsgInput');
+  if (dmMsgInputEl) initMentionAutocomplete(dmMsgInputEl, 'dmMentionMenu');
   // Load channel messages after profiles are ready
   loadChannelMessages('general');
   // Push + iOS prompt
@@ -1524,6 +1612,10 @@ function setUserUI() {
     roleEl.style.color = roleColors[p.role] || 'var(--muted)';
   }
 
+  // Set availability status select
+  const statusSel = document.getElementById('myStatusSelect');
+  if (statusSel && currentProfile?.availability_status) statusSel.value = currentProfile.availability_status;
+
   // Show/hide New Project button
   const projBtn = document.getElementById('newProjectBtn');
   if (projBtn) projBtn.style.display = canCreateProjects() ? 'inline' : 'none';
@@ -1653,7 +1745,7 @@ function renderMembers() {
       <div class="member-av" style="background:${color}">${imgTag}</div>
       <div>
         <div class="member-name-txt">${escHtml(p.full_name || '?')}</div>
-        <div class="member-status-txt" style="color:var(--green)">● Online</div>
+        <div class="member-status-txt">${getStatusBadge(p)}</div>
       </div>
     </div>`;
   }).join('');
@@ -1694,7 +1786,7 @@ function switchSection(id) {
     home: '⌂ HOME FEED', channels: '# CHANNELS', dm: '◎ DIRECT MESSAGES',
     'dm-chat': '◎ DIRECT MESSAGES',
     email: '✉ EMAIL INBOX', projects: '◈ PROJECTS', notifications: '◉ NOTIFICATIONS',
-    analytics: '▦ ANALYTICS', profile: '⚙ PROFILE', 'project-tasks': '◈ PROJECT TASKS'
+    analytics: '▦ ANALYTICS', calendar: '📅 CALENDAR', profile: '⚙ PROFILE', 'project-tasks': '◈ PROJECT TASKS'
   };
   document.getElementById('topbarTitle').textContent = titles[id] || id.replace(/-/g,' ').toUpperCase();
 
@@ -1714,6 +1806,7 @@ function switchSection(id) {
   if (id === 'profile') loadProfileSection();
   if (id === 'dm') loadDMInbox();
   if (id === 'analytics') loadAnalytics();
+  if (id === 'calendar') loadCalendar();
 }
 
 async function loadDMInbox() {
@@ -1818,6 +1911,7 @@ async function loadChannelMessages(channel) {
     channelMsgCache = msgs;
     msgs.forEach(m => list.appendChild(buildMsgEl(m)));
     list.scrollTop = list.scrollHeight;
+    loadPinnedMessage(channel);
   } catch(e) {
     console.warn('[loadChannelMessages] error:', e.message);
     if (loading) loading.style.display = 'none';
@@ -1876,6 +1970,7 @@ function buildMsgEl(m, isDM) {
         ↗ Thread
       </button>
       ${(isMe || canManageProjects()) ? `<button class="msg-footer-btn" style="color:#ef4444" onclick="event.stopPropagation();deleteMessage('${m.id}')" title="Delete">🗑</button>` : ''}
+      ${canManageProjects() ? `<button class="msg-footer-btn" onclick="event.stopPropagation();pinMessage('${m.id}')" title="Pin">📌</button>` : ''}
     </div>`;
   return div;
 }
@@ -2082,14 +2177,16 @@ async function sendChannelMessage() {
     list.scrollTop = list.scrollHeight;
   }
 
-  const { error } = await sb.from('chat_messages').insert({
+  const { data: insertedMsg, error } = await sb.from('chat_messages').insert({
     channel_id: activeChannel,
     sender_id: currentUser.id,
     body
-  });
+  }).select().single();
   if (error) {
     showToast('Failed to send: ' + error.message, 'error');
     list?.querySelector('[data-msgId^="temp-"]')?.remove();
+  } else if (insertedMsg) {
+    notifyMentions(body, insertedMsg.id);
   }
 }
 
@@ -2101,7 +2198,8 @@ function openDM(userId, userName) {
   activeDMUserName = userName;
   switchSection('dm-chat');
   document.getElementById('dmRecipientName').textContent = userName;
-  document.getElementById('dmInput').placeholder = `Message ${userName}...`;
+  const dmInputEl = document.getElementById('dmMsgInput');
+  if (dmInputEl) dmInputEl.placeholder = `Message ${userName}...`;
   document.getElementById('dmList').innerHTML = '';
   // Clear DM badge
   const badge = document.getElementById('dmbadge-' + userId);
@@ -2134,7 +2232,7 @@ async function loadDMMessages(toUserId) {
 
 async function sendDM() {
   if (!activeDMUserId) { showToast('Select a member to DM', 'error'); return; }
-  const input = document.getElementById('dmInput');
+  const input = document.getElementById('dmMsgInput');
   const body = input.value.trim();
   if (!body) return;
   input.value = '';
@@ -2203,13 +2301,14 @@ async function sendThreadReply() {
   const body = input.value.trim();
   if (!body) return;
   input.value = '';
-  const { error } = await sb.from('chat_messages').insert({
+  const { data: insertedReply, error } = await sb.from('chat_messages').insert({
     channel_id: activeChannel,
     sender_id: currentUser.id,
     body,
     parent_id: activeThreadMsgId
-  });
+  }).select().single();
   if (!error) {
+    if (insertedReply) notifyMentions(body, insertedReply.id);
     loadThreadMessages(activeThreadMsgId);
     // Notify everyone who has replied in this thread + original poster
     const { data: threadMsgs } = await sb.from('chat_messages')
@@ -2918,6 +3017,16 @@ ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11p
     <textarea id="taskCommentInput" class="msg-input" rows="2" placeholder="Add a comment..." style="flex:1;min-width:0;resize:none;font-size:13px"></textarea>
     <button class="btn sm primary" onclick="addTaskComment('${t.id}')" style="align-self:flex-end;flex-shrink:0">Post</button>
   </div>
+</div>
+<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Comments</div>
+  <div id="taskComments" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:200px;overflow-y:auto">
+    <div style="font-size:11px;color:var(--muted)">Loading…</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <input id="taskCommentsInput" type="text" placeholder="Add a comment…" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:var(--font);outline:none" onkeydown="if(event.key==='Enter')addTaskCommentNew('${t.id}')">
+    <button class="btn sm primary" onclick="addTaskCommentNew('${t.id}')" style="font-size:11px">Post</button>
+  </div>
 </div>`;
 
 // On mobile the right panel is hidden — open the task detail modal instead
@@ -2925,7 +3034,7 @@ if (window.innerWidth <= 768) {
   document.getElementById('taskDetailContent').innerHTML = document.getElementById('rpContent').innerHTML;
   // Clear IDs in the hidden rpContent copy so getElementById always resolves
   // to the visible modal copy, not the hidden panel copy.
-  ['taskAttachmentsList','taskActivityLog','taskCommentInput'].forEach(id => {
+  ['taskAttachmentsList','taskActivityLog','taskCommentInput','taskComments','taskCommentsInput'].forEach(id => {
     const el = document.querySelector('#rpContent #' + id);
     if (el) el.removeAttribute('id');
   });
@@ -2933,6 +3042,7 @@ if (window.innerWidth <= 768) {
 }
 loadTaskActivity(taskId);
 renderAttachments(taskId, 'taskAttachmentsList');
+loadTaskComments(taskId);
 }
 
 async function loadTaskActivity(taskId) {
@@ -4011,7 +4121,7 @@ document.addEventListener('keydown', e => {
 if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'msgInput') {
 e.preventDefault(); sendChannelMessage();
 }
-if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'dmInput') {
+if (e.key === 'Enter' && !e.shiftKey && document.activeElement.id === 'dmMsgInput') {
 e.preventDefault(); sendDM();
 }
 if (e.key === 'Escape') {
@@ -4368,6 +4478,276 @@ mobBadge.style.display = 'flex';
 
 function hideNotifToast() {
 document.getElementById('notifToast').classList.remove('show');
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 1: GLOBAL SEARCH
+// ════════════════════════════════════════════════
+let searchTimer = null;
+function onSearchInput(q) {
+  clearTimeout(searchTimer);
+  const res = document.getElementById('searchResults');
+  if (!q.trim()) { res.style.display = 'none'; return; }
+  searchTimer = setTimeout(() => runSearch(q.trim()), 250);
+}
+function closeSearch() {
+  const res = document.getElementById('searchResults');
+  if (res) res.style.display = 'none';
+}
+async function runSearch(q) {
+  const res = document.getElementById('searchResults');
+  if (!res) return;
+  res.style.display = 'block';
+  res.innerHTML = '<div style="padding:12px;font-size:11px;color:var(--muted)">Searching…</div>';
+  const ql = q.toLowerCase();
+  const [tasks, msgs] = await Promise.all([
+    sbFetch('hub_tasks?select=id,title,status,project_id&order=created_at.desc&limit=50').catch(() => []),
+    sbFetch('chat_messages?select=id,body,channel_id,created_at&is.null=parent_id&order=created_at.desc&limit=100').catch(() => [])
+  ]);
+  const matchTasks = (Array.isArray(tasks) ? tasks : []).filter(t => t.title?.toLowerCase().includes(ql));
+  const matchMsgs  = (Array.isArray(msgs)  ? msgs  : []).filter(m => m.body?.toLowerCase().includes(ql));
+  const matchPeople = allProfiles.filter(p => p.full_name?.toLowerCase().includes(ql));
+  if (!matchTasks.length && !matchMsgs.length && !matchPeople.length) {
+    res.innerHTML = '<div style="padding:12px;font-size:11px;color:var(--muted)">No results for "' + escHtml(q) + '"</div>';
+    return;
+  }
+  let html = '';
+  if (matchPeople.length) {
+    html += '<div class="sr-section">People</div>';
+    html += matchPeople.slice(0, 4).map(p => {
+      const initials = p.full_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      return '<div class="sr-item" onclick="closeSearch();openDMWith(\'' + p.id + '\')"><div class="msg-av sr-icon" style="background:' + stringToColor(p.id) + ';width:20px;height:20px;font-size:8px;border-radius:4px">' + initials + '</div><div class="sr-text"><div class="sr-title">' + escHtml(p.full_name) + '</div><div class="sr-sub">' + escHtml(p.email || '') + '</div></div></div>';
+    }).join('');
+  }
+  if (matchTasks.length) {
+    html += '<div class="sr-section">Tasks</div>';
+    html += matchTasks.slice(0, 5).map(t => '<div class="sr-item" onclick="closeSearch();switchSection(\'project-tasks\')"><div class="sr-icon">◈</div><div class="sr-text"><div class="sr-title">' + escHtml(t.title) + '</div><div class="sr-sub">' + escHtml(t.status) + '</div></div></div>').join('');
+  }
+  if (matchMsgs.length) {
+    html += '<div class="sr-section">Messages</div>';
+    html += matchMsgs.slice(0, 4).map(m => '<div class="sr-item" onclick="closeSearch();' + (m.channel_id ? 'openChannel(\'' + escHtml(m.channel_id) + '\')' : '') + '"><div class="sr-icon">💬</div><div class="sr-text"><div class="sr-title">' + escHtml((m.body||'').slice(0, 60)) + '</div><div class="sr-sub">' + (m.channel_id ? '#' + escHtml(m.channel_id) : 'DM') + ' · ' + formatTime(m.created_at) + '</div></div></div>').join('');
+  }
+  res.innerHTML = html;
+}
+
+function openDMWith(userId) {
+  const p = allProfiles.find(x => x.id === userId);
+  if (p) openDM(userId, p.full_name);
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 2: @MENTIONS AUTOCOMPLETE
+// ════════════════════════════════════════════════
+let mentionState = { active: false, query: '', start: 0, inputEl: null, menuId: 'mentionMenu' };
+
+function initMentionAutocomplete(inputEl, menuId) {
+  const mid = menuId || 'mentionMenu';
+  inputEl.addEventListener('input', () => handleMentionInput(inputEl, mid));
+  inputEl.addEventListener('keydown', e => handleMentionKey(e, mid));
+}
+
+function handleMentionInput(inputEl, menuId) {
+  const val = inputEl.value;
+  const pos = inputEl.selectionStart;
+  const before = val.slice(0, pos);
+  const match = before.match(/@(\w*)$/);
+  const menu = document.getElementById(menuId || 'mentionMenu');
+  if (!menu) return;
+  if (!match) { menu.style.display = 'none'; mentionState.active = false; return; }
+  mentionState = { active: true, query: match[1].toLowerCase(), start: before.lastIndexOf('@'), inputEl, menuId: menuId || 'mentionMenu' };
+  const suggestions = allProfiles.filter(p => p.full_name.toLowerCase().includes(mentionState.query)).slice(0, 6);
+  if (!suggestions.length) { menu.style.display = 'none'; return; }
+  menu.style.display = 'block';
+  menu.innerHTML = suggestions.map((p, i) => {
+    const initials = p.full_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return '<div class="mention-item" data-idx="' + i + '" onmousedown="event.preventDefault();insertMention(\'' + p.id + '\',\'' + escHtml(p.full_name) + '\')"><div class="msg-av" style="background:' + stringToColor(p.id) + ';width:20px;height:20px;font-size:8px;border-radius:4px;flex-shrink:0">' + initials + '</div>' + escHtml(p.full_name) + '</div>';
+  }).join('');
+}
+
+function handleMentionKey(e, menuId) {
+  if (!mentionState.active) return;
+  const menu = document.getElementById(menuId || 'mentionMenu');
+  if (!menu || menu.style.display === 'none') return;
+  const items = menu.querySelectorAll('.mention-item');
+  const sel = menu.querySelector('.mention-item.selected');
+  let idx = sel ? parseInt(sel.dataset.idx) : -1;
+  if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(idx + 1, items.length - 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx - 1, 0); }
+  else if (e.key === 'Enter' && sel) { e.preventDefault(); sel.dispatchEvent(new MouseEvent('mousedown')); return; }
+  else if (e.key === 'Escape') { menu.style.display = 'none'; mentionState.active = false; return; }
+  else { return; }
+  items.forEach((item, i) => item.classList.toggle('selected', i === idx));
+}
+
+function insertMention(userId, name) {
+  const el = mentionState.inputEl;
+  if (!el) return;
+  const val = el.value;
+  el.value = val.slice(0, mentionState.start) + '@' + name + ' ' + val.slice(el.selectionStart);
+  el.focus();
+  const menu = document.getElementById(mentionState.menuId || 'mentionMenu');
+  if (menu) menu.style.display = 'none';
+  mentionState.active = false;
+}
+
+async function notifyMentions(body, msgId) {
+  const mentioned = [...body.matchAll(/@([\w ]+?)(?=\s|$|[^a-zA-Z ])/g)].map(m => m[1].trim().toLowerCase());
+  if (!mentioned.length) return;
+  const targets = allProfiles.filter(p => mentioned.some(m => p.full_name.toLowerCase().startsWith(m)) && p.id !== currentUser.id);
+  if (!targets.length) return;
+  await sb.from('notifications').insert(targets.map(p => ({
+    user_id: p.id, type: 'mention',
+    message: currentProfile.full_name + ' mentioned you: "' + body.slice(0, 80) + '"',
+    reference_id: msgId
+  })));
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 3: TASK COMMENTS
+// ════════════════════════════════════════════════
+async function loadTaskComments(taskId) {
+  const el = document.getElementById('taskComments');
+  if (!el) return;
+  const { data } = await sb.from('task_comments')
+    .select('*, profiles!task_comments_user_id_fkey(id, full_name, avatar_url)')
+    .eq('task_id', taskId).order('created_at', { ascending: true });
+  if (!data || !data.length) { el.innerHTML = '<div style="font-size:11px;color:var(--muted)">No comments yet</div>'; return; }
+  el.innerHTML = data.map(c => {
+    const p = c.profiles || allProfiles.find(x => x.id === c.user_id) || {};
+    const name = p.full_name || 'Unknown';
+    const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return '<div style="display:flex;gap:8px;align-items:flex-start"><div class="msg-av" style="background:' + stringToColor(c.user_id) + ';width:24px;height:24px;font-size:9px;border-radius:5px;flex-shrink:0">' + initials + '</div><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--text)">' + escHtml(name) + ' <span style="font-weight:400;color:var(--muted);font-size:9px">' + formatTime(c.created_at) + '</span></div><div style="font-size:12px;color:var(--text);margin-top:2px;line-height:1.5">' + escHtml(c.body) + '</div></div></div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function addTaskCommentNew(taskId) {
+  const input = document.getElementById('taskCommentsInput');
+  if (!input) return;
+  const body = input.value.trim();
+  if (!body) return;
+  input.value = '';
+  await sb.from('task_comments').insert({ task_id: taskId, user_id: currentUser.id, body });
+  loadTaskComments(taskId);
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 4: PINNED MESSAGES
+// ════════════════════════════════════════════════
+async function loadPinnedMessage(channel) {
+  const banner = document.getElementById('pinnedBanner');
+  const pinnedText = document.getElementById('pinnedText');
+  if (!banner) return;
+  const { data } = await sb.from('chat_messages')
+    .select('id, body').eq('channel_id', channel).eq('is_pinned', true)
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (data) {
+    banner.style.display = 'flex';
+    banner.dataset.msgId = data.id;
+    if (pinnedText) pinnedText.textContent = (data.body || '').slice(0, 80);
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+async function pinMessage(msgId) {
+  if (!canManageProjects()) return;
+  const { data: m } = await sb.from('chat_messages').select('channel_id').eq('id', msgId).single();
+  if (m?.channel_id) await sb.from('chat_messages').update({ is_pinned: false }).eq('channel_id', m.channel_id).eq('is_pinned', true);
+  await sb.from('chat_messages').update({ is_pinned: true }).eq('id', msgId);
+  loadPinnedMessage(activeChannel);
+  showToast('Message pinned');
+}
+
+async function unpinMessage(msgId) {
+  if (!canManageProjects()) return;
+  await sb.from('chat_messages').update({ is_pinned: false }).eq('id', msgId);
+  loadPinnedMessage(activeChannel);
+  showToast('Message unpinned');
+}
+
+function scrollToPinned() {
+  const banner = document.getElementById('pinnedBanner');
+  if (!banner?.dataset.msgId) return;
+  const card = document.querySelector('.msg-card[data-msg-id="' + banner.dataset.msgId + '"]');
+  if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); card.style.outline = '2px solid var(--orange)'; setTimeout(() => card.style.outline = '', 1500); }
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 5: MEMBER AVAILABILITY STATUS
+// ════════════════════════════════════════════════
+async function setMyStatus(status) {
+  await sb.from('profiles').update({ availability_status: status }).eq('id', currentUser.id);
+  if (currentProfile) currentProfile.availability_status = status;
+  renderMembers();
+}
+
+function getStatusBadge(profile) {
+  const s = profile?.availability_status || 'active';
+  const labels = { active: '● Active', busy: '🔴 Busy', meeting: '🟡 Meeting', leave: '⚫ Leave' };
+  return '<span class="status-badge ' + s + '">' + (labels[s] || s) + '</span>';
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 6: CALENDAR VIEW
+// ════════════════════════════════════════════════
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+async function loadCalendar(year, month) {
+  if (year !== undefined) calYear = year;
+  if (month !== undefined) calMonth = month;
+  const content = document.getElementById('calContent');
+  if (!content) return;
+  content.innerHTML = '<div class="loading" style="padding:40px"><div class="spinner"></div></div>';
+
+  const tasks = await sbFetch('hub_tasks?select=id,title,due_date,status,priority,claimed_by&not.is.null=due_date&order=due_date.asc').catch(() => []);
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay  = new Date(calYear, calMonth + 1, 0);
+  const today    = new Date().toISOString().split('T')[0];
+  const monthName = firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const startOffset = firstDay.getDay();
+  const totalCells = Math.ceil((startOffset + lastDay.getDate()) / 7) * 7;
+  const cells = [];
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(calYear, calMonth, 1 - startOffset + i);
+    const iso = d.toISOString().split('T')[0];
+    const isCurrentMonth = d.getMonth() === calMonth;
+    const dayTasks = Array.isArray(tasks) ? tasks.filter(t => t.due_date === iso) : [];
+    cells.push({ d, iso, isCurrentMonth, dayTasks });
+  }
+
+  const statusColors = { Queue:'#64748b', Claimed:'#f59e0b', 'In Progress':'#4fc3f7', Review:'#a78bfa', Done:'#22c55e' };
+
+  const prevYear = calMonth === 0 ? calYear - 1 : calYear;
+  const prevMonth = calMonth === 0 ? 11 : calMonth - 1;
+  const nextYear = calMonth === 11 ? calYear + 1 : calYear;
+  const nextMonth = calMonth === 11 ? 0 : calMonth + 1;
+  const nowYear = new Date().getFullYear();
+  const nowMonth = new Date().getMonth();
+
+  content.innerHTML = `
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+  <button class="btn sm" onclick="loadCalendar(${prevYear},${prevMonth})">←</button>
+  <div style="flex:1;text-align:center;font-size:14px;font-weight:600;color:var(--text)">${monthName}</div>
+  <button class="btn sm" onclick="loadCalendar(${nextYear},${nextMonth})">→</button>
+  <button class="btn sm" onclick="loadCalendar(${nowYear},${nowMonth})">Today</button>
+</div>
+<div class="cal-grid">
+  ${days.map(d => '<div class="cal-header-cell">' + d + '</div>').join('')}
+  ${cells.map(({ d, iso, isCurrentMonth, dayTasks }) => {
+    const isToday = iso === today;
+    const cls = 'cal-day' + (!isCurrentMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+    const chips = dayTasks.map(t => {
+      const color = statusColors[t.status] || '#64748b';
+      return '<span class="cal-task-chip" style="background:' + color + '22;color:' + color + ';border-left:2px solid ' + color + '" title="' + escHtml(t.title) + '">' + escHtml(t.title) + '</span>';
+    }).join('');
+    return '<div class="' + cls + '"><div class="cal-day-num">' + d.getDate() + (dayTasks.length ? ' <span style="font-size:8px;color:var(--orange)">·' + dayTasks.length + '</span>' : '') + '</div>' + chips + '</div>';
+  }).join('')}
+</div>`;
 }
 
 // ════════════════════════════════════════════════
