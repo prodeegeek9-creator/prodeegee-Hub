@@ -628,18 +628,17 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
           <div style="flex:1;min-width:0">
             <div id="homeGreeting" style="font-size:10px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'IBM Plex Mono',monospace">// INITIALIZING...</div>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <div id="homeName" style="font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.5px;line-height:1.1">Welcome back</div>
-              <div id="homeWeather" style="display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);padding:4px 10px;font-size:11px;color:var(--green)">
-                <span id="homeWeatherIcon">◌</span>
-                <span id="homeWeatherText">...</span>
-              </div>
-            </div>
+            <div id="homeName" style="font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.5px;line-height:1.1">Welcome back</div>
             <div id="homeRole" style="font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:2px;text-transform:uppercase"></div>
           </div>
           <div style="text-align:right;flex-shrink:0">
             <div id="homeClock" style="font-size:30px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1;letter-spacing:2px">00:00:00</div>
             <div id="homeDate" style="font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:1px"></div>
+            <div id="homeWeather" style="display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:6px;font-size:11px;color:var(--green)">
+              <span id="homeWeatherIcon">◌</span>
+              <span id="homeWeatherText">...</span>
+            </div>
+            <div id="homeLocation" style="font-size:10px;color:var(--muted);margin-top:2px;text-align:right"></div>
           </div>
         </div>
         <!-- quick action bar -->
@@ -3506,6 +3505,7 @@ homeClockTimer = setInterval(tick, 1000);
 async function loadHomeWeather() {
 const iconEl = document.getElementById('homeWeatherIcon');
 const textEl = document.getElementById('homeWeatherText');
+const locEl  = document.getElementById('homeLocation');
 if (!iconEl || !textEl) return;
 try {
 const pos = await new Promise((res,rej) =>
@@ -3513,20 +3513,30 @@ navigator.geolocation.getCurrentPosition(res, rej, {timeout:5000})
 ).catch(() => null);
 const lat = pos?.coords.latitude  ?? 6.5244;  // Lagos fallback
 const lon = pos?.coords.longitude ?? 3.3792;
-const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
-const wx  = await res.json();
+// Weather + reverse geocode in parallel
+const [wxRes, geoRes] = await Promise.all([
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`),
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, { headers: { 'Accept-Language': 'en' } }).catch(() => null)
+]);
+const wx  = await wxRes.json();
+const geo = geoRes?.ok ? await geoRes.json().catch(() => null) : null;
 const code = wx.current_weather?.weathercode ?? 0;
 const temp = Math.round(wx.current_weather?.temperature ?? 0);
-const wind = Math.round(wx.current_weather?.windspeed ?? 0);
 const icons = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'🌨️',80:'🌦️',95:'⛈️'};
 const descs = {0:'Clear',1:'Mostly Clear',2:'Partly Cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',61:'Rain',71:'Snow',80:'Showers',95:'Thunderstorm'};
 const icon = icons[code] || icons[Math.floor(code/10)*10] || '🌡️';
-const desc = descs[code] || descs[Math.floor(code/10)*10] || 'Unknown';
+const desc = descs[code] || descs[Math.floor(code/10)*10] || 'Weather';
 iconEl.textContent = icon;
-textEl.textContent = `${temp}°C · ${desc} · ${wind}km/h`;
+textEl.textContent = `${temp}°C · ${desc}`;
+if (locEl) {
+  const city = geo?.address?.city || geo?.address?.town || geo?.address?.village || geo?.address?.county || '';
+  const country = geo?.address?.country_code?.toUpperCase() || '';
+  locEl.textContent = city && country ? `${city}, ${country}` : city || country || '';
+}
 } catch {
 iconEl.textContent = '🌡️';
-textEl.textContent = 'Lagos, NG';
+textEl.textContent = 'Unavailable';
+if (locEl) locEl.textContent = '';
 }
 }
 
