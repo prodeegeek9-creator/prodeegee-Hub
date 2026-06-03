@@ -3017,6 +3017,16 @@ ${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11p
     <textarea id="taskCommentInput" class="msg-input" rows="2" placeholder="Add a comment..." style="flex:1;min-width:0;resize:none;font-size:13px"></textarea>
     <button class="btn sm primary" onclick="addTaskComment('${t.id}')" style="align-self:flex-end;flex-shrink:0">Post</button>
   </div>
+</div>
+<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+  <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Comments</div>
+  <div id="taskComments" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:200px;overflow-y:auto">
+    <div style="font-size:11px;color:var(--muted)">Loading…</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <input id="taskCommentsInput" type="text" placeholder="Add a comment…" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:var(--font);outline:none" onkeydown="if(event.key==='Enter')addTaskCommentNew('${t.id}')">
+    <button class="btn sm primary" onclick="addTaskCommentNew('${t.id}')" style="font-size:11px">Post</button>
+  </div>
 </div>`;
 
 // On mobile the right panel is hidden — open the task detail modal instead
@@ -3024,7 +3034,7 @@ if (window.innerWidth <= 768) {
   document.getElementById('taskDetailContent').innerHTML = document.getElementById('rpContent').innerHTML;
   // Clear IDs in the hidden rpContent copy so getElementById always resolves
   // to the visible modal copy, not the hidden panel copy.
-  ['taskAttachmentsList','taskActivityLog','taskCommentInput'].forEach(id => {
+  ['taskAttachmentsList','taskActivityLog','taskCommentInput','taskComments','taskCommentsInput'].forEach(id => {
     const el = document.querySelector('#rpContent #' + id);
     if (el) el.removeAttribute('id');
   });
@@ -3032,6 +3042,7 @@ if (window.innerWidth <= 768) {
 }
 loadTaskActivity(taskId);
 renderAttachments(taskId, 'taskAttachmentsList');
+loadTaskComments(taskId);
 }
 
 async function loadTaskActivity(taskId) {
@@ -4589,6 +4600,35 @@ async function notifyMentions(body, msgId) {
     message: currentProfile.full_name + ' mentioned you: "' + body.slice(0, 80) + '"',
     reference_id: msgId
   })));
+}
+
+// ════════════════════════════════════════════════
+// FEATURE 3: TASK COMMENTS
+// ════════════════════════════════════════════════
+async function loadTaskComments(taskId) {
+  const el = document.getElementById('taskComments');
+  if (!el) return;
+  const { data } = await sb.from('task_comments')
+    .select('*, profiles!task_comments_user_id_fkey(id, full_name, avatar_url)')
+    .eq('task_id', taskId).order('created_at', { ascending: true });
+  if (!data || !data.length) { el.innerHTML = '<div style="font-size:11px;color:var(--muted)">No comments yet</div>'; return; }
+  el.innerHTML = data.map(c => {
+    const p = c.profiles || allProfiles.find(x => x.id === c.user_id) || {};
+    const name = p.full_name || 'Unknown';
+    const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return '<div style="display:flex;gap:8px;align-items:flex-start"><div class="msg-av" style="background:' + stringToColor(c.user_id) + ';width:24px;height:24px;font-size:9px;border-radius:5px;flex-shrink:0">' + initials + '</div><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--text)">' + escHtml(name) + ' <span style="font-weight:400;color:var(--muted);font-size:9px">' + formatTime(c.created_at) + '</span></div><div style="font-size:12px;color:var(--text);margin-top:2px;line-height:1.5">' + escHtml(c.body) + '</div></div></div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function addTaskCommentNew(taskId) {
+  const input = document.getElementById('taskCommentsInput');
+  if (!input) return;
+  const body = input.value.trim();
+  if (!body) return;
+  input.value = '';
+  await sb.from('task_comments').insert({ task_id: taskId, user_id: currentUser.id, body });
+  loadTaskComments(taskId);
 }
 
 // ════════════════════════════════════════════════
