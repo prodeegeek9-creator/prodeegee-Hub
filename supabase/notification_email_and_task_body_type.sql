@@ -6,4 +6,5 @@ ALTER TABLE profiles
 ALTER TABLE hub_tasks
   ADD COLUMN IF NOT EXISTS task_body_type TEXT DEFAULT 'text'
     CHECK (task_body_type IN ('text', 'code')),
-  ADD COLUMN IF NOT EXISTS code_language TEXT DEFAULT NULL;
+  ADD COLUMN IF NOT EXISTS code_language TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS review_requested_at TIMESTAMPTZ DEFAULT NULL;
