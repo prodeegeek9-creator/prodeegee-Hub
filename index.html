@@ -1453,6 +1453,9 @@ async function initApp(session) {
   // Push + iOS prompt
   setTimeout(initPushNotifications, 2000);
   setTimeout(checkIosPrompt, 3000);
+  // Review reminder — check on load and every 30 min
+  setTimeout(checkPendingReviews, 8000);
+  setInterval(checkPendingReviews, 30 * 60 * 1000);
 }
 
 async function upsertProfile() {
@@ -2026,12 +2029,18 @@ function openMsgDetail(msgId) {
   const threadPanel = document.getElementById('threadPanel');
   if (threadPanel) threadPanel.style.display = 'none';
 
+  const isMine = m.sender_id === currentUser.id;
+  const dirLabel = isMine ? '↗ Sent by you' : `↙ Received from ${escHtml(name)}`;
+  const dirColor = isMine ? 'var(--orange)' : 'var(--green)';
+  const fullTime = new Date(m.created_at).toLocaleString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+
   document.getElementById('rpContent').innerHTML = `
     <div class="msg-detail-author">
       <div class="msg-av" style="background:${color};width:38px;height:38px;border-radius:10px;font-size:13px;flex-shrink:0">${avatarHtml}</div>
       <div>
         <div style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(name)}</div>
-        <div style="font-size:10px;color:var(--muted)">${new Date(m.created_at).toLocaleString()}</div>
+        <div style="font-size:9px;color:${dirColor};margin-top:2px">${dirLabel}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${fullTime}</div>
         <div style="font-size:10px;color:var(--muted)"># ${escHtml(activeChannel || '')}</div>
       </div>
     </div>
@@ -2236,6 +2245,35 @@ function openDM(userId, userName) {
   if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
   loadDMMessages(userId);
   reconnectSSE();
+  updateDMRightPanel(userId, userName);
+}
+
+function updateDMRightPanel(userId, userName) {
+  const profile = allProfiles.find(p => p.id === userId);
+  const initials = (userName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const color = stringToColor(userId);
+  const isOnline = onlineUserIds.has(userId);
+  const email = profile?.prodeegee_email || profile?.email || '';
+  const status = profile?.availability_status || 'active';
+  const statusColors = { active: 'var(--green)', busy: '#ef5350', meeting: '#ffd54f', leave: 'var(--muted)' };
+  const statusLabels = { active: '● Online', busy: '● Busy', meeting: '◉ In Meeting', leave: '◌ Away' };
+  const rpTitle = document.getElementById('rpTitle');
+  const rpContent = document.getElementById('rpContent');
+  if (rpTitle) rpTitle.textContent = '◎ Contact';
+  if (!rpContent) return;
+  const threadPanel = document.getElementById('threadPanel');
+  if (threadPanel) threadPanel.style.display = 'none';
+  rpContent.innerHTML = `
+    <div style="text-align:center;padding:16px 0 14px">
+      <div class="member-av" style="background:${color};width:52px;height:52px;font-size:18px;margin:0 auto 10px;border-radius:12px">${initials}</div>
+      <div style="font-size:13px;color:var(--text);font-weight:600">${escHtml(userName)}</div>
+      ${email ? `<div style="font-size:10px;color:var(--muted);margin-top:3px">${escHtml(email)}</div>` : ''}
+      <div style="font-size:10px;color:${isOnline ? (statusColors[status]||'var(--green)') : 'var(--muted)'};margin-top:5px">${isOnline ? (statusLabels[status]||'● Online') : '◌ Offline'}</div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:6px">
+      ${email ? `<button class="btn sm" style="width:100%;font-size:11px" onclick="document.getElementById('modalTo').value='${escHtml(email)}';openModal('composeModal')">✉ Send Email</button>` : ''}
+      ${profile?.role ? `<div style="font-size:9px;color:var(--muted);text-align:center;padding-top:4px">Role: ${escHtml(profile.role)}</div>` : ''}
+    </div>`;
 }
 
 async function loadDMMessages(toUserId) {
@@ -2293,7 +2331,7 @@ async function sendDM() {
     // Remove the optimistic message on failure
     list?.querySelector('[data-msgId^="temp-"]')?.remove();
   } else {
-    await addNotification('dm', `${currentProfile.full_name} sent you a DM`, null, activeDMUserId);
+    await addNotification('dm', `${currentProfile.full_name} sent you a DM`, currentUser.id, activeDMUserId);
   }
 }
 
@@ -3243,12 +3281,12 @@ if (t.assigned_by_team && t.assigned_by_team !== activeTeamId) {
 const { data: originMembers } = await sb.from('hub_team_members').select('user_id').eq('team_id', t.assigned_by_team);
 const ids = (originMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
 if (ids.length) {
-const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `"${t.title}" was claimed by ${currentProfile.full_name}` }));
+const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `"${t.title}" was claimed by ${currentProfile.full_name}`, reference_id: taskId }));
 await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Task Claimed', `"${t.title}" picked up by ${currentProfile.full_name}`);
 }
 }
-await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} claimed "${t.title}"`);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} claimed "${t.title}"`, [], taskId);
 await loadTasks();
 showTaskDetail(taskId);
 }
@@ -3260,7 +3298,7 @@ if (!confirm('Drop this task back to the queue?')) return;
 await sb.from('hub_tasks').update({ claimed_by: null, claimed_at: null, status: 'Queue' }).eq('id', taskId);
 await sb.from('task_activity').insert({ task_id: taskId, user_id: currentUser.id, action: 'dropped', note: `${currentProfile.full_name} dropped "${t.title}"` });
 showToast('Task dropped back to Queue');
-await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} dropped task: "${t.title}"`);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} dropped task: "${t.title}"`, [], taskId);
 // Also notify all team members — task is up for grabs
 const { data: members } = await sb.from('hub_team_members').select('user_id').eq('team_id', activeTeamId);
 const ids = (members || []).map(m => m.user_id).filter(id => id !== currentUser.id);
@@ -3270,7 +3308,9 @@ document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted)
 }
 
 async function moveTask(taskId, newStatus) {
-await sb.from('hub_tasks').update({ status: newStatus }).eq('id', taskId);
+const updateData = { status: newStatus };
+if (newStatus === 'Review') updateData.review_requested_at = new Date().toISOString();
+await sb.from('hub_tasks').update(updateData).eq('id', taskId);
 const task = tasksCache.find(t => t.id === taskId);
 const moverName = currentProfile.full_name || 'Someone';
 await sb.from('task_activity').insert({ task_id: taskId, user_id: currentUser.id, action: 'status_changed', note: `${moverName} moved "${task?.title || ''}" → ${newStatus}` });
@@ -3283,12 +3323,12 @@ if (task.review_by_team) {
 const { data: reviewMembers } = await sb.from('hub_team_members').select('user_id').eq('team_id', task.review_by_team);
 const ids = (reviewMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
 if (ids.length) {
-const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `Task ready for your review: "${task.title}"` }));
+const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `Task ready for your review: "${task.title}"`, reference_id: taskId }));
 await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Review Needed', `"${task.title}" is ready for review`);
 }
 } else {
-await notifyLeadAndAdmins(activeTeamId, 'project_update', `Task ready for review: "${task.title}"`);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `Task ready for review: "${task.title}"`, [], taskId);
 }
 }
 
@@ -3298,12 +3338,12 @@ if (task.assigned_by_team && task.assigned_by_team !== activeTeamId) {
 const { data: originMembers } = await sb.from('hub_team_members').select('user_id').eq('team_id', task.assigned_by_team);
 const ids = (originMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
 if (ids.length) {
-const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `"${task.title}" completed by ${moverName}` }));
+const notifs = ids.map(uid => ({ user_id: uid, type: 'project_update', message: `"${task.title}" completed by ${moverName}`, reference_id: taskId }));
 await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Task Done ✓', `"${task.title}" completed by ${moverName}`);
 }
 }
-await notifyLeadAndAdmins(activeTeamId, 'project_update', `${moverName} completed: "${task.title}"`);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${moverName} completed: "${task.title}"`, [], taskId);
 }
 
 await loadTasks();
@@ -3551,7 +3591,7 @@ if (isCrossTeam && targetTeam) {
   const { data: recvMembers } = await sb.from('hub_team_members').select('user_id').eq('team_id', assignedTeamId);
   const ids = (recvMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
   if (ids.length) {
-    const notifs = ids.map(uid => ({ user_id: uid, type: 'task_assigned', message: `New task${taskTypeLabel} from ${creatorName}: "${title}"` }));
+    const notifs = ids.map(uid => ({ user_id: uid, type: 'task_assigned', message: `New task${taskTypeLabel} from ${creatorName}: "${title}"`, reference_id: task.id }));
     await sb.from('notifications').insert(notifs);
     sendPush(ids, 'New Task Assigned', `"${title}" from ${creatorName} (${teamsCache.find(t=>t.id===activeTeamId)?.name || 'another team'})`);
     // Email notification
@@ -3566,14 +3606,14 @@ if (isCrossTeam && targetTeam) {
   const { data: sameTeamMembers } = await sb.from('hub_team_members').select('user_id').eq('team_id', teamId);
   const allTeamIds = (sameTeamMembers || []).map(m => m.user_id).filter(id => id !== currentUser.id);
   if (assigneeId && assigneeId !== currentUser.id) {
-    await addNotification('task_assigned', `${creatorName} assigned you: "${title}"${taskTypeLabel}`, null, assigneeId);
+    await addNotification('task_assigned', `${creatorName} assigned you: "${title}"${taskTypeLabel}`, task.id, assigneeId);
     const otherIds = allTeamIds.filter(id => id !== assigneeId);
     if (otherIds.length) {
-      const notifs = otherIds.map(uid => ({ user_id: uid, type: 'project_update', message: `New task${taskTypeLabel}: "${title}" by ${creatorName}` }));
+      const notifs = otherIds.map(uid => ({ user_id: uid, type: 'project_update', message: `New task${taskTypeLabel}: "${title}" by ${creatorName}`, reference_id: task.id }));
       await sb.from('notifications').insert(notifs);
     }
   } else if (allTeamIds.length) {
-    const notifs = allTeamIds.map(uid => ({ user_id: uid, type: 'task_assigned', message: `New task${taskTypeLabel} for your team: "${title}" by ${creatorName}` }));
+    const notifs = allTeamIds.map(uid => ({ user_id: uid, type: 'task_assigned', message: `New task${taskTypeLabel} for your team: "${title}" by ${creatorName}`, reference_id: task.id }));
     await sb.from('notifications').insert(notifs);
     sendPush(allTeamIds, 'New Task', `"${title}" by ${creatorName}`);
   }
@@ -3584,13 +3624,13 @@ if (isCrossTeam && targetTeam) {
   }
 }
 
-await notifyLeadAndAdmins(assignedTeamId || activeTeamId, 'project_update', `New task${taskTypeLabel} created: "${title}" by ${creatorName}`);
+await notifyLeadAndAdmins(assignedTeamId || activeTeamId, 'project_update', `New task${taskTypeLabel} created: "${title}" by ${creatorName}`, [], task.id);
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 // Notify team lead AND all admins — used wherever team lead was previously the sole recipient
-async function notifyLeadAndAdmins(teamId, type, message, alreadyNotifiedIds = []) {
+async function notifyLeadAndAdmins(teamId, type, message, alreadyNotifiedIds = [], refId = null) {
   const exclude = new Set([currentUser.id, ...alreadyNotifiedIds]);
   const targets = new Set();
   const team = teamsCache.find(t => t.id === (teamId || activeTeamId));
@@ -3600,7 +3640,7 @@ async function notifyLeadAndAdmins(teamId, type, message, alreadyNotifiedIds = [
     if (p && p.role === 'admin' && !exclude.has(p.id)) targets.add(p.id);
   });
   if (!targets.size) return;
-  await sb.from('notifications').insert([...targets].map(uid => ({ user_id: uid, type, message })));
+  await sb.from('notifications').insert([...targets].map(uid => ({ user_id: uid, type, message, reference_id: refId })));
 }
 
 async function sendTaskEmail(toEmail, taskTitle, fromName, taskBodyType, context) {
@@ -3642,8 +3682,8 @@ updateNotifBadge(unreadNotifs);
 document.getElementById('unreadNotifCount').textContent = unreadNotifs;
 const wrap = document.getElementById('notifListWrap');
 if (!notifs.length) { wrap.innerHTML = '<div class="empty-state"><div class="big">◉</div>No notifications yet</div>'; return; }
-const iconMap = { mention: '#', email: '✉', email_sent: '✉', task_assigned: '◈', deadline: '⚡', dm: '◎', project_update: '◈' };
-wrap.innerHTML = notifs.map(n => ` <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}')"> <div class="notif-icon">${iconMap[n.type] || '◉'}</div> <div> <div class="notif-text">${escHtml(n.message)}</div> <div class="notif-when">${formatTime(n.created_at)}</div> </div> </div>`).join('');
+const iconMap = { mention: '#', email: '✉', email_sent: '✉', task_assigned: '◈', deadline: '⚡', dm: '◎', project_update: '◈', review_reminder: '⏰' };
+wrap.innerHTML = notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}','${n.type}','${n.reference_id||''}')" style="cursor:pointer"><div class="notif-icon">${iconMap[n.type]||'◉'}</div><div style="flex:1;min-width:0"><div class="notif-text">${escHtml(n.message)}</div><div class="notif-when">${formatTime(n.created_at)}</div></div><div style="font-size:9px;color:var(--orange);flex-shrink:0;align-self:center">→</div></div>`).join('');
 }
 
 function updateNotifBadge(count) {
@@ -3676,14 +3716,71 @@ sendPush([proj.created_by], title, message);
 }
 }
 
-async function markNotifRead(notifId) {
+async function markNotifRead(notifId, type, refId) {
 await sb.from('notifications').update({ read: true }).eq('id', notifId);
 loadNotifications();
+// Navigate to the relevant content
+if (type === 'dm' && refId) { navigateToDM(refId); return; }
+if ((type === 'task_assigned' || type === 'task_overdue' || type === 'review_reminder' || type === 'project_update') && refId) { navigateToTask(refId); return; }
+if (type === 'mention' && refId) { navigateToMessage(refId); return; }
+if (type === 'email' || type === 'email_sent') { switchSection('email'); return; }
+if (type === 'project_update') switchSection('projects');
+}
+
+function navigateToDM(senderUserId) {
+const sender = allProfiles.find(p => p.id === senderUserId);
+openDM(senderUserId, sender?.full_name || 'User');
+}
+
+async function navigateToTask(taskId) {
+document.getElementById('rpTitle').textContent = '◈ Opening task…';
+document.getElementById('rpContent').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+const { data: task } = await sb.from('hub_tasks').select('id,project_id,team_id,hub_projects(name)').eq('id', taskId).single();
+if (!task) { document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">Task not found</div>'; return; }
+const projectName = task.hub_projects?.name || projectsCache.find(p => p.id === task.project_id)?.name || 'Project';
+await openProject(task.project_id, projectName);
+await openTeamBoard(task.team_id);
+showTaskDetail(taskId);
+}
+
+async function navigateToMessage(msgId) {
+switchSection('channels');
+const cached = channelMsgCache.find(m => m.id === msgId);
+if (cached) { openMsgDetail(msgId); return; }
+const { data: msg } = await sb.from('chat_messages').select('channel_id').eq('id', msgId).single();
+if (msg?.channel_id) { await loadChannelMessages(msg.channel_id); openMsgDetail(msgId); }
 }
 
 async function markAllNotifsRead() {
 await sb.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false);
 loadNotifications();
+}
+
+async function checkPendingReviews() {
+if (!currentUser || !currentProfile) return;
+const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+// Find Review tasks that have been waiting > 1 hour
+const { data: reviewTasks } = await sb.from('hub_tasks')
+  .select('id, title, review_by_team, team_id')
+  .eq('status', 'Review')
+  .not('review_requested_at', 'is', null)
+  .lt('review_requested_at', oneHourAgo);
+if (!reviewTasks?.length) return;
+// Get my team memberships
+const { data: myTeams } = await sb.from('hub_team_members').select('team_id').eq('user_id', currentUser.id);
+const myTeamIds = new Set((myTeams || []).map(m => m.team_id));
+for (const task of reviewTasks) {
+  const reviewTeamId = task.review_by_team || task.team_id;
+  const amReviewer = currentProfile.role === 'admin' || currentProfile.role === 'team_lead' || myTeamIds.has(reviewTeamId);
+  if (!amReviewer) continue;
+  // Only remind once per hour per task
+  const { data: recent } = await sb.from('notifications')
+    .select('id').eq('user_id', currentUser.id).eq('type', 'review_reminder')
+    .eq('reference_id', task.id).gte('created_at', oneHourAgo);
+  if (!recent?.length) {
+    await addNotification('review_reminder', `⏰ Still waiting on your review: "${task.title}" (over 1 hour)`, task.id);
+  }
+}
 }
 
 // [subscribeToNotifications replaced by SSE]
