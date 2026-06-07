@@ -3131,10 +3131,7 @@ await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Task Claimed', `"${t.title}" picked up by ${currentProfile.full_name}`);
 }
 }
-// Notify team lead
-const team = teamsCache.find(tm => tm.id === activeTeamId);
-const lead = team?.hub_team_members?.find(m => m.role === 'lead' && m.user_id !== currentUser.id);
-if (lead) await addNotification('project_update', `${currentProfile.full_name} claimed "${t.title}"`, null, lead.user_id);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} claimed "${t.title}"`);
 await loadTasks();
 showTaskDetail(taskId);
 }
@@ -3146,10 +3143,7 @@ if (!confirm('Drop this task back to the queue?')) return;
 await sb.from('hub_tasks').update({ claimed_by: null, claimed_at: null, status: 'Queue' }).eq('id', taskId);
 await sb.from('task_activity').insert({ task_id: taskId, user_id: currentUser.id, action: 'dropped', note: `${currentProfile.full_name} dropped "${t.title}"` });
 showToast('Task dropped back to Queue');
-// Notify team lead
-const team = teamsCache.find(tm => tm.id === activeTeamId);
-const lead = team?.hub_team_members?.find(m => m.role === 'lead' && m.user_id !== currentUser.id);
-if (lead) await addNotification('project_update', `${currentProfile.full_name} dropped task: "${t.title}"`, null, lead.user_id);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${currentProfile.full_name} dropped task: "${t.title}"`);
 // Also notify all team members — task is up for grabs
 const { data: members } = await sb.from('hub_team_members').select('user_id').eq('team_id', activeTeamId);
 const ids = (members || []).map(m => m.user_id).filter(id => id !== currentUser.id);
@@ -3177,10 +3171,7 @@ await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Review Needed', `"${task.title}" is ready for review`);
 }
 } else {
-// Notify team lead
-const team = teamsCache.find(tm => tm.id === activeTeamId);
-const lead = team?.hub_team_members?.find(m => m.role === 'lead' && m.user_id !== currentUser.id);
-if (lead) await addNotification('project_update', `Task ready for review: "${task.title}"`, null, lead.user_id);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `Task ready for review: "${task.title}"`);
 }
 }
 
@@ -3195,10 +3186,7 @@ await sb.from('notifications').insert(notifs);
 sendPush(ids, 'Task Done ✓', `"${task.title}" completed by ${moverName}`);
 }
 }
-// Always notify team lead on done
-const team = teamsCache.find(tm => tm.id === activeTeamId);
-const lead = team?.hub_team_members?.find(m => m.role === 'lead' && m.user_id !== currentUser.id);
-if (lead) await addNotification('project_update', `${moverName} completed: "${task.title}"`, null, lead.user_id);
+await notifyLeadAndAdmins(activeTeamId, 'project_update', `${moverName} completed: "${task.title}"`);
 }
 
 await loadTasks();
@@ -3479,13 +3467,24 @@ if (isCrossTeam && targetTeam) {
   }
 }
 
-// Notify team lead
-const team = teamsCache.find(t => t.id === (assignedTeamId || activeTeamId));
-const lead = team?.hub_team_members?.find(m => m.role === 'lead' && m.user_id !== currentUser.id);
-if (lead) await addNotification('project_update', `New task${taskTypeLabel} created: "${title}" by ${creatorName}`, null, lead.user_id);
+await notifyLeadAndAdmins(assignedTeamId || activeTeamId, 'project_update', `New task${taskTypeLabel} created: "${title}" by ${creatorName}`);
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Notify team lead AND all admins — used wherever team lead was previously the sole recipient
+async function notifyLeadAndAdmins(teamId, type, message, alreadyNotifiedIds = []) {
+  const exclude = new Set([currentUser.id, ...alreadyNotifiedIds]);
+  const targets = new Set();
+  const team = teamsCache.find(t => t.id === (teamId || activeTeamId));
+  const lead = team?.hub_team_members?.find(m => m.role === 'lead' && !exclude.has(m.user_id));
+  if (lead) targets.add(lead.user_id);
+  [currentProfile, ...allProfiles].forEach(p => {
+    if (p && p.role === 'admin' && !exclude.has(p.id)) targets.add(p.id);
+  });
+  if (!targets.size) return;
+  await sb.from('notifications').insert([...targets].map(uid => ({ user_id: uid, type, message })));
+}
 
 async function sendTaskEmail(toEmail, taskTitle, fromName, taskBodyType, context) {
   if (!toEmail) return;

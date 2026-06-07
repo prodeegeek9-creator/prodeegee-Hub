@@ -7,10 +7,3 @@ ALTER TABLE hub_tasks
   ADD COLUMN IF NOT EXISTS task_body_type TEXT DEFAULT 'text'
     CHECK (task_body_type IN ('text', 'code')),
   ADD COLUMN IF NOT EXISTS code_language TEXT DEFAULT NULL;
-
--- Allow null/update for notification_email via RLS (profiles table)
--- Users can update their own notification_email
-CREATE POLICY IF NOT EXISTS "Users can update own notification_email"
-  ON profiles FOR UPDATE
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
