@@ -1823,8 +1823,8 @@ function switchSection(id) {
   };
   document.getElementById('topbarTitle').textContent = titles[id] || id.replace(/-/g,' ').toUpperCase();
 
-  // Reset right panel when switching sections (unless going to project-tasks)
-  if (id !== 'project-tasks') {
+  // Reset right panel when switching sections (keep content for dm-chat and project-tasks)
+  if (id !== 'project-tasks' && id !== 'dm-chat') {
     const rpTitle = document.getElementById('rpTitle');
     if (rpTitle) rpTitle.textContent = 'THREAD / DETAILS';
     const threadPanel = document.getElementById('threadPanel');
@@ -2511,18 +2511,23 @@ function initEmailToAutocomplete() {
   ['composeTo', 'modalTo'].forEach(inputId => {
     const input = document.getElementById(inputId);
     if (!input) return;
-    const wrap = input.parentElement;
-    if (wrap) wrap.style.position = 'relative';
     const menuId = inputId + '_acMenu';
     let menu = document.getElementById(menuId);
     if (!menu) {
       menu = document.createElement('div');
       menu.id = menuId;
-      menu.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border);z-index:300;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)';
-      if (wrap) wrap.appendChild(menu);
+      // position:fixed lets it escape any overflow:hidden ancestor
+      menu.style.cssText = 'display:none;position:fixed;background:var(--panel);border:1px solid var(--border);z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.6);min-width:220px';
+      document.body.appendChild(menu);
     }
-    input.addEventListener('input', () => { emailToResolved = null; handleEmailToInput(input, menu); });
-    input.addEventListener('focus', () => { if (input.value.trim()) handleEmailToInput(input, menu); });
+    const reposition = () => {
+      const r = input.getBoundingClientRect();
+      menu.style.top = (r.bottom + 2) + 'px';
+      menu.style.left = r.left + 'px';
+      menu.style.width = r.width + 'px';
+    };
+    input.addEventListener('input', () => { emailToResolved = null; reposition(); handleEmailToInput(input, menu); });
+    input.addEventListener('focus', () => { if (input.value.trim()) { reposition(); handleEmailToInput(input, menu); } });
     input.addEventListener('blur', () => setTimeout(() => { menu.style.display = 'none'; }, 200));
   });
 }
@@ -3720,11 +3725,11 @@ async function markNotifRead(notifId, type, refId) {
 await sb.from('notifications').update({ read: true }).eq('id', notifId);
 loadNotifications();
 // Navigate to the relevant content
-if (type === 'dm' && refId) { navigateToDM(refId); return; }
+if (type === 'dm') { refId ? navigateToDM(refId) : switchSection('dm'); return; }
 if ((type === 'task_assigned' || type === 'task_overdue' || type === 'review_reminder' || type === 'project_update') && refId) { navigateToTask(refId); return; }
 if (type === 'mention' && refId) { navigateToMessage(refId); return; }
 if (type === 'email' || type === 'email_sent') { switchSection('email'); return; }
-if (type === 'project_update') switchSection('projects');
+if (type === 'project_update' || type === 'deadline') switchSection('projects');
 }
 
 function navigateToDM(senderUserId) {
@@ -3733,13 +3738,40 @@ openDM(senderUserId, sender?.full_name || 'User');
 }
 
 async function navigateToTask(taskId) {
-document.getElementById('rpTitle').textContent = '◈ Opening task…';
-document.getElementById('rpContent').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-const { data: task } = await sb.from('hub_tasks').select('id,project_id,team_id,hub_projects(name)').eq('id', taskId).single();
-if (!task) { document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">Task not found</div>'; return; }
-const projectName = task.hub_projects?.name || projectsCache.find(p => p.id === task.project_id)?.name || 'Project';
+const rpTitle = document.getElementById('rpTitle');
+const rpContent = document.getElementById('rpContent');
+if (rpTitle) rpTitle.textContent = '◈ Opening task…';
+if (rpContent) rpContent.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+// Fetch task — no join, separate project lookup
+const { data: task } = await sb.from('hub_tasks').select('id,project_id,team_id').eq('id', taskId).single();
+if (!task) {
+  if (rpContent) rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">Task not found</div>';
+  return;
+}
+
+// Get project name (from cache or DB)
+let projectName = projectsCache.find(p => p.id === task.project_id)?.name;
+if (!projectName) {
+  const { data: proj } = await sb.from('hub_projects').select('name').eq('id', task.project_id).single();
+  projectName = proj?.name || 'Project';
+}
+
+// Open project — populates teamsCache via loadTeamOverview
 await openProject(task.project_id, projectName);
+
+// If teamsCache still doesn't have this team (e.g. sbFetch failed), load directly
+if (!teamsCache.find(t => t.id === task.team_id)) {
+  const { data: teams } = await sb.from('hub_teams').select('*,hub_team_members(user_id,role)').eq('project_id', task.project_id);
+  if (teams?.length) teamsCache = teams;
+}
+
+// Open team board — loads tasksCache
 await openTeamBoard(task.team_id);
+
+// If task still missing from cache, force reload
+if (!tasksCache.find(t => t.id === taskId)) await loadTasks();
+
 showTaskDetail(taskId);
 }
 
