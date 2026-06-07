@@ -159,7 +159,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .sent-empty{padding:40px;text-align:center;color:var(--muted);font-size:11px}
 
 /* ── PROJECTS ── */
-.kanban-wrap{display:flex;gap:12px;padding:16px;overflow-x:auto;height:100%;align-items:flex-start}
+.kanban-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:16px;height:100%;align-content:start;overflow-y:auto}
 .project-card{background:var(--surface);border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .15s;position:relative}
 .project-card:hover{border-color:var(--orange);background:rgba(255,107,43,.04)}
 .project-card-name{font-size:13px;color:var(--orange);margin-bottom:6px;font-weight:600}
@@ -183,7 +183,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
 body.light .theme-toggle{background:var(--orange)}
 body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
-.kol{background:var(--surface);border:1px solid var(--border);width:240px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 100px)}
+.kol{background:var(--surface);border:1px solid var(--border);display:flex;flex-direction:column;max-height:calc(100vh - 120px)}
 .kol-header{padding:10px 12px;border-bottom:1px solid var(--border);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;color:var(--muted)}
 .kol-cards{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:8px}
 .kcard{background:var(--panel);border:1px solid var(--border);border-left:3px solid transparent;padding:10px 12px;cursor:pointer;transition:all .15s;animation:fadeIn .2s ease}
@@ -260,7 +260,7 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 #homeStatsRow .home-stat-card:nth-child(2){animation-delay:.1s}
 #homeStatsRow .home-stat-card:nth-child(3){animation-delay:.15s}
 #homeStatsRow .home-stat-card:nth-child(4){animation-delay:.2s}
-@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}#homeContent{padding:12px;gap:12px}#homeHero{padding:16px 14px}#homeName{font-size:19px}#homeClock{font-size:20px;letter-spacing:1px}.home-stat-card{padding:10px 12px}.home-stat-num{font-size:20px}.home-member-chip{padding:5px 8px}.kanban-wrap{gap:8px;padding:8px}.kol{width:200px}}
+@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}#homeContent{padding:12px;gap:12px}#homeHero{padding:16px 14px}#homeName{font-size:19px}#homeClock{font-size:20px;letter-spacing:1px}.home-stat-card{padding:10px 12px}.home-stat-num{font-size:20px}.home-member-chip{padding:5px 8px}.kanban-wrap{gap:8px;padding:8px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
 .feed-item{background:var(--surface);border:1px solid var(--border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
 .feed-item:hover{border-color:var(--dim)}
 .feed-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
@@ -399,9 +399,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 .email-wrap{flex-direction:column}
 .email-list-col{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:40vh}
 
-/* Kanban mobile — horizontal scroll */
-.kanban-wrap{padding:8px;gap:8px}
-.kol{width:200px}
+/* Kanban mobile — grid */
+.kanban-wrap{padding:8px;gap:8px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 .kcard{padding:9px 10px}
 .kcard-title{font-size:11px}
 
@@ -505,9 +504,9 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="mob-nav-item active" id="mobnav-home" onclick="mobNav('home')">
     <span class="mob-nav-icon">⌂</span><span>Home</span>
   </div>
-  <div class="mob-nav-item" id="mobnav-channels" onclick="mobNav('channels')">
-    <span class="mob-nav-icon">#</span><span>Chat</span>
-    <span class="mob-nav-badge" id="mobbadge-channels">0</span>
+  <div class="mob-nav-item" id="mobnav-dm" onclick="mobNav('dm')">
+    <span class="mob-nav-icon">◎</span><span>Messages</span>
+    <span class="mob-nav-badge" id="mobbadge-dm">0</span>
   </div>
   <div class="mob-nav-item" id="mobnav-projects" onclick="mobNav('projects')">
     <span class="mob-nav-icon">◈</span><span>Projects</span>
@@ -3694,8 +3693,10 @@ wrap.innerHTML = notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread
 function updateNotifBadge(count) {
 const b = document.getElementById('notifBadge');
 const mb = document.getElementById('mobbadge-notifs');
+const btn = document.getElementById('notifBtnBadge');
 if (b) { b.textContent = count; b.style.display = count > 0 ? 'inline-flex' : 'none'; }
 if (mb) { mb.textContent = count; mb.style.display = count > 0 ? 'inline-flex' : 'none'; }
+if (btn) { btn.textContent = count; btn.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
 async function addNotification(type, message, refId, targetUserId) {
@@ -3722,6 +3723,14 @@ sendPush([proj.created_by], title, message);
 }
 
 async function markNotifRead(notifId, type, refId) {
+// Optimistic update: grey out the item and decrement badge immediately
+const el = document.querySelector(`.notif-item[onclick*="'${notifId}'"]`);
+if (el && el.classList.contains('unread')) {
+  el.classList.remove('unread');
+  unreadNotifs = Math.max(0, unreadNotifs - 1);
+  updateNotifBadge(unreadNotifs);
+  document.getElementById('unreadNotifCount').textContent = unreadNotifs;
+}
 await sb.from('notifications').update({ read: true }).eq('id', notifId);
 loadNotifications();
 // Navigate to the relevant content
