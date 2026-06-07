@@ -1446,6 +1446,8 @@ async function initApp(session) {
   if (msgInput) initMentionAutocomplete(msgInput);
   const dmMsgInputEl = document.getElementById('dmMsgInput');
   if (dmMsgInputEl) initMentionAutocomplete(dmMsgInputEl, 'dmMentionMenu');
+  // Wire up email To autocomplete
+  initEmailToAutocomplete();
   // Load channel messages after profiles are ready
   loadChannelMessages('general');
   // Push + iOS prompt
@@ -2463,12 +2465,111 @@ function replyToEmail(i) {
 // ════════════════════════════════════════════════
 // GMAIL — SEND
 // ════════════════════════════════════════════════
+// ── Email To field autocomplete ──────────────────
+let emailToResolved = null; // { label, emails[] } when a team/project is selected
+let _activeEmailInput = null;
+
+function initEmailToAutocomplete() {
+  ['composeTo', 'modalTo'].forEach(inputId => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const wrap = input.parentElement;
+    if (wrap) wrap.style.position = 'relative';
+    const menuId = inputId + '_acMenu';
+    let menu = document.getElementById(menuId);
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = menuId;
+      menu.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;background:var(--panel);border:1px solid var(--border);z-index:300;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)';
+      if (wrap) wrap.appendChild(menu);
+    }
+    input.addEventListener('input', () => { emailToResolved = null; handleEmailToInput(input, menu); });
+    input.addEventListener('focus', () => { if (input.value.trim()) handleEmailToInput(input, menu); });
+    input.addEventListener('blur', () => setTimeout(() => { menu.style.display = 'none'; }, 200));
+  });
+}
+
+function handleEmailToInput(inputEl, menu) {
+  const q = inputEl.value.trim().toLowerCase();
+  _activeEmailInput = inputEl;
+  if (!q) { menu.style.display = 'none'; return; }
+
+  const rows = [];
+
+  // Individual people
+  [currentProfile, ...allProfiles].forEach(p => {
+    if (!p) return;
+    const email = p.prodeegee_email || p.email || '';
+    if (p.full_name.toLowerCase().includes(q) || email.toLowerCase().includes(q)) {
+      rows.push({ type: 'person', label: p.full_name, sub: email, emails: [email],
+        color: stringToColor(p.id),
+        initials: p.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) });
+    }
+  });
+
+  // Teams — format: "TeamName" or "TeamName(projectname)"
+  teamsCache.forEach(team => {
+    const project = projectsCache.find(p => p.id === team.project_id);
+    const label = project
+      ? `${team.name}(${project.name.toLowerCase().replace(/\s+/g, '')})`
+      : team.name;
+    if (team.name.toLowerCase().includes(q) || label.toLowerCase().includes(q)
+        || (project && project.name.toLowerCase().includes(q))) {
+      const memberIds = (team.hub_team_members || []).map(m => m.user_id);
+      const emails = [currentProfile, ...allProfiles]
+        .filter(p => p && memberIds.includes(p.id))
+        .map(p => p.prodeegee_email || p.email).filter(Boolean);
+      if (emails.length) {
+        rows.push({ type: 'team', label, sub: `${emails.length} member${emails.length !== 1 ? 's' : ''}`,
+          emails, color: team.color || '#4fc3f7' });
+      }
+    }
+  });
+
+  // Projects
+  projectsCache.forEach(project => {
+    if (project.name.toLowerCase().includes(q)) {
+      const memberIds = (project.hub_project_members || []).map(m => m.user_id);
+      const emails = [currentProfile, ...allProfiles]
+        .filter(p => p && memberIds.includes(p.id))
+        .map(p => p.prodeegee_email || p.email).filter(Boolean);
+      if (emails.length) {
+        rows.push({ type: 'project', label: project.name,
+          sub: `${emails.length} members (all project)`, emails, color: '#ffd54f' });
+      }
+    }
+  });
+
+  const visible = rows.slice(0, 8);
+  if (!visible.length) { menu.style.display = 'none'; return; }
+
+  menu._etItems = visible;
+  menu.style.display = 'block';
+  menu.innerHTML = visible.map((row, i) => {
+    const icon = row.type === 'person'
+      ? `<div style="width:20px;height:20px;font-size:8px;border-radius:4px;flex-shrink:0;background:${row.color};display:flex;align-items:center;justify-content:center">${row.initials}</div>`
+      : `<div style="width:20px;height:20px;border-radius:4px;flex-shrink:0;background:${row.color};display:flex;align-items:center;justify-content:center;font-size:10px;color:#000">${row.type === 'team' ? '◈' : '◉'}</div>`;
+    return `<div class="mention-item" data-idx="${i}" onmousedown="event.preventDefault();selectEmailTarget('${menu.id}',${i})">${icon}<div style="flex:1;min-width:0"><div style="font-size:11px">${escHtml(row.label)}</div><div style="font-size:9px;color:var(--muted)">${escHtml(row.sub)}</div></div></div>`;
+  }).join('');
+}
+
+function selectEmailTarget(menuId, idx) {
+  const menu = document.getElementById(menuId);
+  const item = menu?._etItems?.[idx];
+  if (!item || !_activeEmailInput) return;
+  _activeEmailInput.value = item.label;
+  emailToResolved = { label: item.label, emails: item.emails };
+  menu.style.display = 'none';
+}
+
 async function sendEmail() {
   const to = document.getElementById('composeTo').value.trim();
   const subject = document.getElementById('composeSubject').value.trim();
   const body = document.getElementById('composeBodyText').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  await doSendEmail(to, subject, body, 'sendingStatus');
+  const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
+  emailToResolved = null;
+  await sendEmailToAddresses(addresses, subject, body, 'sendingStatus');
 }
 
 async function sendModalEmail() {
@@ -2476,14 +2577,30 @@ async function sendModalEmail() {
   const subject = document.getElementById('modalSubject').value.trim();
   const body = document.getElementById('modalBody').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  const sent = await doSendEmail(to, subject, body, 'modalSendStatus');
-  if (sent) closeModal('composeModal');
+  const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
+  emailToResolved = null;
+  const ok = await sendEmailToAddresses(addresses, subject, body, 'modalSendStatus');
+  if (ok) closeModal('composeModal');
 }
 
-async function doSendEmail(to, subject, body, statusElId) {
+async function sendEmailToAddresses(addresses, subject, body, statusElId) {
+  if (addresses.length === 1) return doSendEmail(addresses[0], subject, body, statusElId);
+  const statusEl = document.getElementById(statusElId);
+  if (statusEl) statusEl.textContent = `Sending to ${addresses.length}...`;
+  let sent = 0;
+  for (const addr of addresses) {
+    const ok = await doSendEmail(addr, subject, body, null, true);
+    if (ok) sent++;
+  }
+  if (statusEl) statusEl.textContent = '';
+  showToast(`Sent to ${sent} of ${addresses.length} recipients ✓`);
+  return sent > 0;
+}
+
+async function doSendEmail(to, subject, body, statusElId, quiet = false) {
   const fromAddr = currentProfile.prodeegee_email || currentProfile.email;
   const fromName = currentProfile.full_name || '';
-  const status = document.getElementById(statusElId);
+  const status = statusElId ? document.getElementById(statusElId) : null;
   if (status) status.textContent = 'Sending...';
 
   try {
@@ -2498,7 +2615,7 @@ async function doSendEmail(to, subject, body, statusElId) {
       showToast('Send failed: ' + (errBody || res.status), 'error');
       return false;
     }
-    showToast(`Sent from ${fromAddr} ✓`);
+    if (!quiet) showToast(`Sent from ${fromAddr} ✓`);
     if (status) status.textContent = '';
     const sentEntry = { from_email: fromAddr, to_email: to, subject, body };
     sentEmailsCache.unshift(sentEntry);
@@ -4639,13 +4756,30 @@ function handleMentionInput(inputEl, menuId) {
   if (!menu) return;
   if (!match) { menu.style.display = 'none'; mentionState.active = false; return; }
   mentionState = { active: true, query: match[1].toLowerCase(), start: before.lastIndexOf('@'), inputEl, menuId: menuId || 'mentionMenu' };
-  const suggestions = allProfiles.filter(p => p.full_name.toLowerCase().includes(mentionState.query)).slice(0, 6);
-  if (!suggestions.length) { menu.style.display = 'none'; return; }
+  const q = mentionState.query;
+
+  // People (include self so you can @yourself)
+  const people = [currentProfile, ...allProfiles].filter(p => p && p.full_name.toLowerCase().includes(q)).slice(0, 5);
+  // Teams matching the query
+  const teams = teamsCache.filter(t => t.name.toLowerCase().includes(q)).slice(0, 3);
+
+  if (!people.length && !teams.length) { menu.style.display = 'none'; return; }
   menu.style.display = 'block';
-  menu.innerHTML = suggestions.map((p, i) => {
-    const initials = p.full_name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    return '<div class="mention-item" data-idx="' + i + '" onmousedown="event.preventDefault();insertMention(\'' + p.id + '\',\'' + escHtml(p.full_name) + '\')"><div class="msg-av" style="background:' + stringToColor(p.id) + ';width:20px;height:20px;font-size:8px;border-radius:4px;flex-shrink:0">' + initials + '</div>' + escHtml(p.full_name) + '</div>';
-  }).join('');
+
+  const peopleHtml = people.map((p, i) => {
+    const initials = p.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const safeName = p.full_name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="mention-item" data-idx="${i}" onmousedown="event.preventDefault();insertMention('${p.id}','${safeName}')"><div class="msg-av" style="background:${stringToColor(p.id)};width:20px;height:20px;font-size:8px;border-radius:4px;flex-shrink:0">${initials}</div>${escHtml(p.full_name)}</div>`;
+  });
+
+  const teamHtml = teams.map((t, i) => {
+    const mc = t.hub_team_members?.length || 0;
+    const safeName = t.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="mention-item" data-idx="${people.length + i}" onmousedown="event.preventDefault();insertTeamMention('${t.id}','${safeName}')"><div style="width:20px;height:20px;font-size:9px;border-radius:4px;flex-shrink:0;background:${t.color||'#4fc3f7'};display:flex;align-items:center;justify-content:center;color:#000">◈</div><span>${escHtml(t.name)}</span><span style="font-size:9px;color:var(--muted);margin-left:4px">${mc} members</span></div>`;
+  });
+
+  const sep = teams.length && people.length ? '<div style="font-size:9px;color:var(--muted);padding:3px 10px;letter-spacing:1px;border-top:1px solid var(--border)">TEAMS</div>' : '';
+  menu.innerHTML = peopleHtml.join('') + sep + teamHtml.join('');
 }
 
 function handleMentionKey(e, menuId) {
@@ -4674,16 +4808,50 @@ function insertMention(userId, name) {
   mentionState.active = false;
 }
 
+function insertTeamMention(teamId, teamName) {
+  const el = mentionState.inputEl;
+  if (!el) return;
+  const val = el.value;
+  el.value = val.slice(0, mentionState.start) + '@' + teamName + ' ' + val.slice(el.selectionStart);
+  el.focus();
+  const menu = document.getElementById(mentionState.menuId || 'mentionMenu');
+  if (menu) menu.style.display = 'none';
+  mentionState.active = false;
+}
+
 async function notifyMentions(body, msgId) {
   const mentioned = [...body.matchAll(/@([\w ]+?)(?=\s|$|[^a-zA-Z ])/g)].map(m => m[1].trim().toLowerCase());
   if (!mentioned.length) return;
-  const targets = allProfiles.filter(p => mentioned.some(m => p.full_name.toLowerCase().startsWith(m)) && p.id !== currentUser.id);
-  if (!targets.length) return;
-  await sb.from('notifications').insert(targets.map(p => ({
-    user_id: p.id, type: 'mention',
-    message: currentProfile.full_name + ' mentioned you: "' + body.slice(0, 80) + '"',
-    reference_id: msgId
-  })));
+
+  // Individual user mentions
+  const userTargets = allProfiles.filter(p =>
+    mentioned.some(m => p.full_name.toLowerCase().startsWith(m)) && p.id !== currentUser.id
+  );
+  const notifiedIds = new Set(userTargets.map(p => p.id));
+
+  // Team mentions — notify all members not already notified
+  const teamNotifs = [];
+  for (const team of teamsCache) {
+    const tName = team.name.toLowerCase();
+    if (mentioned.some(m => tName === m || tName.startsWith(m + ' '))) {
+      (team.hub_team_members || []).forEach(m => {
+        if (m.user_id !== currentUser.id && !notifiedIds.has(m.user_id)) {
+          notifiedIds.add(m.user_id);
+          teamNotifs.push({ user_id: m.user_id, type: 'mention',
+            message: `${currentProfile.full_name} mentioned your team @${team.name}: "${body.slice(0,80)}"`,
+            reference_id: msgId });
+        }
+      });
+    }
+  }
+
+  const allNotifs = [
+    ...userTargets.map(p => ({ user_id: p.id, type: 'mention',
+      message: `${currentProfile.full_name} mentioned you: "${body.slice(0,80)}"`,
+      reference_id: msgId })),
+    ...teamNotifs
+  ];
+  if (allNotifs.length) await sb.from('notifications').insert(allNotifs);
 }
 
 // ════════════════════════════════════════════════
