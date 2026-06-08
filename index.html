@@ -1699,13 +1699,18 @@ async function uploadAvatar(file) {
   const wrap = document.querySelector('.avatar-upload-wrap');
   if (wrap) wrap.classList.add('avatar-uploading');
   showToast('Uploading…');
-  // Ensure bucket exists (silently ignore AlreadyExists)
-  await sb.storage.createBucket('hub-avatars', { public: true }).catch(() => {});
   const ext = file.name.split('.').pop().toLowerCase().replace(/[^a-z]/g,'') || 'jpg';
   const path = `${currentUser.id}/avatar.${ext}`;
   const { error: upErr } = await sb.storage.from('hub-avatars').upload(path, file, { upsert: true, contentType: file.type });
   if (wrap) wrap.classList.remove('avatar-uploading');
-  if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+  if (upErr) {
+    if (upErr.message?.toLowerCase().includes('bucket') || upErr.statusCode === 404) {
+      showToast('Storage not set up — create a public "hub-avatars" bucket in Supabase Storage', 'error');
+    } else {
+      showToast('Upload failed: ' + upErr.message, 'error');
+    }
+    return;
+  }
   const { data: urlData } = sb.storage.from('hub-avatars').getPublicUrl(path);
   const avatarUrl = urlData.publicUrl + '?v=' + Date.now();
   const { error: dbErr } = await sb.from('profiles').update({ avatar_url: avatarUrl }).eq('id', currentUser.id);
