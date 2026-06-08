@@ -12,6 +12,7 @@
 <link rel="manifest" href="/manifest.json">
 <title>Prodeegee Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -72,7 +73,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .nav-item.active{background:rgba(245,158,11,.1);color:#fbbf24;border-left:2px solid var(--orange)}
 .nav-item .badge{margin-left:auto;background:var(--orange);color:#000;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:700}
 .nav-item .badge.green{background:var(--green)}
-.nav-icon{width:16px;text-align:center;font-size:14px}
+.nav-icon{width:20px;text-align:center;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon i{font-size:16px;line-height:1}
+.mob-nav-icon i{font-size:22px;line-height:1}
+.avatar-upload-wrap{position:relative;display:inline-block;cursor:pointer}
+.avatar-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.avatar-upload-wrap:hover .avatar-overlay{opacity:1}
+.avatar-overlay i{font-size:20px;color:#fff}
+.avatar-uploading{opacity:.6;pointer-events:none}
 .main{display:grid;grid-template-columns:1fr 300px;height:100vh;overflow:hidden;min-height:0}
 .center{display:flex;flex-direction:column;height:100vh;overflow:hidden;min-height:0}
 .topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 16px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -510,21 +518,21 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 
 <nav class="mobile-nav" id="mobileNav">
   <div class="mob-nav-item active" id="mobnav-home" onclick="mobNav('home')">
-    <span class="mob-nav-icon">⌂</span><span>Home</span>
+    <span class="mob-nav-icon"><i class="ri-home-5-line"></i></span><span>Home</span>
   </div>
   <div class="mob-nav-item" id="mobnav-dm" onclick="mobNav('dm')">
-    <span class="mob-nav-icon">◎</span><span>Messages</span>
+    <span class="mob-nav-icon"><i class="ri-message-2-line"></i></span><span>Messages</span>
     <span class="mob-nav-badge" id="mobbadge-dm">0</span>
   </div>
   <div class="mob-nav-item" id="mobnav-projects" onclick="mobNav('projects')">
-    <span class="mob-nav-icon">◈</span><span>Projects</span>
+    <span class="mob-nav-icon"><i class="ri-folder-3-line"></i></span><span>Projects</span>
   </div>
   <div class="mob-nav-item" id="mobnav-email" onclick="mobNav('email')">
-    <span class="mob-nav-icon">✉</span><span>Email</span>
+    <span class="mob-nav-icon"><i class="ri-mail-line"></i></span><span>Email</span>
     <span class="mob-nav-badge" id="mobbadge-email">0</span>
   </div>
   <div class="mob-nav-item" id="mobnav-menu" onclick="openMobDrawer()">
-    <span class="mob-nav-icon">☰</span><span>Menu</span>
+    <span class="mob-nav-icon"><i class="ri-menu-3-line"></i></span><span>Menu</span>
     <span class="mob-nav-badge" id="mobbadge-notif">0</span>
   </div>
 </nav>
@@ -546,12 +554,12 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   </div>
   <div style="padding:8px 0">
     <div style="padding:8px 20px;font-size:10px;color:var(--muted);letter-spacing:1px">NAVIGATE</div>
-    <div class="nav-item" onclick="mobNav('dm');closeMobDrawer()"><span class="nav-icon">◎</span> Direct Messages</div>
+    <div class="nav-item" onclick="mobNav('dm');closeMobDrawer()"><span class="nav-icon"><i class="ri-message-2-line"></i></span> Direct Messages</div>
     <div class="nav-item" onclick="mobNav('notifications');closeMobDrawer()">
-      <span class="nav-icon">◉</span> Notifications
+      <span class="nav-icon"><i class="ri-notification-3-line"></i></span> Notifications
       <span class="badge" id="mobNotifBadge" style="display:none">0</span>
     </div>
-    <div class="nav-item" onclick="mobNav('profile');closeMobDrawer()"><span class="nav-icon">⚙</span> Profile</div>
+    <div class="nav-item" onclick="mobNav('profile');closeMobDrawer()"><span class="nav-icon"><i class="ri-settings-3-line"></i></span> Profile</div>
   </div>
   <div style="padding:8px 0">
     <div style="padding:8px 20px;font-size:10px;color:var(--muted);letter-spacing:1px">CHANNELS</div>
@@ -629,27 +637,27 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="nav">
   <div class="nav-section">Navigate</div>
   <div class="nav-item active" id="nav-home" onclick="switchSection('home')">
-    <span class="nav-icon">⌂</span> Home
+    <span class="nav-icon"><i class="ri-home-5-line"></i></span> Home
   </div>
   <div class="nav-item" id="nav-dm" onclick="switchSection('dm')">
-    <span class="nav-icon">◎</span> Direct Messages
+    <span class="nav-icon"><i class="ri-message-2-line"></i></span> Direct Messages
   </div>
   <div class="nav-item" id="nav-email" onclick="switchSection('email')">
-    <span class="nav-icon">✉</span> Email Inbox
+    <span class="nav-icon"><i class="ri-mail-line"></i></span> Email Inbox
     <span class="badge green" id="emailBadge" style="display:none">0</span>
   </div>
   <div class="nav-item" id="nav-projects" onclick="switchSection('projects')">
-    <span class="nav-icon">◈</span> Projects
+    <span class="nav-icon"><i class="ri-folder-3-line"></i></span> Projects
   </div>
   <div class="nav-item" id="nav-notifications" onclick="switchSection('notifications')">
-    <span class="nav-icon">◉</span> Notifications
+    <span class="nav-icon"><i class="ri-notification-3-line"></i></span> Notifications
     <span class="badge" id="notifBadge" style="display:none">0</span>
   </div>
   <div class="nav-item" id="nav-analytics" onclick="switchSection('analytics')">
-    <span class="nav-icon">▦</span> Analytics
+    <span class="nav-icon"><i class="ri-bar-chart-2-line"></i></span> Analytics
   </div>
   <div class="nav-item" id="nav-calendar" onclick="switchSection('calendar')">
-    <span class="nav-icon">📅</span> Calendar
+    <span class="nav-icon"><i class="ri-calendar-line"></i></span> Calendar
   </div>
 
   <div class="nav-section" style="margin-top:8px">Channels</div>
@@ -657,10 +665,10 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
     <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div>
   </div>
   <div class="nav-item" id="nav-profile" onclick="switchSection('profile')">
-    ⚙ Profile
+    <span class="nav-icon"><i class="ri-settings-3-line"></i></span> Profile
   </div>
   <div class="nav-item" onclick="openNewChannelModal()" style="color:var(--muted)">
-    <span class="nav-icon">+</span> Add channel
+    <span class="nav-icon"><i class="ri-add-line"></i></span> Add channel
   </div>
 
   <div class="nav-section" style="margin-top:8px">Direct Messages</div>
@@ -690,15 +698,15 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <input id="globalSearch" type="text" placeholder="Search…" autocomplete="off"
             style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 10px 5px 28px;font-size:12px;color:var(--text);width:180px;font-family:var(--font);outline:none"
             oninput="onSearchInput(this.value)" onfocus="onSearchInput(this.value)" onblur="setTimeout(()=>closeSearch(),200)">
-          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);pointer-events:none">⌕</span>
+          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;display:flex;align-items:center"><i class="ri-search-line" style="font-size:14px"></i></span>
           <div id="searchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;width:320px;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:300;max-height:380px;overflow-y:auto"></div>
         </div>
         <div class="topbar-title" id="topbarTitle">⌂ HOME FEED</div>
         <div class="topbar-actions">
-          <button class="btn sm" onclick="openComposeModal()">+ Compose</button>
-          <button class="btn sm primary" onclick="openTaskModal()">+ Task</button>
+          <button class="btn sm" onclick="openComposeModal()"><i class="ri-mail-add-line"></i> Compose</button>
+          <button class="btn sm primary" onclick="openTaskModal()"><i class="ri-add-circle-line"></i> Task</button>
           <button class="notif-btn" onclick="switchSection('notifications')" id="notifBtn">
-            ◉<span class="notif-badge" id="notifBtnBadge">0</span>
+            <i class="ri-notification-3-line"></i><span class="notif-badge" id="notifBtnBadge">0</span>
           </button>
           <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"></button>
         </div>
@@ -998,16 +1006,21 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <!-- PROFILE SECTION -->
   <div class="section" id="section-profile" style="padding:24px;overflow-y:auto">
     <div style="max-width:420px">
-      <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px">⚙ Profile Settings</div>
+      <div style="font-size:13px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px"><i class="ri-settings-3-line"></i> Profile Settings</div>
 
       <!-- Identity -->
       <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Identity</div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-          <div class="avatar" id="profileAvatar" style="width:44px;height:44px;font-size:16px"></div>
+          <div class="avatar-upload-wrap" onclick="document.getElementById('avatarFileInput').click()" title="Click to change avatar">
+            <div class="avatar" id="profileAvatar" style="width:64px;height:64px;font-size:22px"></div>
+            <div class="avatar-overlay"><i class="ri-camera-line"></i></div>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="uploadAvatar(this.files[0]);this.value=''">
           <div>
-            <div style="font-size:13px;color:var(--text)" id="profileName">—</div>
+            <div style="font-size:13px;color:var(--text);font-weight:600" id="profileName">—</div>
             <div style="font-size:11px;color:var(--green)" id="profileEmail">—</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:3px">Click avatar to change photo</div>
           </div>
         </div>
         <div style="margin-bottom:8px">
@@ -1115,8 +1128,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="composeModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">✉ Compose Email</div>
-      <button class="modal-close" onclick="closeModal('composeModal')">✕</button>
+      <div class="modal-title"><i class="ri-mail-send-line"></i> Compose Email</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('composeModal')"</button>
     </div>
     <div class="modal-body">
       <div class="from-badge">Sending as: <span id="modalFromAddr">you@prodeegee.com</span></div>
@@ -1147,8 +1160,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="taskModal">
   <div class="modal" style="width:520px;max-width:95vw">
     <div class="modal-header">
-      <div class="modal-title">◈ New Task</div>
-      <button class="modal-close" onclick="closeModal('taskModal')">✕</button>
+      <div class="modal-title"><i class="ri-task-line"></i> New Task</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('taskModal')"</button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <!-- Title -->
@@ -1230,8 +1243,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="createTeamModal">
   <div class="modal" style="width:400px">
     <div class="modal-header">
-      <div class="modal-title">👥 New Team</div>
-      <button class="modal-close" onclick="closeModal('createTeamModal')">✕</button>
+      <div class="modal-title"><i class="ri-team-line"></i> New Team</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('createTeamModal')"</button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <div class="field-group">
@@ -1264,8 +1277,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="addTeamMemberModal">
   <div class="modal" style="width:380px">
     <div class="modal-header">
-      <div class="modal-title">+ Add Team Member</div>
-      <button class="modal-close" onclick="closeModal('addTeamMemberModal')">✕</button>
+      <div class="modal-title"><i class="ri-user-add-line"></i> Add Team Member</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('addTeamMemberModal')"</button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <div class="field-group">
@@ -1289,8 +1302,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="projectSettingsModal">
   <div class="modal" style="width:480px;max-height:85vh;display:flex;flex-direction:column">
     <div class="modal-header" style="flex-shrink:0">
-      <div class="modal-title">⚙ Project Settings — <span id="psModalName"></span></div>
-      <button class="modal-close" onclick="closeModal('projectSettingsModal')">✕</button>
+      <div class="modal-title"><i class="ri-settings-3-line"></i> Project Settings — <span id="psModalName"></span></div>
+      <button class="modal-close ri-close-line" onclick="closeModal('projectSettingsModal')"</button>
     </div>
     <!-- Tabs -->
     <div class="email-tabs" style="flex-shrink:0" id="psTabBar">
@@ -1359,8 +1372,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="projectModal">
   <div class="modal" style="width:420px">
     <div class="modal-header">
-      <div class="modal-title">◈ New Project</div>
-      <button class="modal-close" onclick="closeModal('projectModal')">✕</button>
+      <div class="modal-title"><i class="ri-folder-add-line"></i> New Project</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('projectModal')"</button>
     </div>
     <div class="modal-body">
       <div class="field-group">
@@ -1394,8 +1407,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="channelModal">
   <div class="modal" style="width:340px">
     <div class="modal-header">
-      <div class="modal-title"># New Channel</div>
-      <button class="modal-close" onclick="closeModal('channelModal')">✕</button>
+      <div class="modal-title"><i class="ri-hashtag"></i> New Channel</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('channelModal')"</button>
     </div>
     <div class="modal-body">
       <div class="field-group">
@@ -1412,8 +1425,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 <div class="modal-overlay" id="taskDetailModal">
   <div class="modal" style="width:100%;max-height:90vh">
     <div class="modal-header">
-      <div class="modal-title">◈ Task Detail</div>
-      <button class="modal-close" onclick="closeModal('taskDetailModal')">✕</button>
+      <div class="modal-title"><i class="ri-task-line"></i> Task Detail</div>
+      <button class="modal-close ri-close-line" onclick="closeModal('taskDetailModal')"</button>
     </div>
     <div class="modal-body" id="taskDetailContent" style="overflow-y:auto"></div>
   </div>
@@ -1679,6 +1692,32 @@ function loadProfileSection() {
   }
 }
 
+async function uploadAvatar(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Select an image file', 'error'); return; }
+  if (file.size > 3 * 1024 * 1024) { showToast('Image must be under 3 MB', 'error'); return; }
+  const wrap = document.querySelector('.avatar-upload-wrap');
+  if (wrap) wrap.classList.add('avatar-uploading');
+  showToast('Uploading…');
+  // Ensure bucket exists (silently ignore AlreadyExists)
+  await sb.storage.createBucket('hub-avatars', { public: true }).catch(() => {});
+  const ext = file.name.split('.').pop().toLowerCase().replace(/[^a-z]/g,'') || 'jpg';
+  const path = `${currentUser.id}/avatar.${ext}`;
+  const { error: upErr } = await sb.storage.from('hub-avatars').upload(path, file, { upsert: true, contentType: file.type });
+  if (wrap) wrap.classList.remove('avatar-uploading');
+  if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+  const { data: urlData } = sb.storage.from('hub-avatars').getPublicUrl(path);
+  const avatarUrl = urlData.publicUrl + '?v=' + Date.now();
+  const { error: dbErr } = await sb.from('profiles').update({ avatar_url: avatarUrl }).eq('id', currentUser.id);
+  if (dbErr) { showToast('Save failed: ' + dbErr.message, 'error'); return; }
+  currentProfile.avatar_url = avatarUrl;
+  // Refresh all avatar elements
+  setUserUI();
+  const av = document.getElementById('profileAvatar');
+  if (av) { av.innerHTML = `<img src="${avatarUrl}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; }
+  showToast('Avatar updated ✓');
+}
+
 async function updateDisplayName() {
   const name = document.getElementById('profileNameInput').value.trim();
   if (!name) { showToast('Enter a display name', 'error'); return; }
@@ -1903,7 +1942,7 @@ function renderDMNav() {
   const nav = document.getElementById('dmNavList');
   nav.innerHTML = allProfiles.map(p => `
     <div class="nav-item" id="dmnav-${p.id}" onclick="openDM('${p.id}','${escHtml(p.full_name)}')">
-      <span class="nav-icon">◎</span> ${p.full_name.split(' ')[0]}
+      <span class="nav-icon"><i class="ri-at-line"></i></span> ${p.full_name.split(' ')[0]}
       <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
     </div>
   `).join('');
@@ -1931,10 +1970,10 @@ function switchSection(id) {
   const nav = document.getElementById('nav-' + id);
   if (nav) nav.classList.add('active');
   const titles = {
-    home: '⌂ HOME FEED', channels: '# CHANNELS', dm: '◎ DIRECT MESSAGES',
-    'dm-chat': '◎ DIRECT MESSAGES',
-    email: '✉ EMAIL INBOX', projects: '◈ PROJECTS', notifications: '◉ NOTIFICATIONS',
-    analytics: '▦ ANALYTICS', calendar: '📅 CALENDAR', profile: '⚙ PROFILE', 'project-tasks': '◈ PROJECT TASKS'
+    home: 'HOME FEED', channels: 'CHANNELS', dm: 'DIRECT MESSAGES',
+    'dm-chat': 'DIRECT MESSAGES',
+    email: 'EMAIL INBOX', projects: 'PROJECTS', notifications: 'NOTIFICATIONS',
+    analytics: 'ANALYTICS', calendar: 'CALENDAR', profile: 'PROFILE', 'project-tasks': 'PROJECT TASKS'
   };
   document.getElementById('topbarTitle').textContent = titles[id] || id.replace(/-/g,' ').toUpperCase();
 
@@ -4774,7 +4813,7 @@ document.getElementById('projectName').value = '';
 document.getElementById('projectDesc').value = '';
 document.getElementById('projectStatus').value = 'active';
 document.getElementById('projectParentId').value = parentId || '';
-document.querySelector('#projectModal .modal-title').textContent = parentId ? '◈ New Sub-project' : '◈ New Project';
+document.querySelector('#projectModal .modal-title').innerHTML = parentId ? '<i class="ri-folder-add-line"></i> New Sub-project' : '<i class="ri-folder-add-line"></i> New Project';
 const membersList = document.getElementById('projectMembersList');
 const allPeople = [currentProfile, ...allProfiles];
 membersList.innerHTML = allPeople.map(p => ` <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:4px"> <input type="checkbox" value="${p.id}" ${p.id === currentUser.id ? 'checked' : ''} /> ${escHtml(p.full_name || p.email)} </label>`).join('');
@@ -5036,7 +5075,7 @@ function renderPsMembers(proj) {
           <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
           <option value="lead" ${m.role === 'lead' ? 'selected' : ''}>Lead</option>
         </select>` : `<span style="font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border)">${m.role || 'member'}</span>`}
-      ${canManage && !isMe ? `<button class="btn sm danger" style="font-size:10px;padding:3px 8px" onclick="removeMemberFromProjectSettings('${m.user_id}')">✕</button>` : ''}
+      ${canManage && !isMe ? `<button class="btn sm danger" style="font-size:10px;padding:3px 8px" onclick="removeMemberFromProjectSettings('${m.user_id}')"</button>` : ''}
     </div>`;
   }).join('') || '<div style="font-size:11px;color:var(--muted)">No members yet</div>';
 }
