@@ -1443,7 +1443,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 const SUPABASE_URL = 'https://twpkuntxvlkuqjmyfjlf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_6d3dbk0DK1_cIGtY310TWw_Db7hWk6e';
 const PRODEEGEE_DOMAIN = 'prodeegee.com';
-const EVENTS_WORKER_URL = 'https://hub-events.prodeegeek9.workers.dev';
+// hub-events SSE worker removed — replaced by Supabase Realtime
 
 // No Gmail scopes needed — inbox via Cloudflare, send via Resend
 
@@ -1511,8 +1511,7 @@ let unreadEmails = 0;
 let sentEmailsCache = [];
 
 async function signOut() {
-  if (sseConnection) { try { sseConnection.close(); } catch {} sseConnection = null; }
-  if (sseRetryTimer) clearTimeout(sseRetryTimer);
+  if (realtimeChannel) { try { realtimeChannel.unsubscribe(); } catch {} realtimeChannel = null; }
   await sb.auth.signOut();
   currentUser = null;
   currentProfile = null;
@@ -1539,7 +1538,7 @@ async function initApp(session) {
   loadInbox();
   startHeartbeat();
   startVisibilityReconnect();
-  connectSSE();
+  connectRealtime();
   initPresence();
   updateStats();
   // Wire up @mention autocomplete
@@ -2063,7 +2062,7 @@ function openChannel(ch) {
   const chEl = document.getElementById('ch-' + ch);
   if (chEl) chEl.classList.add('active');
   loadChannelMessages(ch);
-  reconnectSSE();
+  // realtime subscription is channel-agnostic — no reconnect needed
 }
 
 async function loadChannelMessages(channel) {
@@ -2404,7 +2403,7 @@ function openDM(userId, userName) {
   const badge = document.getElementById('dmbadge-' + userId);
   if (badge) { badge.textContent = '0'; badge.style.display = 'none'; }
   loadDMMessages(userId);
-  reconnectSSE();
+  // realtime subscription is channel-agnostic — no reconnect needed
   updateDMRightPanel(userId, userName);
 }
 
@@ -4475,144 +4474,84 @@ if (el) el.textContent = allProfiles.length + 1;
 }
 
 // ════════════════════════════════════════════════
-// SSE — CLOUDFLARE EVENTS WORKER
-// Replaces Supabase Realtime WebSocket entirely
+// SUPABASE REALTIME
 // ════════════════════════════════════════════════
-let sseConnection = null;
-let sseRetryTimer = null;
-let sseRetryCount = 0;
+let realtimeChannel = null;
 
-function connectSSE() {
-if (sseConnection) {
-try { sseConnection.close(); } catch {}
-sseConnection = null;
+function connectRealtime() {
+  if (realtimeChannel) { try { realtimeChannel.unsubscribe(); } catch {} realtimeChannel = null; }
+
+  realtimeChannel = sb.channel('hub-realtime')
+
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, ({ new: msg }) => {
+      if (msg.sender_id === currentUser.id) return; // own messages already rendered optimistically
+
+      // ── Active channel message ──
+      if (msg.channel_id && msg.channel_id === activeChannel && !msg.parent_id) {
+        const list = document.getElementById('msgList');
+        if (list && !list.querySelector(`[data-msgId="${msg.id}"]`)) {
+          msg.profiles = allProfiles.find(p => p.id === msg.sender_id);
+          msg.reply_count = 0; msg.like_count = 0; msg.liked_by_me = false;
+          channelMsgCache.push(msg);
+          list.appendChild(buildMsgEl(msg));
+          list.scrollTop = list.scrollHeight;
+        }
+        return;
+      }
+
+      // ── Badge for a channel not currently open ──
+      if (msg.channel_id && msg.channel_id !== activeChannel && !msg.parent_id) {
+        const badge = document.getElementById('chbadge-' + msg.channel_id);
+        if (badge) { badge.textContent = parseInt(badge.textContent || 0) + 1; badge.style.display = 'inline-flex'; }
+        return;
+      }
+
+      // ── Thread reply ──
+      if (msg.parent_id && msg.parent_id === activeThreadMsgId) {
+        const list = document.getElementById('threadMessages');
+        if (list && !list.querySelector(`[data-msgId="${msg.id}"]`)) {
+          msg.profiles = allProfiles.find(p => p.id === msg.sender_id);
+          list.appendChild(buildMsgEl(msg));
+        }
+        return;
+      }
+
+      // ── Incoming DM ──
+      if (!msg.channel_id && msg.dm_to === currentUser.id) {
+        if (msg.sender_id === activeDMUserId) {
+          // open conversation — append live
+          const list = document.getElementById('dmList');
+          if (list && !list.querySelector(`[data-msgId="${msg.id}"]`)) {
+            msg.profiles = allProfiles.find(p => p.id === msg.sender_id);
+            list.appendChild(buildMsgEl(msg, true));
+            list.scrollTop = list.scrollHeight;
+          }
+        } else {
+          // different conversation — bump badge
+          const badge = document.getElementById('mobbadge-dm');
+          if (badge) { badge.textContent = parseInt(badge.textContent || 0) + 1; badge.style.display = 'inline-flex'; }
+        }
+      }
+    })
+
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'notifications',
+      filter: `user_id=eq.${currentUser.id}`
+    }, ({ new: n }) => {
+      unreadNotifs++;
+      updateNotifBadge(unreadNotifs);
+      showNotifToast(n.type, n.message, n.type);
+      loadNotifications();
+    })
+
+    .subscribe(status => { setConnStatus(status === 'SUBSCRIBED'); });
 }
 
-const params = new URLSearchParams({
-channel:  activeChannel || 'general',
-user_id:  currentUser.id,
-token:    cachedAccessToken || '',
-since:    new Date(Date.now() - 5000).toISOString(),
-});
-if (activeDMUserId) params.set('dm_user', activeDMUserId);
-
-const url = `${EVENTS_WORKER_URL}?${params}`;
-const es = new EventSource(url);
-sseConnection = es;
-
-es.addEventListener('connected', () => {
-console.log('[SSE] connected');
-setConnStatus(true);
-sseRetryCount = 0;
-});
-
-es.addEventListener('channel_message', e => {
-const { messages, channel } = JSON.parse(e.data);
-if (channel !== activeChannel) {
-// Update badge for other channel
-const badge = document.getElementById('chbadge-' + channel);
-const incoming = messages.filter(m => m.sender_id !== currentUser.id);
-if (badge && incoming.length) {
-badge.textContent = parseInt(badge.textContent || 0) + incoming.length;
-badge.style.display = 'inline-flex';
-}
-return;
-}
-const list = document.getElementById('msgList');
-if (!list) return;
-messages.forEach(msg => {
-if (msg.sender_id === currentUser.id) return; // own messages already shown
-if (list.querySelector(`[data-msgId="${msg.id}"]`)) return; // dedupe
-const profile = allProfiles.find(p => p.id === msg.sender_id);
-msg.profiles = profile;
-msg.reply_count = 0;
-msg.like_count = 0;
-msg.liked_by_me = false;
-channelMsgCache.push(msg);
-const el = buildMsgEl(msg);
-list.appendChild(el);
-list.scrollTop = list.scrollHeight;
-});
-});
-
-es.addEventListener('dm_received', e => {
-const { messages } = JSON.parse(e.data);
-messages.forEach(msg => {
-if (msg.sender_id === currentUser.id) return;
-// Badge for DM nav
-const badge = document.getElementById('mobbadge-dm');
-if (badge && msg.dm_to === currentUser.id) {
-badge.textContent = parseInt(badge.textContent || 0) + 1;
-badge.style.display = 'inline-flex';
-}
-});
-});
-
-es.addEventListener('dm_message', e => {
-const { messages, dm_user } = JSON.parse(e.data);
-if (dm_user !== activeDMUserId) return;
-const list = document.getElementById('dmList');
-if (!list) return;
-messages.forEach(msg => {
-if (msg.sender_id === currentUser.id) return;
-if (list.querySelector(`[data-msgId="${msg.id}"]`)) return;
-const profile = allProfiles.find(p => p.id === msg.sender_id);
-msg.profiles = profile;
-const el = buildMsgEl(msg, true);
-list.appendChild(el);
-list.scrollTop = list.scrollHeight;
-});
-});
-
-es.addEventListener('notification', e => {
-const { notifications } = JSON.parse(e.data);
-notifications.forEach(n => {
-unreadNotifs++;
-updateNotifBadge(unreadNotifs);
-showNotifToast(n.type, n.message, n.type);
-});
-loadNotifications();
-});
-
-es.addEventListener('thread_reply', e => {
-const { messages } = JSON.parse(e.data);
-if (!activeThreadMsgId) return;
-const list = document.getElementById('threadMsgList');
-if (!list) return;
-messages
-.filter(m => m.parent_id === activeThreadMsgId && m.sender_id !== currentUser.id)
-.forEach(msg => {
-if (list.querySelector(`[data-msgId="${msg.id}"]`)) return;
-const profile = allProfiles.find(p => p.id === msg.sender_id);
-msg.profiles = profile;
-const el = buildMsgEl(msg);
-list.appendChild(el);
-});
-});
-
-es.addEventListener('error', e => {
-console.warn('[SSE] error/disconnect');
-setConnStatus(false);
-sseConnection = null;
-// Exponential backoff retry
-const delay = Math.min(1000 * Math.pow(2, sseRetryCount), 30000);
-sseRetryCount++;
-if (sseRetryTimer) clearTimeout(sseRetryTimer);
-sseRetryTimer = setTimeout(connectSSE, delay);
-});
-}
-
-// Reconnect SSE when channel changes or DM conversation opens
-function reconnectSSE() {
-sseRetryCount = 0;
-connectSSE();
-}
-
-// Stub out old Supabase channel functions — no-ops now
-function subscribeToChannel(channel) { reconnectSSE(); }
+// These are called from openChannel / openDM but Realtime is channel-agnostic
+function subscribeToChannel(channel) {}
 function subscribeToNotifications() {}
 function subscribeToAllMessages() {}
-function subscribeToDM(userId) { reconnectSSE(); }
+function subscribeToDM(userId) {}
 
 // ════════════════════════════════════════════════
 // CONN STATUS
