@@ -258,6 +258,7 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .digest-row{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:10px;color:var(--text);overflow:hidden;white-space:nowrap}
 .digest-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .digest-row-label{overflow:hidden;text-overflow:ellipsis;flex:1}
+.digest-grid{display:grid;grid-template-columns:1fr 1fr 1fr}
 .feed-item:last-child{border-bottom:none}
 .home-member-chip{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s}
 .home-member-chip:hover{border-color:var(--green)}
@@ -267,7 +268,7 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 #homeStatsRow .home-stat-card:nth-child(2){animation-delay:.1s}
 #homeStatsRow .home-stat-card:nth-child(3){animation-delay:.15s}
 #homeStatsRow .home-stat-card:nth-child(4){animation-delay:.2s}
-@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}#homeContent{padding:12px;gap:12px}#homeHero{padding:16px 14px}#homeName{font-size:19px}#homeClock{font-size:20px;letter-spacing:1px}.home-stat-card{padding:10px 12px}.home-stat-num{font-size:20px}.home-member-chip{padding:5px 8px}.kanban-wrap{gap:8px;padding:8px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+@media(max-width:600px){#homeStatsRow{grid-template-columns:1fr 1fr}#homeGridRow{grid-template-columns:1fr}#homeContent{padding:12px;gap:12px}#homeHero{padding:16px 14px}#homeName{font-size:19px}#homeClock{font-size:20px;letter-spacing:1px}.home-stat-card{padding:10px 12px}.home-stat-num{font-size:20px}.home-member-chip{padding:5px 8px}.kanban-wrap{gap:8px;padding:8px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}.digest-grid{grid-template-columns:1fr}.digest-col{border-right:none;border-bottom:1px solid var(--border)}.digest-col:last-child{border-bottom:none}.digest-num{font-size:20px}}
 .feed-item{background:var(--surface);border:1px solid var(--border);padding:12px;display:flex;gap:10px;cursor:pointer;transition:border-color .15s}
 .feed-item:hover{border-color:var(--dim)}
 .feed-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center}
@@ -770,7 +771,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <span style="font-size:10px;color:#ffd54f;letter-spacing:2px;text-transform:uppercase">⚡ Today's Digest</span>
           <span id="homeDigestDate" style="font-size:9px;color:var(--muted)"></span>
         </div>
-        <div id="homeDigestBody" style="display:grid;grid-template-columns:1fr 1fr 1fr">
+        <div id="homeDigestBody" class="digest-grid"
           <div class="loading" style="padding:20px;grid-column:1/-1"><div class="spinner"></div></div>
         </div>
       </div>
@@ -951,6 +952,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
         <span id="newSubProjectBtn" style="display:none"><button class="btn sm" onclick="openNewSubProjectModal()">+ Sub-project</button></span>
         <button class="btn sm" id="createTeamBtn" style="display:none" onclick="openCreateTeamModal()">+ Team</button>
         <button class="btn sm primary" id="newTaskBtn" style="display:none" onclick="openTaskModal()">+ Task</button>
+        <button class="btn sm" id="projectSettingsBtn" style="display:none" onclick="openProjectSettingsModal(activeProjectId)">⚙ Settings</button>
       </div>
     </div>
     <!-- Team overview grid (shown when project opened) -->
@@ -1283,6 +1285,75 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   </div>
 </div>
 
+<!-- PROJECT SETTINGS MODAL -->
+<div class="modal-overlay" id="projectSettingsModal">
+  <div class="modal" style="width:480px;max-height:85vh;display:flex;flex-direction:column">
+    <div class="modal-header" style="flex-shrink:0">
+      <div class="modal-title">⚙ Project Settings — <span id="psModalName"></span></div>
+      <button class="modal-close" onclick="closeModal('projectSettingsModal')">✕</button>
+    </div>
+    <!-- Tabs -->
+    <div class="email-tabs" style="flex-shrink:0" id="psTabBar">
+      <button class="etab active" id="pstab-general" onclick="switchProjTab('general')">General</button>
+      <button class="etab" id="pstab-members" onclick="switchProjTab('members')">Members</button>
+      <button class="etab" id="pstab-danger" onclick="switchProjTab('danger')" style="color:#ef5350">Danger</button>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <!-- GENERAL TAB -->
+      <div id="psTab-general" class="modal-body" style="display:block">
+        <div class="field-group">
+          <div class="field-label">Project Name</div>
+          <input class="field-input" id="psName" placeholder="Project name" />
+        </div>
+        <div class="field-group">
+          <div class="field-label">Description</div>
+          <textarea class="field-input" id="psDesc" rows="3" placeholder="What is this project about?"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Status</div>
+          <select class="field-input" id="psStatus">
+            <option value="active">Active</option>
+            <option value="on_hold">On Hold</option>
+            <option value="completed">Completed</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+        <button class="btn primary" onclick="saveProjectGeneralSettings()" style="width:100%;padding:10px">Save Changes →</button>
+      </div>
+      <!-- MEMBERS TAB -->
+      <div id="psTab-members" class="modal-body" style="display:none">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Current Members</div>
+        <div id="psMemberList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px"></div>
+        <div id="psAddMemberWrap">
+          <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Add Member</div>
+          <div style="display:flex;gap:8px">
+            <select class="field-input" id="psAddMemberSelect" style="flex:1"></select>
+            <select class="field-input" id="psAddMemberRole" style="width:100px">
+              <option value="member">Member</option>
+              <option value="lead">Lead</option>
+            </select>
+            <button class="btn primary sm" onclick="addMemberFromProjectSettings()">Add</button>
+          </div>
+        </div>
+      </div>
+      <!-- DANGER TAB (admin only) -->
+      <div id="psTab-danger" class="modal-body" style="display:none">
+        <div style="border:1px solid #ef5350;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:600;color:#ef5350;margin-bottom:6px">Archive Project</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Archived projects are hidden from the main view but all data is preserved.</div>
+          <button class="btn sm" style="border-color:#ef5350;color:#ef5350" onclick="archiveProject()">Archive Project</button>
+        </div>
+        <div style="border:1px solid #ef5350;padding:14px">
+          <div style="font-size:11px;font-weight:600;color:#ef5350;margin-bottom:6px">Delete Project</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Permanently deletes this project and all its teams and tasks. This cannot be undone.</div>
+          <input class="field-input" id="psDeleteConfirm" placeholder="Type the project name to confirm" style="margin-bottom:8px" />
+          <button class="btn danger" style="width:100%" onclick="deleteProject()">Delete Project Forever</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- NEW PROJECT MODAL -->
 
 <div class="modal-overlay" id="projectModal">
@@ -1502,6 +1573,26 @@ async function upsertProfile() {
   if (!error) currentProfile = data;
   else currentProfile = profileData;
   if (!currentProfile.role) currentProfile.role = 'member';
+  // Hub welcome email for brand-new users
+  const welcomeTo = profileData.email;
+  const welcomeName = profileData.full_name;
+  sendHubEmail(welcomeTo, 'Welcome to Prodeegee Teams Hub!',
+`Hi ${welcomeName},
+
+Welcome to Prodeegee Teams Hub — your team's all-in-one collaboration workspace.
+
+Here's what you can do:
+
+  ◈  Tasks & Projects — create and manage tasks across projects, claim work, track progress on a Kanban board.
+  #  Channels — chat with your teams in dedicated channels, @mention teammates or entire teams.
+  ◎  Direct Messages — send private messages to any hub member.
+  ✉  Email — send and receive emails right inside the hub.
+  ◉  Notifications — get notified for task assignments, mentions, reviews, and deadlines.
+
+You're all set. Sign in and get started:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
 }
 
 // ════════════════════════════════════════════════
@@ -2706,6 +2797,18 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false) {
 
 // ════════════════════════════════════════════════
 // SENT EMAILS
+// System email helper — automated hub emails (no sent_emails log, no toast)
+async function sendHubEmail(to, subject, body) {
+  if (!to) return;
+  try {
+    await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body })
+    });
+  } catch {}
+}
+
 // ════════════════════════════════════════════════
 async function loadSentEmails() {
   const email = encodeURIComponent(currentProfile?.prodeegee_email || currentProfile?.email);
@@ -2785,7 +2888,7 @@ async function loadProjects() {
     const memberCount = p.hub_project_members?.length || 0;
     const canSettings = canManageMembers(p.created_by);
     return `<div class="project-card" onclick="openProject('${p.id}','${escHtml(p.name)}')">
-      ${canSettings ? `<span class="project-settings-btn" onclick="event.stopPropagation();openProjectSettings('${p.id}','${escHtml(p.name)}')" title="Manage members">⚙</span>` : ''}
+      ${canSettings ? `<span class="project-settings-btn" onclick="event.stopPropagation();openProjectSettingsModal('${p.id}')" title="Project settings">⚙</span>` : ''}
       <div class="project-card-name">◈ ${escHtml(p.name)}</div>
       <div class="project-card-desc">${escHtml(p.description || 'No description')}</div>
       <div class="project-card-meta">
@@ -2807,6 +2910,7 @@ async function openProject(projectId, projectName) {
   document.getElementById('newSubProjectBtn').style.display = canManageProjects() ? 'inline' : 'none';
   document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
   document.getElementById('newTaskBtn').style.display = 'none';
+  document.getElementById('projectSettingsBtn').style.display = canManageProjects() ? 'inline' : 'none';
   // Switch view
   document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
   activeSection = 'project-tasks';
@@ -3041,6 +3145,22 @@ async function addTeamMember() {
   showToast(`${profile?.full_name} added to ${team?.name} ✓`);
   await addNotification('project_update', `You've been added to team: ${team?.name}`, null, userId);
   sendPush([userId], 'Added to Team', `You've been added to ${team?.name}`);
+  const project = projectsCache.find(p => p.id === team?.project_id);
+  const addedTo = profile?.notification_email || profile?.email;
+  if (addedTo) sendHubEmail(addedTo, `You've been added to the ${team?.name} team`,
+`Hi ${profile?.full_name},
+
+${currentProfile.full_name} has added you to the ${team?.name} team${project ? ` on the "${project.name}" project` : ''} on Prodeegee Hub.
+
+You can now:
+  • View and claim tasks on the team's board
+  • Participate in team discussions
+  • Collaborate with your teammates
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
   if (activeTeamId === teamId) loadTeamMembers(teamId);
   else loadTeamOverview(activeProjectId);
 }
@@ -3899,6 +4019,20 @@ const match = everyone.find(p => p.full_name.toLowerCase().includes(choice.toLow
 if (!match) { showToast('User not found', 'error'); return; }
 await sb.from('hub_project_members').insert({ project_id: projectId, user_id: match.id, role: 'member' });
 showToast(`${match.full_name} added to project ✓`);
+const proj = projectsCache.find(p => p.id === projectId);
+await addNotification('project_update', `You've been added to project: ${proj?.name || 'a project'}`, projectId, match.id);
+const projTo = match.notification_email || match.email;
+if (projTo) sendHubEmail(projTo, `You've been added to "${proj?.name || 'a project'}"`,
+`Hi ${match.full_name},
+
+${currentProfile.full_name} has added you to the "${proj?.name || 'project'}" project on Prodeegee Hub.
+
+You'll be able to view project tasks and teams, and collaborate with other members.
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
 loadProjectMembers(projectId);
 await loadAllProfiles();
 }
@@ -4675,6 +4809,26 @@ user_id: cb.value,
 role: cb.value === currentUser.id ? 'lead' : 'member'
 }));
 await sb.from('hub_project_members').insert(memberInserts);
+// Email non-self members about being added
+const addedProfiles = checked
+  .filter(cb => cb.value !== currentUser.id)
+  .map(cb => [currentProfile, ...allProfiles].find(p => p.id === cb.value))
+  .filter(Boolean);
+addedProfiles.forEach(p => {
+  const pto = p.notification_email || p.email;
+  if (!pto) return;
+  sendHubEmail(pto, `You've been added to "${name}"`,
+`Hi ${p.full_name},
+
+${currentProfile.full_name} has added you to the "${name}" project on Prodeegee Hub.
+
+You can view project tasks, join teams, and collaborate with other members.
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+});
 }
 
 closeModal('projectModal');
@@ -4812,9 +4966,194 @@ return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 // PROJECT SETTINGS
 // ════════════════════════════════════════════════
 async function openProjectSettings(projectId, projectName) {
-activeProjectId = projectId;
-await loadProjectMembers(projectId, projectName);
-switchSection('projects');
+  openProjectSettingsModal(projectId);
+}
+
+let psProjectId = null;
+let psProjectData = null;
+
+async function openProjectSettingsModal(projectId) {
+  if (!projectId) return;
+  psProjectId = projectId;
+
+  // Load fresh project data
+  const { data: proj } = await sb.from('hub_projects')
+    .select('*,hub_project_members(user_id,role,profiles(id,full_name,email,notification_email))')
+    .eq('id', projectId).single();
+  if (!proj) { showToast('Project not found', 'error'); return; }
+  psProjectData = proj;
+
+  // Populate modal title + General tab
+  document.getElementById('psModalName').textContent = proj.name;
+  document.getElementById('psName').value = proj.name;
+  document.getElementById('psDesc').value = proj.description || '';
+  document.getElementById('psStatus').value = proj.status || 'active';
+
+  // Tab visibility — Danger only for admins
+  const dangerTab = document.getElementById('pstab-danger');
+  if (dangerTab) dangerTab.style.display = isAdmin() ? '' : 'none';
+
+  // Populate Members tab
+  renderPsMembers(proj);
+
+  // Populate Add Member select (profiles not already in project)
+  const existingIds = (proj.hub_project_members || []).map(m => m.user_id);
+  const available = [currentProfile, ...allProfiles].filter(p => !existingIds.includes(p.id));
+  const sel = document.getElementById('psAddMemberSelect');
+  if (sel) {
+    sel.innerHTML = available.length
+      ? available.map(p => `<option value="${p.id}">${escHtml(p.full_name || p.email)}</option>`).join('')
+      : '<option value="">No users to add</option>';
+  }
+  const addWrap = document.getElementById('psAddMemberWrap');
+  if (addWrap) addWrap.style.display = canManageMembers(proj.created_by) ? '' : 'none';
+
+  // Delete confirm field
+  const del = document.getElementById('psDeleteConfirm');
+  if (del) del.value = '';
+
+  switchProjTab('general');
+  openModal('projectSettingsModal');
+}
+
+function renderPsMembers(proj) {
+  const list = document.getElementById('psMemberList');
+  if (!list) return;
+  const members = proj.hub_project_members || [];
+  const canManage = canManageMembers(proj.created_by);
+  list.innerHTML = members.map(m => {
+    const p = m.profiles || allProfiles.find(x => x.id === m.user_id) || { full_name: 'Unknown' };
+    const initials = (p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const isMe = m.user_id === currentUser.id;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border)">
+      <div class="member-av" style="background:${stringToColor(m.user_id)};width:28px;height:28px;font-size:10px;flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:var(--text)">${escHtml(p.full_name || '')}${isMe ? ' <span style="color:var(--muted)">(you)</span>' : ''}</div>
+        <div style="font-size:9px;color:var(--muted)">${p.email || ''}</div>
+      </div>
+      ${canManage && isAdmin() ? `
+        <select style="font-size:10px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:3px 6px" onchange="updateProjectMemberRole('${m.user_id}',this.value)">
+          <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
+          <option value="lead" ${m.role === 'lead' ? 'selected' : ''}>Lead</option>
+        </select>` : `<span style="font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border)">${m.role || 'member'}</span>`}
+      ${canManage && !isMe ? `<button class="btn sm danger" style="font-size:10px;padding:3px 8px" onclick="removeMemberFromProjectSettings('${m.user_id}')">✕</button>` : ''}
+    </div>`;
+  }).join('') || '<div style="font-size:11px;color:var(--muted)">No members yet</div>';
+}
+
+function switchProjTab(tab) {
+  ['general', 'members', 'danger'].forEach(t => {
+    const el = document.getElementById('psTab-' + t);
+    const btn = document.getElementById('pstab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+}
+
+async function saveProjectGeneralSettings() {
+  const name = document.getElementById('psName').value.trim();
+  if (!name) { showToast('Project name required', 'error'); return; }
+  const desc = document.getElementById('psDesc').value.trim();
+  const status = document.getElementById('psStatus').value;
+  const { error } = await sb.from('hub_projects')
+    .update({ name, description: desc, status })
+    .eq('id', psProjectId);
+  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  showToast('Project updated ✓');
+  document.getElementById('psModalName').textContent = name;
+  // Refresh cache and UI
+  const cached = projectsCache.find(p => p.id === psProjectId);
+  if (cached) { cached.name = name; cached.description = desc; cached.status = status; }
+  if (activeProjectId === psProjectId) {
+    document.getElementById('activeProjectName').textContent = name;
+  }
+  await loadProjects();
+}
+
+async function addMemberFromProjectSettings() {
+  const userId = document.getElementById('psAddMemberSelect').value;
+  const role = document.getElementById('psAddMemberRole').value;
+  if (!userId) return;
+  const { error } = await sb.from('hub_project_members')
+    .insert({ project_id: psProjectId, user_id: userId, role });
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  showToast('Member added ✓');
+  // Notify + email
+  const profile = allProfiles.find(p => p.id === userId);
+  const projName = psProjectData?.name || 'the project';
+  await addNotification('project_update', `You've been added to project: ${projName}`, psProjectId, userId);
+  const pto = profile?.notification_email || profile?.email;
+  if (pto && profile) sendHubEmail(pto, `You've been added to "${projName}"`,
+`Hi ${profile.full_name},
+
+${currentProfile.full_name} has added you to the "${projName}" project on Prodeegee Hub.
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+  await openProjectSettingsModal(psProjectId);
+}
+
+async function removeMemberFromProjectSettings(userId) {
+  if (!confirm('Remove this member from the project?')) return;
+  await sb.from('hub_project_members')
+    .delete().eq('project_id', psProjectId).eq('user_id', userId);
+  showToast('Member removed');
+  await openProjectSettingsModal(psProjectId);
+}
+
+async function updateProjectMemberRole(userId, role) {
+  const { error } = await sb.from('hub_project_members')
+    .update({ role }).eq('project_id', psProjectId).eq('user_id', userId);
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  showToast('Role updated ✓');
+}
+
+async function archiveProject() {
+  if (!isAdmin()) { showToast('Admins only', 'error'); return; }
+  if (!confirm('Archive this project? It will be hidden but all data is kept.')) return;
+  const { error } = await sb.from('hub_projects')
+    .update({ status: 'archived' }).eq('id', psProjectId);
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  showToast('Project archived');
+  closeModal('projectSettingsModal');
+  await loadProjects();
+  if (activeProjectId === psProjectId) switchSection('projects');
+}
+
+async function deleteProject() {
+  if (!isAdmin()) { showToast('Admins only', 'error'); return; }
+  const confirmName = document.getElementById('psDeleteConfirm').value.trim();
+  const proj = projectsCache.find(p => p.id === psProjectId) || psProjectData;
+  if (confirmName !== proj?.name) {
+    showToast('Type the exact project name to confirm', 'error'); return;
+  }
+  if (!confirm(`Permanently delete "${proj.name}" and ALL its teams and tasks?`)) return;
+  // Delete in order: task_comments → task_activity → hub_tasks → hub_team_members → hub_teams → hub_project_members → project
+  const { data: teams } = await sb.from('hub_teams').select('id').eq('project_id', psProjectId);
+  const teamIds = (teams || []).map(t => t.id);
+  if (teamIds.length) {
+    const { data: tasks } = await sb.from('hub_tasks').select('id').in('team_id', teamIds);
+    const taskIds = (tasks || []).map(t => t.id);
+    if (taskIds.length) {
+      await sb.from('task_comments').delete().in('task_id', taskIds);
+      await sb.from('task_activity').delete().in('task_id', taskIds);
+      await sb.from('hub_tasks').delete().in('team_id', teamIds);
+    }
+    await sb.from('hub_team_members').delete().in('team_id', teamIds);
+    await sb.from('hub_teams').delete().eq('project_id', psProjectId);
+  }
+  await sb.from('hub_project_members').delete().eq('project_id', psProjectId);
+  await sb.from('hub_projects').delete().eq('id', psProjectId);
+  showToast(`"${proj.name}" deleted`);
+  closeModal('projectSettingsModal');
+  projectsCache = projectsCache.filter(p => p.id !== psProjectId);
+  psProjectId = null;
+  psProjectData = null;
+  if (activeProjectId === psProjectId) activeProjectId = null;
+  await loadProjects();
+  switchSection('projects');
 }
 
 // ════════════════════════════════════════════════
@@ -5103,6 +5442,32 @@ async function notifyMentions(body, msgId) {
     ...teamNotifs
   ];
   if (allNotifs.length) await sb.from('notifications').insert(allNotifs);
+
+  // Email offline mentioned users
+  const allTargetProfiles = [
+    ...userTargets,
+    ...[...notifiedIds]
+      .filter(id => !userTargets.find(p => p.id === id))
+      .map(id => allProfiles.find(p => p.id === id))
+      .filter(Boolean)
+  ];
+  const senderName = currentProfile.full_name;
+  allTargetProfiles.forEach(p => {
+    if (onlineUserIds.has(p.id)) return; // online — in-app notif is enough
+    const mto = p.notification_email || p.email;
+    if (!mto) return;
+    sendHubEmail(mto, `${senderName} mentioned you on Prodeegee Hub`,
+`Hi ${p.full_name},
+
+${senderName} mentioned you in a channel:
+
+"${body.slice(0, 400)}"
+
+Open the hub to reply:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -5132,6 +5497,45 @@ async function addTaskCommentNew(taskId) {
   input.value = '';
   await sb.from('task_comments').insert({ task_id: taskId, user_id: currentUser.id, body });
   loadTaskComments(taskId);
+
+  // Notify task owner + prior commenters
+  const [taskRes, commentsRes] = await Promise.all([
+    sb.from('hub_tasks').select('title,assigned_to,claimed_by').eq('id', taskId).single(),
+    sb.from('task_comments').select('user_id').eq('task_id', taskId)
+  ]);
+  const task = taskRes.data;
+  const taskTitle = task?.title || 'a task';
+  const notifyIds = new Set();
+  if (task?.assigned_to && task.assigned_to !== currentUser.id) notifyIds.add(task.assigned_to);
+  if (task?.claimed_by && task.claimed_by !== currentUser.id) notifyIds.add(task.claimed_by);
+  (commentsRes.data || []).forEach(c => { if (c.user_id !== currentUser.id) notifyIds.add(c.user_id); });
+  if (!notifyIds.size) return;
+
+  const senderName = currentProfile.full_name;
+  const notifMsg = `${senderName} commented on "${taskTitle}": "${body.slice(0,80)}"`;
+  await sb.from('notifications').insert([...notifyIds].map(uid => ({
+    user_id: uid, type: 'task_assigned', message: notifMsg, reference_id: taskId
+  })));
+
+  // Email offline recipients
+  [...notifyIds].forEach(uid => {
+    if (onlineUserIds.has(uid)) return;
+    const p = uid === currentUser.id ? currentProfile : allProfiles.find(x => x.id === uid);
+    if (!p) return;
+    const cto = p.notification_email || p.email;
+    if (!cto) return;
+    sendHubEmail(cto, `New comment on "${taskTitle}"`,
+`Hi ${p.full_name},
+
+${senderName} commented on the task "${taskTitle}":
+
+"${body.slice(0, 400)}"
+
+Open the hub to reply:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+  });
 }
 
 // ════════════════════════════════════════════════
