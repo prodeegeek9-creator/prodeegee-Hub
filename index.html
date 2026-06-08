@@ -1129,7 +1129,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-mail-send-line"></i> Compose Email</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('composeModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('composeModal')"></button>
     </div>
     <div class="modal-body">
       <div class="from-badge">Sending as: <span id="modalFromAddr">you@prodeegee.com</span></div>
@@ -1161,7 +1161,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:520px;max-width:95vw">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-task-line"></i> New Task</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('taskModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('taskModal')"></button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <!-- Title -->
@@ -1244,7 +1244,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:400px">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-team-line"></i> New Team</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('createTeamModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('createTeamModal')"></button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <div class="field-group">
@@ -1278,7 +1278,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:380px">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-user-add-line"></i> Add Team Member</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('addTeamMemberModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('addTeamMemberModal')"></button>
     </div>
     <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
       <div class="field-group">
@@ -1303,7 +1303,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:480px;max-height:85vh;display:flex;flex-direction:column">
     <div class="modal-header" style="flex-shrink:0">
       <div class="modal-title"><i class="ri-settings-3-line"></i> Project Settings — <span id="psModalName"></span></div>
-      <button class="modal-close ri-close-line" onclick="closeModal('projectSettingsModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('projectSettingsModal')"></button>
     </div>
     <!-- Tabs -->
     <div class="email-tabs" style="flex-shrink:0" id="psTabBar">
@@ -1373,7 +1373,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:420px">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-folder-add-line"></i> New Project</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('projectModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('projectModal')"></button>
     </div>
     <div class="modal-body">
       <div class="field-group">
@@ -1408,7 +1408,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:340px">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-hashtag"></i> New Channel</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('channelModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('channelModal')"></button>
     </div>
     <div class="modal-body">
       <div class="field-group">
@@ -1426,7 +1426,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
   <div class="modal" style="width:100%;max-height:90vh">
     <div class="modal-header">
       <div class="modal-title"><i class="ri-task-line"></i> Task Detail</div>
-      <button class="modal-close ri-close-line" onclick="closeModal('taskDetailModal')"</button>
+      <button class="modal-close ri-close-line" onclick="closeModal('taskDetailModal')"></button>
     </div>
     <div class="modal-body" id="taskDetailContent" style="overflow-y:auto"></div>
   </div>
@@ -5075,7 +5075,7 @@ function renderPsMembers(proj) {
           <option value="member" ${m.role === 'member' ? 'selected' : ''}>Member</option>
           <option value="lead" ${m.role === 'lead' ? 'selected' : ''}>Lead</option>
         </select>` : `<span style="font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border)">${m.role || 'member'}</span>`}
-      ${canManage && !isMe ? `<button class="btn sm danger" style="font-size:10px;padding:3px 8px" onclick="removeMemberFromProjectSettings('${m.user_id}')"</button>` : ''}
+      ${canManage && !isMe ? `<button class="btn sm danger" style="font-size:10px;padding:3px 8px" onclick="removeMemberFromProjectSettings('${m.user_id}')"></button>` : ''}
     </div>`;
   }).join('') || '<div style="font-size:11px;color:var(--muted)">No members yet</div>';
 }
