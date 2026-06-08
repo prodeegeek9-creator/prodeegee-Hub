@@ -1683,13 +1683,7 @@ function loadProfileSection() {
   const notifEl = document.getElementById('notifEmailInput');
   if (notifEl) notifEl.value = currentProfile.notification_email || '';
 
-  const av = document.getElementById('profileAvatar');
-  if (currentProfile.avatar_url) {
-    av.innerHTML = `<img src="${currentProfile.avatar_url}" alt="${name}" style="width:100%;height:100%;object-fit:cover">`;
-  } else {
-    av.textContent = initials;
-    av.style.background = stringToColor(currentUser.id);
-  }
+  renderAvatar(document.getElementById('profileAvatar'), currentProfile.avatar_url, initials, currentUser.id);
 }
 
 async function uploadAvatar(file) {
@@ -1716,10 +1710,7 @@ async function uploadAvatar(file) {
   const { error: dbErr } = await sb.from('profiles').update({ avatar_url: avatarUrl }).eq('id', currentUser.id);
   if (dbErr) { showToast('Save failed: ' + dbErr.message, 'error'); return; }
   currentProfile.avatar_url = avatarUrl;
-  // Refresh all avatar elements
   setUserUI();
-  const av = document.getElementById('profileAvatar');
-  if (av) { av.innerHTML = `<img src="${avatarUrl}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; }
   showToast('Avatar updated ✓');
 }
 
@@ -1769,6 +1760,17 @@ async function changePassword() {
   }
 }
 
+function renderAvatar(el, avatarUrl, initials, userId, extraInner) {
+  if (!el) return;
+  if (avatarUrl) {
+    el.style.background = 'transparent';
+    el.innerHTML = `<img src="${avatarUrl}" alt="${initials}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">${extraInner || ''}`;
+  } else {
+    el.style.background = stringToColor(userId);
+    el.innerHTML = `${initials}${extraInner || ''}`;
+  }
+}
+
 function setUserUI() {
   const p = currentProfile;
   const name = p.full_name || 'User';
@@ -1782,12 +1784,14 @@ function setUserUI() {
   document.getElementById('composeFromNote').textContent = prodeegeeEmail;
   document.getElementById('modalFromAddr').textContent = prodeegeeEmail;
 
-  const av = document.getElementById('sideAvatar');
-  if (p.avatar_url) {
-    av.innerHTML = `<img src="${p.avatar_url}" alt="${name}"><div class="online-dot"></div>`;
-  } else {
-    av.innerHTML = `${initials}<div class="online-dot"></div>`;
-  }
+  // Sidebar avatar (with online dot)
+  renderAvatar(document.getElementById('sideAvatar'), p.avatar_url, initials, currentUser.id, '<div class="online-dot"></div>');
+
+  // Mobile drawer avatar
+  renderAvatar(document.getElementById('mobAvatar'), p.avatar_url, initials, currentUser.id);
+
+  // Profile page avatar (may not be in DOM yet — renderAvatar handles null el)
+  renderAvatar(document.getElementById('profileAvatar'), p.avatar_url, initials, currentUser.id);
 
   // Show role badge in sidebar
   const roleColors = { admin: 'var(--orange)', team_lead: '#4fc3f7', member: 'var(--muted)' };
@@ -1804,14 +1808,7 @@ function setUserUI() {
   // Show/hide New Project button
   const projBtn = document.getElementById('newProjectBtn');
   if (projBtn) projBtn.style.display = canCreateProjects() ? 'inline' : 'none';
-  // Sync mobile drawer profile
-  const mobAv = document.getElementById('mobAvatar');
-  if (mobAv) {
-    mobAv.innerHTML = p.avatar_url
-      ? `<img src="${p.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`
-      : initials;
-    mobAv.style.background = p.avatar_url ? 'transparent' : stringToColor(currentUser.id);
-  }
+
   const mobName = document.getElementById('mobName');
   const mobEmail = document.getElementById('mobEmail');
   const mobRole = document.getElementById('mobRole');
