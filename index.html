@@ -1503,6 +1503,26 @@ async function upsertProfile() {
   if (!error) currentProfile = data;
   else currentProfile = profileData;
   if (!currentProfile.role) currentProfile.role = 'member';
+  // Hub welcome email for brand-new users
+  const welcomeTo = profileData.email;
+  const welcomeName = profileData.full_name;
+  sendHubEmail(welcomeTo, 'Welcome to Prodeegee Teams Hub!',
+`Hi ${welcomeName},
+
+Welcome to Prodeegee Teams Hub — your team's all-in-one collaboration workspace.
+
+Here's what you can do:
+
+  ◈  Tasks & Projects — create and manage tasks across projects, claim work, track progress on a Kanban board.
+  #  Channels — chat with your teams in dedicated channels, @mention teammates or entire teams.
+  ◎  Direct Messages — send private messages to any hub member.
+  ✉  Email — send and receive emails right inside the hub.
+  ◉  Notifications — get notified for task assignments, mentions, reviews, and deadlines.
+
+You're all set. Sign in and get started:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
 }
 
 // ════════════════════════════════════════════════
@@ -2707,6 +2727,18 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false) {
 
 // ════════════════════════════════════════════════
 // SENT EMAILS
+// System email helper — automated hub emails (no sent_emails log, no toast)
+async function sendHubEmail(to, subject, body) {
+  if (!to) return;
+  try {
+    await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body })
+    });
+  } catch {}
+}
+
 // ════════════════════════════════════════════════
 async function loadSentEmails() {
   const email = encodeURIComponent(currentProfile?.prodeegee_email || currentProfile?.email);
@@ -3042,6 +3074,22 @@ async function addTeamMember() {
   showToast(`${profile?.full_name} added to ${team?.name} ✓`);
   await addNotification('project_update', `You've been added to team: ${team?.name}`, null, userId);
   sendPush([userId], 'Added to Team', `You've been added to ${team?.name}`);
+  const project = projectsCache.find(p => p.id === team?.project_id);
+  const addedTo = profile?.notification_email || profile?.email;
+  if (addedTo) sendHubEmail(addedTo, `You've been added to the ${team?.name} team`,
+`Hi ${profile?.full_name},
+
+${currentProfile.full_name} has added you to the ${team?.name} team${project ? ` on the "${project.name}" project` : ''} on Prodeegee Hub.
+
+You can now:
+  • View and claim tasks on the team's board
+  • Participate in team discussions
+  • Collaborate with your teammates
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
   if (activeTeamId === teamId) loadTeamMembers(teamId);
   else loadTeamOverview(activeProjectId);
 }
@@ -3900,6 +3948,20 @@ const match = everyone.find(p => p.full_name.toLowerCase().includes(choice.toLow
 if (!match) { showToast('User not found', 'error'); return; }
 await sb.from('hub_project_members').insert({ project_id: projectId, user_id: match.id, role: 'member' });
 showToast(`${match.full_name} added to project ✓`);
+const proj = projectsCache.find(p => p.id === projectId);
+await addNotification('project_update', `You've been added to project: ${proj?.name || 'a project'}`, projectId, match.id);
+const projTo = match.notification_email || match.email;
+if (projTo) sendHubEmail(projTo, `You've been added to "${proj?.name || 'a project'}"`,
+`Hi ${match.full_name},
+
+${currentProfile.full_name} has added you to the "${proj?.name || 'project'}" project on Prodeegee Hub.
+
+You'll be able to view project tasks and teams, and collaborate with other members.
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
 loadProjectMembers(projectId);
 await loadAllProfiles();
 }
@@ -4676,6 +4738,26 @@ user_id: cb.value,
 role: cb.value === currentUser.id ? 'lead' : 'member'
 }));
 await sb.from('hub_project_members').insert(memberInserts);
+// Email non-self members about being added
+const addedProfiles = checked
+  .filter(cb => cb.value !== currentUser.id)
+  .map(cb => [currentProfile, ...allProfiles].find(p => p.id === cb.value))
+  .filter(Boolean);
+addedProfiles.forEach(p => {
+  const pto = p.notification_email || p.email;
+  if (!pto) return;
+  sendHubEmail(pto, `You've been added to "${name}"`,
+`Hi ${p.full_name},
+
+${currentProfile.full_name} has added you to the "${name}" project on Prodeegee Hub.
+
+You can view project tasks, join teams, and collaborate with other members.
+
+Open the hub:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+});
 }
 
 closeModal('projectModal');
@@ -5104,6 +5186,32 @@ async function notifyMentions(body, msgId) {
     ...teamNotifs
   ];
   if (allNotifs.length) await sb.from('notifications').insert(allNotifs);
+
+  // Email offline mentioned users
+  const allTargetProfiles = [
+    ...userTargets,
+    ...[...notifiedIds]
+      .filter(id => !userTargets.find(p => p.id === id))
+      .map(id => allProfiles.find(p => p.id === id))
+      .filter(Boolean)
+  ];
+  const senderName = currentProfile.full_name;
+  allTargetProfiles.forEach(p => {
+    if (onlineUserIds.has(p.id)) return; // online — in-app notif is enough
+    const mto = p.notification_email || p.email;
+    if (!mto) return;
+    sendHubEmail(mto, `${senderName} mentioned you on Prodeegee Hub`,
+`Hi ${p.full_name},
+
+${senderName} mentioned you in a channel:
+
+"${body.slice(0, 400)}"
+
+Open the hub to reply:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+  });
 }
 
 // ════════════════════════════════════════════════
@@ -5133,6 +5241,45 @@ async function addTaskCommentNew(taskId) {
   input.value = '';
   await sb.from('task_comments').insert({ task_id: taskId, user_id: currentUser.id, body });
   loadTaskComments(taskId);
+
+  // Notify task owner + prior commenters
+  const [taskRes, commentsRes] = await Promise.all([
+    sb.from('hub_tasks').select('title,assigned_to,claimed_by').eq('id', taskId).single(),
+    sb.from('task_comments').select('user_id').eq('task_id', taskId)
+  ]);
+  const task = taskRes.data;
+  const taskTitle = task?.title || 'a task';
+  const notifyIds = new Set();
+  if (task?.assigned_to && task.assigned_to !== currentUser.id) notifyIds.add(task.assigned_to);
+  if (task?.claimed_by && task.claimed_by !== currentUser.id) notifyIds.add(task.claimed_by);
+  (commentsRes.data || []).forEach(c => { if (c.user_id !== currentUser.id) notifyIds.add(c.user_id); });
+  if (!notifyIds.size) return;
+
+  const senderName = currentProfile.full_name;
+  const notifMsg = `${senderName} commented on "${taskTitle}": "${body.slice(0,80)}"`;
+  await sb.from('notifications').insert([...notifyIds].map(uid => ({
+    user_id: uid, type: 'task_assigned', message: notifMsg, reference_id: taskId
+  })));
+
+  // Email offline recipients
+  [...notifyIds].forEach(uid => {
+    if (onlineUserIds.has(uid)) return;
+    const p = uid === currentUser.id ? currentProfile : allProfiles.find(x => x.id === uid);
+    if (!p) return;
+    const cto = p.notification_email || p.email;
+    if (!cto) return;
+    sendHubEmail(cto, `New comment on "${taskTitle}"`,
+`Hi ${p.full_name},
+
+${senderName} commented on the task "${taskTitle}":
+
+"${body.slice(0, 400)}"
+
+Open the hub to reply:
+https://prodeegee-hub.pages.dev
+
+— Prodeegee Hub`);
+  });
 }
 
 // ════════════════════════════════════════════════
