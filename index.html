@@ -251,6 +251,13 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .home-task-badge{font-size:8px;padding:2px 6px;background:var(--surface);border:1px solid var(--border);color:var(--muted);letter-spacing:.5px}
 .feed-item{padding:8px 14px;border-bottom:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.5;transition:background .1s}
 .feed-item:hover{background:var(--surface)}
+.digest-col{padding:12px 14px;border-right:1px solid var(--border)}
+.digest-col:last-child{border-right:none}
+.digest-col-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.digest-num{font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:6px}
+.digest-row{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:10px;color:var(--text);overflow:hidden;white-space:nowrap}
+.digest-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.digest-row-label{overflow:hidden;text-overflow:ellipsis;flex:1}
 .feed-item:last-child{border-bottom:none}
 .home-member-chip{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s}
 .home-member-chip:hover{border-color:var(--green)}
@@ -754,6 +761,17 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <div class="home-stat-icon" style="color:#4fc3f7">◎</div>
           <div class="home-stat-num" id="hstatOnline">—</div>
           <div class="home-stat-label">Online Now</div>
+        </div>
+      </div>
+
+      <!-- TODAY'S DIGEST -->
+      <div style="background:var(--panel);border:1px solid var(--border)" id="homeDigest">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:#ffd54f;letter-spacing:2px;text-transform:uppercase">⚡ Today's Digest</span>
+          <span id="homeDigestDate" style="font-size:9px;color:var(--muted)"></span>
+        </div>
+        <div id="homeDigestBody" style="display:grid;grid-template-columns:1fr 1fr 1fr">
+          <div class="loading" style="padding:20px;grid-column:1/-1"><div class="spinner"></div></div>
         </div>
       </div>
 
@@ -1730,15 +1748,22 @@ function initPresence() {
   presenceChannel = sb.channel('hub-presence', {
     config: { presence: { key: currentUser.id } }
   });
+  let presenceReady = false;
+  setTimeout(() => { presenceReady = true; }, 4000);
   presenceChannel
     .on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
       onlineUserIds = new Set(Object.keys(state));
       renderMembers();
     })
-    .on('presence', { event: 'join' }, ({ key }) => {
+    .on('presence', { event: 'join' }, ({ key, newPresences }) => {
       onlineUserIds.add(key);
       renderMembers();
+      if (presenceReady && key !== currentUser.id) {
+        const joiner = newPresences?.[0];
+        const pName = joiner?.full_name || allProfiles.find(p => p.id === key)?.full_name || 'A team member';
+        showToast(`${pName} is now online`, 'info');
+      }
     })
     .on('presence', { event: 'leave' }, ({ key }) => {
       onlineUserIds.delete(key);
@@ -4060,10 +4085,16 @@ loadHomeWeather();
 
 // Data
 const uid = currentUser.id;
-const [myTasks, recentActivity, notifs] = await Promise.all([
+const todayStr = new Date().toISOString().slice(0, 10);
+const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+const yesterdayStr = yesterday.toISOString().slice(0, 10);
+const [myTasks, recentActivity, notifs, overdueRaw, dueTodayRaw, yesterdayActivity] = await Promise.all([
 sbFetch(`hub_tasks?select=*&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&status=neq.Done&order=created_at.desc&limit=8`).catch(() => []),
 sbFetch('task_activity?select=*,hub_tasks(title,task_body_type)&order=created_at.desc&limit=20').catch(() => []),
 sbFetch(`notifications?select=*&user_id=eq.${uid}&read=eq.false&order=created_at.desc&limit=5`).catch(() => []),
+sbFetch(`hub_tasks?select=id,title,priority&status=neq.Done&due_date=lt.${todayStr}&due_date=not.is.null&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=due_date.asc&limit=5`).catch(() => []),
+sbFetch(`hub_tasks?select=id,title,priority&status=neq.Done&due_date=eq.${todayStr}&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=created_at.asc&limit=5`).catch(() => []),
+sbFetch(`task_activity?select=action,hub_tasks(title)&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=100`).catch(() => []),
 ]);
 
 // Stats
@@ -4106,6 +4137,44 @@ feedEl.innerHTML = items.length ? items.map(i=>i.html).join('')
 : '<div style="padding:16px 14px;font-size:10px;color:var(--muted)">No recent activity</div>';
 }
 
+// Today's Digest widget
+const digestBody = el('homeDigestBody');
+const digestDate = el('homeDigestDate');
+if (digestDate) digestDate.textContent = new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+if (digestBody) {
+  const overdue = Array.isArray(overdueRaw) ? overdueRaw : [];
+  const dueToday = Array.isArray(dueTodayRaw) ? dueTodayRaw : [];
+  const yAct = Array.isArray(yesterdayActivity) ? yesterdayActivity : [];
+  const priC = { High:'#ef5350', Medium:'#ffd54f', Low:'#69f0ae' };
+  const yDone = yAct.filter(a => a.action === 'done').length;
+  const yCreated = yAct.filter(a => a.action === 'created').length;
+  const yInProg = yAct.filter(a => a.action === 'status_changed').length;
+  const overdueColor = overdue.length > 0 ? '#ef5350' : 'var(--green)';
+  const todayColor = dueToday.length > 0 ? '#ffd54f' : 'var(--green)';
+  digestBody.innerHTML = `
+    <div class="digest-col">
+      <div class="digest-col-title" style="color:#ef5350">⚠ Overdue</div>
+      <div class="digest-num" style="color:${overdueColor}">${overdue.length}</div>
+      ${overdue.length ? overdue.map(t => `<div class="digest-row"><div class="digest-dot" style="background:${priC[t.priority]||'var(--muted)'}"></div><span class="digest-row-label">${escHtml(t.title)}</span></div>`).join('') : '<div style="font-size:10px;color:var(--green)">All clear ✓</div>'}
+    </div>
+    <div class="digest-col">
+      <div class="digest-col-title" style="color:#ffd54f">📅 Due Today</div>
+      <div class="digest-num" style="color:${todayColor}">${dueToday.length}</div>
+      ${dueToday.length ? dueToday.map(t => `<div class="digest-row"><div class="digest-dot" style="background:${priC[t.priority]||'var(--muted)'}"></div><span class="digest-row-label">${escHtml(t.title)}</span></div>`).join('') : '<div style="font-size:10px;color:var(--muted)">Nothing due today</div>'}
+    </div>
+    <div class="digest-col">
+      <div class="digest-col-title" style="color:var(--green)">▸ Yesterday</div>
+      <div class="digest-num" style="color:var(--green)">${yDone}</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px">tasks completed</div>
+      ${yCreated ? `<div class="digest-row"><div class="digest-dot" style="background:var(--orange)"></div><span class="digest-row-label">${yCreated} created</span></div>` : ''}
+      ${yInProg ? `<div class="digest-row"><div class="digest-dot" style="background:#4fc3f7"></div><span class="digest-row-label">${yInProg} progressed</span></div>` : ''}
+      ${!yDone && !yCreated && !yInProg ? '<div style="font-size:10px;color:var(--muted)">No activity</div>' : ''}
+    </div>`;
+}
+
+// Fire digest email (once per day, non-blocking)
+setTimeout(() => sendDailyDigest(), 3000);
+
 // Team online
 const teamEl = el('homeTeamOnline');
 if (teamEl) {
@@ -4119,6 +4188,50 @@ const isMe = p.id === currentUser.id;
 return `<div class="home-member-chip" onclick="${isMe ? "switchSection('profile')" : `openDM('${p.id}','${escHtml(p.full_name||'')}')`}"> <div class="member-av" style="background:${stringToColor(p.id)};width:24px;height:24px;font-size:9px;flex-shrink:0">${initials}</div> <div> <div style="font-size:10px;color:var(--text)">${escHtml(p.full_name||'')}${isMe?' (you)':''}</div> <div style="font-size:8px;color:var(--green)">● Online</div> </div> </div>`;
 }).join('');
 }
+}
+
+async function sendDailyDigest() {
+if (!currentUser || !currentProfile) return;
+const todayStr = new Date().toISOString().slice(0, 10);
+const digestKey = `digest_${currentUser.id}_${todayStr}`;
+if (localStorage.getItem(digestKey)) return;
+const to = currentProfile.notification_email || currentProfile.email;
+if (!to) return;
+const uid = currentUser.id;
+const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+const yesterdayStr = yesterday.toISOString().slice(0, 10);
+const [overdue, dueToday, assigned, yAct] = await Promise.all([
+  sbFetch(`hub_tasks?select=id,title,priority,status&status=neq.Done&due_date=lt.${todayStr}&due_date=not.is.null&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=due_date.asc&limit=10`).catch(() => []),
+  sbFetch(`hub_tasks?select=id,title,priority,status&status=neq.Done&due_date=eq.${todayStr}&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=created_at.asc&limit=10`).catch(() => []),
+  sbFetch(`hub_tasks?select=id,title,priority,status&assigned_to=eq.${uid}&status=neq.Done&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=10`).catch(() => []),
+  sbFetch(`task_activity?select=action,note,hub_tasks(title)&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=100`).catch(() => []),
+]);
+const o = Array.isArray(overdue) ? overdue : [];
+const d = Array.isArray(dueToday) ? dueToday : [];
+const a = Array.isArray(assigned) ? assigned : [];
+const y = Array.isArray(yAct) ? yAct : [];
+const yDone = y.filter(x => x.action === 'done').length;
+const yCreated = y.filter(x => x.action === 'created').length;
+const name = currentProfile.full_name || 'Team Member';
+const dateLabel = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+const subject = `Prodeegee Hub Digest — ${dateLabel}`;
+const taskLine = t => `  • ${t.title} [${t.priority || 'No priority'} · ${t.status}]`;
+const sections = [];
+if (o.length) sections.push(`⚠ OVERDUE (${o.length})\n${o.map(taskLine).join('\n')}`);
+if (d.length) sections.push(`📅 DUE TODAY (${d.length})\n${d.map(taskLine).join('\n')}`);
+if (a.length) sections.push(`◈ NEWLY ASSIGNED TO YOU\n${a.map(taskLine).join('\n')}`);
+const yLines = [];
+if (yDone) yLines.push(`  ✓ ${yDone} task${yDone>1?'s':''} completed`);
+if (yCreated) yLines.push(`  + ${yCreated} task${yCreated>1?'s':''} created`);
+if (yLines.length) sections.push(`▸ YESTERDAY\n${yLines.join('\n')}`);
+if (!sections.length) { localStorage.setItem(digestKey, '1'); return; }
+const body = `Hello ${name},\n\nHere's your daily digest for ${dateLabel}:\n\n${sections.join('\n\n')}\n\n— Prodeegee Hub\nhttps://prodeegee-hub.pages.dev`;
+await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body })
+}).catch(() => {});
+localStorage.setItem(digestKey, '1');
 }
 
 let homeClockTimer = null;
