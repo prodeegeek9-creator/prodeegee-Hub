@@ -822,6 +822,45 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
   letter-spacing:0.01em!important;
   line-height:1.6!important;
 }
+
+/* ── 22. ACTIVITY FEED — constrain container height ── */
+#feedList{max-height:260px!important;overflow-y:auto!important}
+/* the wrapper panel above feedList must not grow unbounded */
+#feedList + *,#feedList{flex-shrink:0}
+
+/* ── 23. HERO CANDLE CHARACTER ── */
+.hero-candle-char{
+  position:absolute;bottom:-2px;right:28px;z-index:6;
+  pointer-events:none;user-select:none;
+  animation:candleFloat 3s ease-in-out infinite;
+}
+.hero-candle-inner{display:flex;flex-direction:column;align-items:center;gap:0}
+.candle-flame{
+  font-size:18px;line-height:1;display:block;
+  animation:flameFlicker 0.6s ease-in-out infinite alternate;
+  transform-origin:bottom center;
+}
+.candle-body{font-size:22px;line-height:1;display:block;margin-top:-4px}
+@keyframes candleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes flameFlicker{
+  0%{transform:scaleX(1) scaleY(1) rotate(-3deg);filter:brightness(1)}
+  50%{transform:scaleX(0.85) scaleY(1.15) rotate(2deg);filter:brightness(1.3)}
+  100%{transform:scaleX(1.1) scaleY(0.9) rotate(-1deg);filter:brightness(0.9)}
+}
+
+/* ── 24. LOGO FLICKER (fluorescent damaged tube) ── */
+@keyframes fluorFlicker{
+  0%,100%{opacity:1}
+  4%{opacity:0.2}5%{opacity:1}
+  15%{opacity:0.6}16%{opacity:1}
+  48%{opacity:0.05}49%{opacity:1}50%{opacity:0.4}51%{opacity:1}
+  70%{opacity:0.8}71%{opacity:0.2}72%{opacity:1}
+}
+#hubLogoSvg.logo-flickering{animation:fluorFlicker 0.7s linear forwards}
+
+/* ── 25. NOTIFICATION READ STATE ── */
+.notif-item:not(.unread){opacity:0.5;transition:opacity 0.2s ease}
+.notif-item.unread{opacity:1}
 </style>
 
 </head>
@@ -997,9 +1036,11 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
   </div>
 
   <div class="nav-section" style="margin-top:8px">Direct Messages</div>
-  <div id="dmNavList">
-    <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading members...</div>
+  <div style="padding:4px 8px 2px">
+    <input id="dmSearchInput" class="field-input" placeholder="Search to message…" oninput="filterDmSearch(this.value)"
+      style="font-size:11px;padding:6px 10px;width:100%;box-sizing:border-box" />
   </div>
+  <div id="dmNavList" style="max-height:180px;overflow-y:auto"></div>
 </div>
 
 <div class="members-section">
@@ -1076,11 +1117,17 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
         </div>
       </div>
       <!-- Mouse character sitting at the bottom edge of the hero -->
-      <div class="hero-mouse-char">
+      <!-- day: mouse, night: candle — switched by JS on load -->
+      <div class="hero-mouse-char" id="heroMouseChar">
         <div class="hero-mouse-inner">
           <span class="hero-mouse-emoji">🐭</span>
           <span class="hero-mouse-laptop">💻</span>
-          <span class="hero-mouse-legs">🦵🦵</span>
+        </div>
+      </div>
+      <div class="hero-candle-char" id="heroCandleChar" style="display:none">
+        <div class="hero-candle-inner">
+          <span class="candle-flame">🔥</span>
+          <span class="candle-body">🕯️</span>
         </div>
       </div>
       </div><!-- end hero-mouse-wrap -->
@@ -2187,6 +2234,20 @@ async function loadAllProfiles() {
   await loadChannelNav();
 }
 
+function getProjectMateIds() {
+  const ids = new Set();
+  (projectsCache || []).forEach(proj => {
+    const isMyProject = myProjectIds.includes(proj.id);
+    if (!isMyProject) return;
+    (proj.hub_project_members || []).forEach(m => { if (m.user_id !== currentUser.id) ids.add(m.user_id); });
+  });
+  return ids;
+}
+
+function getProjectMateCount() {
+  return getProjectMateIds().size + 1; // +1 for self
+}
+
 const DEFAULT_CHANNELS = ['general', 'projects', 'social'];
 
 async function loadChannelNav() {
@@ -2292,15 +2353,38 @@ function renderMembers() {
 }
 
 function renderDMNav() {
+  // Sidebar now uses search-to-DM; just wire up badge IDs without flooding the list
   const nav = document.getElementById('dmNavList');
-  nav.innerHTML = allProfiles.map(p => `
+  // Show empty state — user types in the search box to find someone
+  nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">Type a name above ↑</div>';
+  const mobDM = document.getElementById('mobDMList');
+  if (mobDM) mobDM.innerHTML = allProfiles.map(p => `
     <div class="nav-item" id="dmnav-${p.id}" onclick="openDM('${p.id}','${escHtml(p.full_name)}')">
       <span class="nav-icon"><i class="ri-at-line"></i></span> ${p.full_name.split(' ')[0]}
       <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
     </div>
   `).join('');
-  const mobDM = document.getElementById('mobDMList');
-  if (mobDM) mobDM.innerHTML = nav.innerHTML;
+}
+
+function filterDmSearch(q) {
+  const nav = document.getElementById('dmNavList');
+  if (!nav) return;
+  const term = q.trim().toLowerCase();
+  if (!term) {
+    nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">Type a name above ↑</div>';
+    return;
+  }
+  const matches = allProfiles.filter(p => (p.full_name || '').toLowerCase().includes(term));
+  if (!matches.length) {
+    nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No match</div>';
+    return;
+  }
+  nav.innerHTML = matches.map(p => `
+    <div class="nav-item" id="dmnav-${p.id}" onclick="openDM('${p.id}','${escHtml(p.full_name)}');document.getElementById('dmSearchInput').value='';filterDmSearch('')">
+      <span class="nav-icon"><i class="ri-at-line"></i></span> ${escHtml(p.full_name.split(' ')[0])}
+      <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
+    </div>
+  `).join('');
 }
 
 // ════════════════════════════════════════════════
@@ -4320,6 +4404,13 @@ if (btn) { btn.textContent = count; btn.style.display = count > 0 ? 'flex' : 'no
 
 async function addNotification(type, message, refId, targetUserId) {
 const userId = targetUserId || currentUser.id;
+// Dedup: skip if an unread notification of same type+ref already exists for this user
+if (refId) {
+  const { data: dup } = await sb.from('notifications')
+    .select('id').eq('user_id', userId).eq('type', type)
+    .eq('reference_id', refId).eq('read', false).limit(1);
+  if (dup && dup.length > 0) return;
+}
 await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
 const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
 const title = titles[type] || 'Prodeegee Hub';
@@ -4342,16 +4433,17 @@ sendPush([proj.created_by], title, message);
 }
 
 async function markNotifRead(notifId, type, refId) {
-// Optimistic update: grey out the item and decrement badge immediately
+// Optimistic: grey out immediately, decrement badge — no full reload
 const el = document.querySelector(`.notif-item[onclick*="'${notifId}'"]`);
-if (el && el.classList.contains('unread')) {
-  el.classList.remove('unread');
+const wasUnread = el && el.classList.contains('unread');
+if (el) { el.classList.remove('unread'); el.style.opacity = '0.5'; }
+if (wasUnread) {
   unreadNotifs = Math.max(0, unreadNotifs - 1);
   updateNotifBadge(unreadNotifs);
-  document.getElementById('unreadNotifCount').textContent = unreadNotifs;
+  const uc = document.getElementById('unreadNotifCount');
+  if (uc) uc.textContent = unreadNotifs;
 }
 await sb.from('notifications').update({ read: true }).eq('id', notifId);
-loadNotifications();
 // Navigate to the relevant content
 if (type === 'dm') { refId ? navigateToDM(refId) : switchSection('dm'); return; }
 if ((type === 'task_assigned' || type === 'task_overdue' || type === 'review_reminder' || type === 'project_update') && refId) { navigateToTask(refId); return; }
@@ -4710,9 +4802,9 @@ sbFetch(`task_activity?select=action,hub_tasks(title)&created_at=gte.${yesterday
 const setEl = (id, val) => { const e = el(id); if (e) e.textContent = val; };
 setEl('hstatTasks',  Array.isArray(myTasks) ? myTasks.length : '—');
 setEl('hstatNotifs', Array.isArray(notifs)  ? notifs.length  : '—');
-setEl('hstatOnline', allProfiles.length + 1);
+setEl('hstatOnline', getProjectMateCount());
 setEl('hstatEmails', el('emailBadge')?.textContent || '0');
-setEl('statOnline',  allProfiles.length + 1);
+setEl('statOnline',  getProjectMateCount());
 
 // My Tasks
 const tasksEl = el('homeMyTasks');
@@ -4784,10 +4876,11 @@ if (digestBody) {
 // Fire digest email (once per day, non-blocking)
 setTimeout(() => sendDailyDigest(), 3000);
 
-// Team online
+// Team online — filtered to project mates only
 const teamEl = el('homeTeamOnline');
 if (teamEl) {
-const allPeople = [currentProfile, ...allProfiles].filter(Boolean);
+const mateIds = getProjectMateIds();
+const allPeople = [currentProfile, ...allProfiles].filter(p => p && (p.id === currentUser.id || mateIds.has(p.id)));
 const online = onlineUserIds.size > 0
   ? allPeople.filter(p => onlineUserIds.has(p.id))
   : allPeople.slice(0, 1);
@@ -4901,7 +4994,7 @@ if (locEl) locEl.textContent = '';
 // ════════════════════════════════════════════════
 function updateStats() {
 const el = document.getElementById('statOnline');
-if (el) el.textContent = allProfiles.length + 1;
+if (el) el.textContent = getProjectMateCount();
 }
 
 // ════════════════════════════════════════════════
@@ -6286,6 +6379,39 @@ window.location.href = '/login.html';
   } else {
     setTimeout(init, 150);
   }
+})();
+</script>
+
+<script>
+// ════ TIME-BASED HERO CHARACTER + LOGO FLICKER ════
+(function() {
+  function applyHeroChar() {
+    const h = new Date().getHours();
+    const isNight = h >= 20 || h < 6;
+    const mouseEl = document.getElementById('heroMouseChar');
+    const candleEl = document.getElementById('heroCandleChar');
+    if (!mouseEl || !candleEl) return;
+    mouseEl.style.display = isNight ? 'none' : '';
+    candleEl.style.display = isNight ? '' : 'none';
+  }
+
+  function startLogoFlicker() {
+    const svg = document.getElementById('hubLogoSvg');
+    if (!svg) return;
+    svg.classList.add('logo-flickering');
+    svg.addEventListener('animationend', () => svg.classList.remove('logo-flickering'), { once: true });
+  }
+
+  // Apply on load
+  document.addEventListener('DOMContentLoaded', () => {
+    applyHeroChar();
+    // Flicker logo every 60 seconds
+    setInterval(startLogoFlicker, 60000);
+    // Re-check hero char every hour
+    setInterval(applyHeroChar, 3600000);
+  });
+  // Also apply immediately if DOM already ready
+  if (document.readyState !== 'loading') applyHeroChar();
 })();
 </script>
 
