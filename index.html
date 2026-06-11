@@ -558,6 +558,272 @@ body.warm .btn-warm{background:#C47A0C;color:#fff;border-color:#C47A0C}
 .kcard[data-tilt]:hover{border-color:var(--orange);box-shadow:0 6px 22px rgba(255,107,43,.18)}
 </style>
 
+<!-- ════ DESIGN AUDIT OVERRIDES ════ -->
+<style>
+/* ── 0. CRITICAL BUG FIX: remove will-change that breaks display switching ── */
+.section{will-change:auto!important}
+.section.active{opacity:1!important}
+
+/* ── 1. WARM PALETTE ROOT OVERRIDES ── */
+:root{
+  --bg:#0e1420;
+  --sidebar:#0a0f1e;
+  --panel:#111d35;
+  --surface:#1a2540;
+  --dim:#1a2540;
+  --border:rgba(255,255,255,.05);
+  --orange:#E8A020;
+  --text:#ffffff;
+  --muted:#7d8798;
+  --secondary:#b4bccd;
+  --shadow:rgba(0,0,0,.15);
+  --radius:16px;
+}
+
+/* ── 2. BODY / GLOBAL TYPOGRAPHY ── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  letter-spacing:0.01em;
+  line-height:1.6;
+}
+
+/* ── 3. SECTION BG SOFTNESS ── */
+.section{background:transparent}
+#homeSection{background:linear-gradient(180deg,#0e1420,#111d35)!important}
+
+/* ── 4. GLASS TOPBAR ── */
+.topbar{
+  background:rgba(10,15,30,0.7)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+}
+.topbar-title{
+  color:var(--text)!important;
+  text-transform:none!important;
+  letter-spacing:0.01em!important;
+}
+
+/* ── 5. SIDEBAR ── */
+.sidebar{background:var(--sidebar)!important;border-right:1px solid rgba(255,255,255,.04)!important}
+
+/* ── 6. REMOVE ALL UPPERCASE ── */
+.nav-section,.kol-header,.home-stat-label,.an-stat-label,
+.modal-title,.field-label,.compose-label,.section-title,
+.tab-btn,.badge,.pill,.tag,.form-label,
+h1,h2,h3,h4,h5,h6{text-transform:none!important}
+
+/* ── 7. TEXT HIERARCHY ── */
+h1,h2,h3,.modal-title,.section-title,.page-title{color:#ffffff!important}
+p,.field-label,.compose-label,.form-label,.nav-label,
+.card-meta,.task-meta,.project-meta{color:var(--secondary)!important}
+.muted,.timestamp,.meta,.caption,.helper-text,
+.nav-section,.kol-header,.an-stat-label,.home-stat-label{color:var(--muted)!important}
+
+/* ── 8. REMOVE BORDERS → SHADOW+RADIUS SYSTEM ── */
+.kcard{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.kcard:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.project-card{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.project-card:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.task-card{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.task-card:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.modal-box,.modal-content{
+  border:none!important;
+  border-radius:18px!important;
+  box-shadow:0 16px 48px rgba(0,0,0,.4)!important;
+  padding:28px 32px!important;
+}
+.panel,.card,.info-card,.stat-card,.home-stat,.an-stat{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+}
+
+/* ── 9. GRID GAPS ── */
+.projects-grid,.tasks-grid,.members-grid,.stats-row,.home-stats,
+.kol-cards,.an-stats,.dash-grid{gap:20px!important}
+
+/* ── 10. ACTIVITY FEED — borderless, avatar left, timestamp bottom-right ── */
+.feed-item{
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:12px!important;
+  padding:10px 0!important;
+  border-bottom:1px solid rgba(255,255,255,.04)!important;
+  position:relative!important;
+}
+.feed-item:last-child{border-bottom:none!important}
+.feed-avatar,.feed-item .avatar{
+  flex-shrink:0!important;
+  width:36px!important;height:36px!important;
+  border-radius:50%!important;
+  align-self:flex-start!important;
+}
+.feed-body,.feed-content,.feed-text{
+  flex:1!important;
+  min-width:0!important;
+}
+.feed-time,.feed-timestamp{
+  position:absolute!important;
+  bottom:10px!important;right:0!important;
+  font-size:.72rem!important;
+  color:var(--muted)!important;
+}
+
+/* ── 11. YELLOW DISCIPLINE ── */
+/* keep orange ONLY on primary CTAs, active nav, alerts */
+.btn-primary,.btn-orange,.btn-cta{background:var(--orange)!important;color:#111!important;border-color:var(--orange)!important}
+.nav-item.active,.mob-nav-item.active{color:var(--orange)!important}
+.nav-item.active .mob-nav-icon{color:var(--orange)!important}
+/* everything else: mute away from orange */
+.btn-secondary,.btn-outline{
+  background:transparent!important;
+  color:var(--secondary)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+.badge:not(.badge-warn):not(.badge-alert),
+.status-badge:not(.status-pending):not(.status-overdue){
+  background:rgba(255,255,255,.07)!important;
+  color:var(--secondary)!important;
+}
+
+/* ── 12. MUTE SECONDARY COLORS ── */
+/* green: success only */
+.status-complete,.badge-success,.text-success{color:#22c55e!important}
+/* blue at 60% opacity */
+.text-blue,.badge-blue,.info,.status-info{color:rgba(96,165,250,.6)!important}
+/* purple at 60% opacity */
+.text-purple,.badge-purple{color:rgba(167,139,250,.6)!important}
+/* red at 60% opacity — keep full red on actual destructive buttons */
+.text-red:not(.btn),.badge-red:not(.btn){color:rgba(248,113,113,.6)!important}
+
+/* ── 13. SOFTNESS PASS ── */
+/* all interactive elements */
+a,button,.btn,.nav-item,.mob-nav-item,.tab-btn,
+.kcard,.project-card,.task-card,.feed-item,
+input,select,textarea,.form-control{
+  transition:all 0.2s ease!important;
+}
+/* soft shadows globally */
+*{box-shadow:none}
+.modal-box,
+.modal-content,
+.kcard,
+.project-card,
+.task-card,
+.panel,.card,.stat-card,.home-stat,.an-stat,.info-card{
+  box-shadow:0 2px 12px rgba(0,0,0,.15)!important;
+}
+
+/* ── 14. STATS CARDS CONTEXT LINE ── */
+.home-stat,.an-stat,.stat-card{position:relative;overflow:hidden}
+.home-stat .stat-context,.an-stat .stat-context,.stat-card .stat-context{
+  display:block;font-size:.72rem;color:var(--muted);margin-top:4px;
+}
+
+/* ── 15. MOBILE HEADER ── */
+@media(max-width:768px){
+  .topbar-search{width:100%!important;max-width:100%!important}
+  .topbar .warm-toggle-wrap{display:none!important}
+  .topbar .notif-btn span:not(.ri-notification-3-line){display:none!important}
+  .topbar-actions .notif-label{display:none!important}
+}
+
+/* ── 16. INPUT / FORM SOFTNESS ── */
+input,select,textarea,.form-control{
+  background:var(--surface)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  color:var(--text)!important;
+  padding:10px 14px!important;
+}
+input:focus,select:focus,textarea:focus,.form-control:focus{
+  outline:none!important;
+  border-color:var(--orange)!important;
+  box-shadow:0 0 0 3px rgba(232,160,32,.15)!important;
+}
+
+/* ── 17. KANBAN COLUMN HEADER SOFTNESS ── */
+.kol{
+  background:var(--panel)!important;
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:16px!important;
+}
+.kol-header{
+  color:var(--secondary)!important;
+  font-size:.75rem!important;
+  letter-spacing:0.04em!important;
+  margin-bottom:12px!important;
+}
+
+/* ── 18. NAV SIDEBAR LINKS ── */
+.nav-item{
+  border-radius:10px!important;
+  margin:1px 4px!important;
+  padding:9px 14px!important;
+  color:var(--secondary)!important;
+  transition:all 0.2s ease!important;
+}
+.nav-item:hover{background:rgba(255,255,255,.05)!important;color:#fff!important}
+.nav-item.active{background:rgba(232,160,32,.12)!important;color:var(--orange)!important}
+.nav-section{font-size:.68rem!important;letter-spacing:0.06em!important;padding:14px 14px 4px!important;color:var(--muted)!important}
+
+/* ── 19. REMOVE HOMEPAGE GRID BACKGROUND ── */
+#homeSection,#homeSection .hero-bg,.hero,.hero-bg{
+  background:linear-gradient(180deg,#0e1420,#111d35)!important;
+  background-image:none!important;
+}
+/* remove any grid overlay */
+#homeSection::before,.hero::before{display:none!important;content:none!important}
+
+/* ── 20. TOPBAR NOTIFICATION ICON ONLY ON MOBILE ── */
+@media(max-width:768px){
+  .notif-btn .notif-count-label,.notif-text{display:none!important}
+}
+
+/* ── 21. LETTER SPACING + LINE HEIGHT ON BODY TEXT ── */
+.card-body,.task-desc,.project-desc,.feed-text,
+.notif-body,.modal-body,.profile-bio,p{
+  letter-spacing:0.01em!important;
+  line-height:1.6!important;
+}
+</style>
+
 </head>
 <body>
 
