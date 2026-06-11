@@ -14,6 +14,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Micro-interaction libs (presentational only) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js" defer></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -521,6 +525,37 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 .home-stat-card:hover::after{transform:scaleX(1)}
 .home-stat-num{font-size:28px;font-weight:700;color:var(--orange);font-family:'IBM Plex Mono',monospace;line-height:1}
 .home-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+
+/* ══ WARM BEIGE / CHARCOAL THEME ══ */
+body.warm{--bg:#F5F0E8;--sidebar:#EDE8DF;--panel:#F8F5F0;--surface:#DDD8CF;--border:rgba(44,44,44,.13);--orange:#C47A0C;--green:#3D8B47;--text:#2C2C2C;--muted:rgba(44,44,44,.50);--dim:#DDD8CF}
+body.warm .hub,body.warm .center,body.warm .section{background:var(--bg)}
+body.warm .sidebar,body.warm .topbar,body.warm .right-panel,body.warm .rp-content,body.warm .rp-header{background:var(--panel)}
+body.warm .sidebar{border-right:1px solid var(--border)}
+body.warm .kol,body.warm .task-card,body.warm .modal,body.warm .email-item,body.warm .project-card,body.warm .feed-item,body.warm .notif-item{background:var(--panel);border-color:var(--border)}
+body.warm .msg-input{background:var(--surface);color:var(--text);border-color:var(--border)}
+body.warm .msg-input-area{background:var(--panel);border-top-color:var(--border)}
+/* warm theme toggle pill */
+.btn-warm{font-size:9px;padding:2px 8px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;border-radius:10px;font-family:var(--font);transition:all .2s;flex-shrink:0;letter-spacing:.3px;white-space:nowrap}
+.btn-warm:hover{border-color:var(--orange);color:var(--orange)}
+body.warm .btn-warm{background:#C47A0C;color:#fff;border-color:#C47A0C}
+
+/* ══ SVG LOGO CLIP ANIMATION ══ */
+#logoRevealRect{/* animated via GSAP */}
+
+/* ══ SCROLL-SNAP ACTIVITY FEED ══ */
+#feedList{scroll-snap-type:y proximity;scroll-behavior:smooth}
+.feed-item{scroll-snap-align:start}
+
+/* ══ GSAP SECTION TRANSITIONS ══ */
+.section{will-change:opacity,transform}
+
+/* ══ LOTTIE OVERLAY ══ */
+.lottie-card-overlay{position:absolute;inset:0;pointer-events:none;z-index:20;display:flex;align-items:center;justify-content:center;border-radius:inherit;overflow:hidden}
+
+/* ══ TILT: 3D PERSPECTIVE ON COLUMN + hover override ══ */
+.kol-cards{perspective:1000px}
+.kcard[data-tilt]{transform-style:preserve-3d}
+.kcard[data-tilt]:hover{border-color:var(--orange);box-shadow:0 6px 22px rgba(255,107,43,.18)}
 </style>
 
 </head>
@@ -626,7 +661,19 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
 
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo">PRODEEGEE</div>
+      <svg id="hubLogoSvg" viewBox="0 0 202 28" style="display:block;overflow:visible;width:202px;height:28px;margin-bottom:0" role="img" aria-label="PRODEEGEE">
+        <defs>
+          <clipPath id="logoRevealClip">
+            <rect id="logoRevealRect" x="-2" y="-4" width="0" height="36"/>
+          </clipPath>
+        </defs>
+        <!-- ghost stroke layer fades out after reveal -->
+        <text id="logoStrokeTxt" x="0" y="21" font-family="'Share Tech Mono',monospace" font-size="19" font-weight="700"
+          fill="none" stroke="var(--orange)" stroke-width="0.5" letter-spacing="2.8" opacity="0.22">PRODEEGEE</text>
+        <!-- fill layer revealed by animated clip -->
+        <text x="0" y="21" font-family="'Share Tech Mono',monospace" font-size="19" font-weight="700"
+          fill="var(--orange)" letter-spacing="2.8" clip-path="url(#logoRevealClip)">PRODEEGEE</text>
+      </svg>
       <div class="logo-sub">// TEAM HUB</div>
       <div class="user-row">
         <div class="avatar" id="sideAvatar">
@@ -720,7 +767,8 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <button class="notif-btn" onclick="switchSection('notifications')" id="notifBtn">
             <i class="ri-notification-3-line"></i><span class="notif-badge" id="notifBtnBadge">0</span>
           </button>
-          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"></button>
+          <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark theme"></button>
+          <button class="btn-warm" id="warmToggle" onclick="toggleWarmTheme()" title="Toggle warm beige theme">☕ Warm</button>
         </div>
       </div>
 
@@ -1089,9 +1137,16 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
       <!-- Theme -->
       <div style="background:var(--surface);border:1px solid var(--border);padding:16px;margin-bottom:16px">
         <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Appearance</div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <div style="font-size:12px;color:var(--text)">Light Mode</div>
           <button class="theme-toggle" onclick="toggleTheme()"></button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:12px;color:var(--text)">Warm Beige</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px">Beige #F5F0E8 · Charcoal #2C2C2C</div>
+          </div>
+          <button class="btn-warm" onclick="toggleWarmTheme()">☕ Warm</button>
         </div>
       </div>
 
@@ -5772,6 +5827,199 @@ cachedRefreshToken = session.refresh_token;
 window.location.href = '/login.html';
 }
 });
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MICRO-INTERACTIONS  — purely presentational, no backend
+     ═══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  // ── 1. GSAP SMOOTH SECTION TRANSITIONS ───────────────────────
+  // Observes style attribute changes on .section elements and
+  // animates the section in when it becomes visible.
+  function initGsapTransitions() {
+    if (typeof gsap === 'undefined') return;
+
+    const obs = new MutationObserver(muts => {
+      muts.forEach(m => {
+        if (m.attributeName !== 'style') return;
+        const el = m.target;
+        if (!el.classList.contains('section')) return;
+        // Fire only when section is made visible (display changes from 'none' to '')
+        if (el.style.display !== 'none' && el.classList.contains('active')) {
+          gsap.from(el, { opacity: 0, y: 14, duration: 0.38, ease: 'power2.out', clearProps: 'all', overwrite: true });
+        }
+      });
+    });
+
+    document.querySelectorAll('.section').forEach(s => {
+      obs.observe(s, { attributes: true, attributeFilter: ['style'] });
+    });
+  }
+
+  // ── 2. VANILLA TILT ON KANBAN CARDS ─────────────────────────
+  function applyTiltToCards(wrap) {
+    if (typeof VanillaTilt === 'undefined') return;
+    const fresh = wrap.querySelectorAll('.kcard:not([data-tilt])');
+    if (!fresh.length) return;
+    VanillaTilt.init(Array.from(fresh), {
+      max: 8,
+      speed: 400,
+      glare: false,
+      perspective: 900,
+      scale: 1.03
+    });
+  }
+
+  function initKanbanObserver() {
+    const wrap = document.getElementById('kanbanWrap');
+    if (!wrap) { setTimeout(initKanbanObserver, 300); return; }
+
+    const obs = new MutationObserver(muts => {
+      let hasNewCols = false;
+      for (const m of muts) {
+        if (m.type === 'childList') m.addedNodes.forEach(n => {
+          if (n.nodeType === 1) hasNewCols = true;
+        });
+      }
+      if (hasNewCols) {
+        // Wait one frame so all cards are in the DOM
+        requestAnimationFrame(() => {
+          applyTiltToCards(wrap);
+          detectStateChanges(wrap);
+        });
+      }
+    });
+    obs.observe(wrap, { childList: true, subtree: false });
+  }
+
+  // ── 3. LOTTIE STATE-CHANGE ANIMATIONS ───────────────────────
+  function makeLottieData(r, g, b, frames) {
+    return {
+      v:'5.7.4', fr:30, ip:0, op:frames, w:80, h:80, nm:'pulse', ddd:0, assets:[],
+      layers:[{
+        ddd:0, ind:1, ty:4, nm:'s', sr:1,
+        ks:{
+          o:{ a:1, k:[
+            {i:{x:[.5],y:[1]},o:{x:[.5],y:[0]},t:0,s:[0]},
+            {i:{x:[.5],y:[1]},o:{x:[.5],y:[0]},t:4,s:[85]},
+            {t:frames,s:[0]}
+          ]},
+          r:{a:0,k:0}, p:{a:0,k:[40,40,0]}, a:{a:0,k:[0,0,0]},
+          s:{ a:1, k:[
+            {i:{x:[.2,.2,.2],y:[1,1,1]},o:{x:[.5,.5,.5],y:[0,0,0]},t:0,s:[0,0,100]},
+            {t:frames, s:[300,300,100]}
+          ]}
+        },
+        ao:0,
+        shapes:[{ ty:'gr', it:[
+          {ty:'el',d:1,s:{a:0,k:[64,64]},p:{a:0,k:[0,0]},nm:'E'},
+          {ty:'fl',c:{a:0,k:[r,g,b,1]},o:{a:0,k:70},r:1,nm:'F'}
+        ], nm:'G' }],
+        ip:0, op:frames, st:0, bm:0
+      }]
+    };
+  }
+
+  const LOTTIE_CFG = {
+    done:     { rgb:[0.133,0.773,0.369], frames:30 },
+    claimed:  { rgb:[0.965,0.620,0.169], frames:22 },
+    progress: { rgb:[0.310,0.765,0.969], frames:22 }
+  };
+
+  function playLottieOnCard(card, type) {
+    if (typeof lottie === 'undefined') return;
+    if (card.querySelector('.lottie-card-overlay')) return; // debounce
+    const cfg = LOTTIE_CFG[type] || LOTTIE_CFG.done;
+    const [r,g,b] = cfg.rgb;
+    const overlay = document.createElement('div');
+    overlay.className = 'lottie-card-overlay';
+    const prevPos = card.style.position;
+    card.style.position = 'relative';
+    card.appendChild(overlay);
+    const anim = lottie.loadAnimation({
+      container: overlay,
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+      animationData: makeLottieData(r, g, b, cfg.frames)
+    });
+    anim.addEventListener('complete', () => {
+      overlay.remove();
+      card.style.position = prevPos;
+    });
+  }
+
+  // Track: taskId → columnId, to detect real state changes vs re-renders
+  const cardStateMap = new Map();
+  let lottieInitDone = false;
+
+  function detectStateChanges(wrap) {
+    const cards = wrap.querySelectorAll('.kcard');
+    cards.forEach(card => {
+      const m = (card.getAttribute('onclick') || '').match(/showTaskDetail\('([^']+)'\)/);
+      const id = m?.[1];
+      if (!id) return;
+      const col = card.closest('[id^="kol-"]')?.id;
+      if (!col) return;
+      const prev = cardStateMap.get(id);
+      cardStateMap.set(id, col);
+      if (!lottieInitDone || !prev || prev === col) return; // skip unchanged & initial load
+      const type = col === 'kol-Done' ? 'done'
+                 : col === 'kol-Claimed' ? 'claimed'
+                 : col === 'kol-In_Progress' ? 'progress'
+                 : null;
+      if (type) playLottieOnCard(card, type);
+    });
+    if (!lottieInitDone) lottieInitDone = true;
+  }
+
+  // ── 4. SVG LOGO DRAW ANIMATION ───────────────────────────────
+  function animateLogo() {
+    const rect = document.getElementById('logoRevealRect');
+    if (!rect || typeof gsap === 'undefined') return;
+    gsap.to(rect, {
+      attr: { width: 224 },
+      duration: 1.4,
+      ease: 'power2.inOut',
+      delay: 0.35,
+      onComplete() {
+        const stroke = document.getElementById('logoStrokeTxt');
+        if (stroke) gsap.to(stroke, { opacity: 0, duration: 0.5 });
+      }
+    });
+  }
+
+  // ── 5. WARM THEME TOGGLE ─────────────────────────────────────
+  window.toggleWarmTheme = function () {
+    const isWarm = document.body.classList.toggle('warm');
+    localStorage.setItem('hub_warm_theme', isWarm ? 'warm' : '');
+  };
+
+  function applyWarmTheme() {
+    if (localStorage.getItem('hub_warm_theme') === 'warm') {
+      document.body.classList.add('warm');
+    }
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────
+  applyWarmTheme();
+
+  function init() {
+    initGsapTransitions();
+    initKanbanObserver();
+    animateLogo();
+  }
+
+  // Run after all deferred scripts are ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 150));
+  } else {
+    setTimeout(init, 150);
+  }
 })();
 </script>
 
