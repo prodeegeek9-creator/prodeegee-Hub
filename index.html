@@ -30,7 +30,7 @@ body.light .sidebar,body.light .topbar,body.light .right-panel,body.light .rp-co
 body.light .sidebar{border-right:1px solid var(--border)}
 body.light .topbar{border-bottom:1px solid var(--border)}
 body.light .right-panel{border-left:1px solid var(--border)}
-body.light .kol,body.light .task-card,body.light .modal,body.light .email-item,body.light .project-card,body.light .feed-item,body.light .notif-item,body.light .notif-toast{background:var(--panel);border-color:var(--border)}
+body.light .kol,body.light .task-card,body.light .modal,body.light .email-item,body.light .project-card,body.light .feed-item,body.light .notif-item{background:var(--panel);border-color:var(--border)}
 body.light .msg-input{background:var(--panel);color:var(--text);border-color:var(--border)}
 body.light .msg-input-area{background:var(--panel);border-top-color:var(--border)}
 body.light .field-input{background:var(--surface);color:var(--text);border-color:var(--border)}
@@ -369,17 +369,29 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:48px;pointer-
 .mob-drawer.open{transform:translateX(0)}
 .mob-drawer-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 8px}
 
-/* ── NOTIFICATION TOAST (beautiful) ── */
-.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:400;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
+/* ── NOTIFICATION TOAST (yellow + black) ── */
+.notif-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:#ffd54f;border:2px solid #f9a825;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:400;min-width:280px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.4);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none}
 .notif-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
-.notif-toast-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(255,107,43,.15);border:1px solid rgba(255,107,43,.3)}
+.notif-toast-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:rgba(0,0,0,.1);border:1px solid rgba(0,0,0,.15)}
 .notif-toast-body{flex:1;min-width:0}
-.notif-toast-title{font-size:11px;color:var(--orange);font-weight:600;margin-bottom:2px;letter-spacing:.5px}
-.notif-toast-msg{font-size:11px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.notif-toast-time{font-size:9px;color:var(--muted);margin-top:2px}
-.notif-toast-close{color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0;padding:2px}
-@keyframes notifPulse{0%,100%{box-shadow:0 8px 32px rgba(0,0,0,.5)}50%{box-shadow:0 8px 32px rgba(255,107,43,.3)}}
+.notif-toast-title{font-size:11px;color:#1a1a1a;font-weight:700;margin-bottom:2px;letter-spacing:.5px}
+.notif-toast-msg{font-size:11px;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif-toast-time{font-size:9px;color:#5a4a00;margin-top:2px}
+.notif-toast-close{color:#333;cursor:pointer;font-size:14px;flex-shrink:0;padding:2px}
+@keyframes notifPulse{0%,100%{box-shadow:0 8px 32px rgba(0,0,0,.4)}50%{box-shadow:0 8px 32px rgba(249,168,37,.6),0 0 0 4px rgba(249,168,37,.2)}}
 .notif-toast.show{animation:notifPulse 2s ease 0.4s}
+
+/* ── HERO MOUSE ANIMATION ── */
+@keyframes mouseBob{0%,100%{transform:translateX(0) translateY(0)}25%{transform:translateX(6px) translateY(-4px)}50%{transform:translateX(-4px) translateY(-1px)}75%{transform:translateX(3px) translateY(-3px)}}
+@keyframes mouseType{0%{transform:rotate(-8deg) translateY(0)}100%{transform:rotate(8deg) translateY(-2px)}}
+@keyframes legsSwing{0%,40%,100%{transform:translateY(0) rotate(0deg);opacity:0}50%{transform:translateY(6px) rotate(10deg);opacity:1}62%{transform:translateY(14px) rotate(-12deg);opacity:1}72%{transform:translateY(16px) rotate(14deg);opacity:1}82%{transform:translateY(13px) rotate(-9deg);opacity:1}90%{transform:translateY(6px) rotate(4deg);opacity:.6}95%{transform:translateY(1px) rotate(0deg);opacity:.2}}
+@keyframes laptopGlow{0%,100%{opacity:.7}50%{opacity:1}}
+.hero-mouse-wrap{position:relative}
+.hero-mouse-char{position:absolute;bottom:-2px;right:28px;z-index:6;pointer-events:none;user-select:none;animation:mouseBob 4s ease-in-out infinite}
+.hero-mouse-inner{display:flex;flex-direction:column;align-items:center;position:relative}
+.hero-mouse-emoji{font-size:22px;line-height:1;animation:mouseType .55s ease-in-out infinite alternate;display:block}
+.hero-mouse-laptop{font-size:19px;line-height:1;margin-top:-3px;animation:laptopGlow 2s ease-in-out infinite;display:block}
+.hero-mouse-legs{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:13px;white-space:nowrap;animation:legsSwing 7s ease-in-out infinite}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -717,6 +729,7 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
     <div id="homeContent" style="padding:20px;display:flex;flex-direction:column;gap:16px;max-width:900px;margin:0 auto;width:100%">
 
       <!-- HERO: greeting + time + weather -->
+      <div class="hero-mouse-wrap">
       <div id="homeHero" style="position:relative;background:linear-gradient(135deg,var(--panel) 0%,var(--sidebar) 100%);border:1px solid var(--border);padding:28px 32px;overflow:hidden">
         <!-- gradient orb -->
         <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,158,11,.08) 0%,transparent 70%);pointer-events:none"></div>
@@ -748,6 +761,15 @@ input,select,textarea,.field-input,.compose-input{font-size:16px !important}
           <button class="btn sm" onclick="switchSection('projects')" style="font-size:10px;letter-spacing:1px">▦ PROJECTS</button>
         </div>
       </div>
+      <!-- Mouse character sitting at the bottom edge of the hero -->
+      <div class="hero-mouse-char">
+        <div class="hero-mouse-inner">
+          <span class="hero-mouse-emoji">🐭</span>
+          <span class="hero-mouse-laptop">💻</span>
+          <span class="hero-mouse-legs">🦵🦵</span>
+        </div>
+      </div>
+      </div><!-- end hero-mouse-wrap -->
 
       <!-- STATS ROW -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="homeStatsRow">
@@ -1620,6 +1642,11 @@ function isTeamLead() { return userRole() === 'team_lead'; }
 function canManageProjects() { return isAdmin() || isTeamLead(); }
 function canCreateProjects() { return isAdmin(); }
 function canManageMembers(projectCreatedBy) { return isAdmin() || (isTeamLead() && projectCreatedBy === currentUser.id); }
+function isLeadOfTeam(teamId) {
+  const team = teamsCache.find(t => t.id === teamId);
+  return !!team?.hub_team_members?.some(m => m.user_id === currentUser.id && m.role === 'lead');
+}
+function canManageTeam(teamId) { return canManageProjects() || isLeadOfTeam(teamId); }
 
 // ════════════════════════════════════════════════
 // PROFILE SECTION
@@ -2841,14 +2868,22 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false) {
 
 // ════════════════════════════════════════════════
 // SENT EMAILS
+
+function buildHubEmailHtml(title, contentHtml, ctaUrl = 'https://prodeegee-hub.pages.dev') {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif}.wrap{max-width:600px;margin:24px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.1)}.hdr{background:#0d1321;padding:20px 28px;border-bottom:4px solid #f59e0b}.hdr-title{color:#f59e0b;font-size:16px;font-weight:700;letter-spacing:1px;margin:0}.hdr-sub{color:#8899aa;font-size:11px;margin-top:4px}.body{padding:24px 28px;color:#333;font-size:14px;line-height:1.7}.body h2{color:#0d1321;font-size:18px;margin:0 0 12px}.body p{margin:0 0 10px}.cta{display:inline-block;margin:16px 0;padding:10px 22px;background:#f59e0b;color:#000;font-weight:700;font-size:13px;text-decoration:none;border-radius:5px;letter-spacing:.5px}.divider{border:none;border-top:1px solid #eee;margin:16px 0}.ftr{padding:14px 28px;background:#f9f9f9;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center}</style></head><body><div class="wrap"><div class="hdr"><div class="hdr-title">🐾 Prodeegee Hub</div><div class="hdr-sub">Team Workspace</div></div><div class="body">${contentHtml}<a href="${ctaUrl}" class="cta">Open Prodeegee Hub →</a></div><div class="ftr">© Prodeegee Hub · You received this because you are a workspace member</div></div></body></html>`;
+}
+
 // System email helper — automated hub emails (no sent_emails log, no toast)
 async function sendHubEmail(to, subject, body) {
   if (!to) return;
+  // Convert plain-text body to HTML paragraphs
+  const htmlContent = body.split('\n').map(l => l.trim() ? `<p>${l.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>` : '<br>').join('');
+  const html = buildHubEmailHtml(subject, htmlContent);
   try {
     await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body })
+      body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body, html })
     });
   } catch {}
 }
@@ -3019,7 +3054,7 @@ async function loadTeamOverview(projectId) {
       <div class="team-card-accent" style="background:${team.color || '#4fc3f7'}"></div>
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div class="team-card-name">${escHtml(team.name)}</div>
-        ${canManageProjects() ? `<span style="font-size:11px;cursor:pointer;color:var(--muted);padding:2px 6px" onclick="event.stopPropagation();openTeamSettings('${team.id}')">⚙</span>` : ''}
+        ${(canManageProjects() || team.hub_team_members?.some(m => m.user_id === currentUser.id && m.role === 'lead')) ? `<span style="font-size:11px;cursor:pointer;color:var(--muted);padding:2px 6px" onclick="event.stopPropagation();openTeamSettings('${team.id}')">⚙</span>` : ''}
       </div>
       <div class="team-card-desc">${escHtml(team.description || '')}</div>
       <div class="team-card-meta">
@@ -3082,7 +3117,7 @@ async function loadTeamMembers(teamId) {
     .select('user_id, role').eq('team_id', teamId);
   if (!members?.length) {
     rpContent.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:12px">No members yet</div>';
-    if (canManageProjects()) rpContent.innerHTML += `<button class="btn sm" style="margin:8px;width:calc(100% - 16px)" onclick="openAddTeamMemberModal('${teamId}')">+ Add Member</button>`;
+    if (canManageTeam(teamId)) rpContent.innerHTML += `<button class="btn sm" style="margin:8px;width:calc(100% - 16px)" onclick="openAddTeamMemberModal('${teamId}')">+ Add Member</button>`;
     return;
   }
   rpContent.innerHTML = members.map(m => {
@@ -3095,10 +3130,10 @@ async function loadTeamMembers(teamId) {
         <div style="font-size:11px;color:var(--text)">${escHtml(profile.full_name || '')}</div>
         <div style="font-size:9px;color:${m.role === 'lead' ? 'var(--orange)' : 'var(--muted)'}">${m.role === 'lead' ? '★ Lead' : 'Member'}</div>
       </div>
-      ${canManageProjects() && m.user_id !== currentUser.id ? `<span style="cursor:pointer;color:var(--muted);font-size:11px" onclick="removeTeamMember('${teamId}','${m.user_id}')">✕</span>` : ''}
+      ${canManageTeam(teamId) && m.user_id !== currentUser.id ? `<span style="cursor:pointer;color:var(--muted);font-size:11px" onclick="removeTeamMember('${teamId}','${m.user_id}')">✕</span>` : ''}
     </div>`;
   }).join('');
-  if (canManageProjects()) {
+  if (canManageTeam(teamId)) {
     rpContent.innerHTML += `<button class="btn sm" style="margin-top:10px;width:100%" onclick="openAddTeamMemberModal('${teamId}')">+ Add Member</button>`;
   }
 }
@@ -3372,7 +3407,7 @@ document.getElementById('rpContent').innerHTML = `<div style="margin-bottom:6px;
 ${isIncoming && originTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:#ce93d8;color:#000;margin-bottom:8px;letter-spacing:1px;display:inline-block">⬇ INCOMING · ${escHtml(originTeam.name)}</div>` : ''}
 ${isOutgoing && destTeam ? `<div style="font-size:9px;font-weight:700;padding:3px 8px;background:rgba(79,195,247,.18);color:#4fc3f7;margin-bottom:8px;letter-spacing:1px;display:inline-block;border:1px solid rgba(79,195,247,.3)">↗ SENT TO · ${escHtml(destTeam.name)}</div>` : ''}
 ${team && !isOutgoing ?`<div style="font-size:10px;color:${team.color||'#4fc3f7'};margin-bottom:10px">◈ ${escHtml(team.name)}</div>`: ''}
-${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} </div> ${(t.created_by === currentUser.id || canManageProjects()) ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
+${bodyHtml} <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:14px"> <div><span style="color:var(--muted)">Status: </span><span style="color:var(--orange)">${t.status}</span></div> <div><span style="color:var(--muted)">Priority: </span>${t.priority || '—'}</div> <div><span style="color:var(--muted)">Claimed by: </span>${claimed ? escHtml(claimed.full_name) : '<span style="color:#ffd54f">Unclaimed</span>'}</div> ${t.claimed_at ?`<div><span style="color:var(--muted)">Claimed at: </span>${new Date(t.claimed_at).toLocaleString()}</div>`: ''} <div><span style="color:var(--muted)">Due: </span><span style="color:#ffd54f">${t.due_date || '—'}</span></div> </div> <div style="display:flex;flex-direction:column;gap:6px"> ${canClaim ?`<button class="btn sm primary" onclick="claimTask('${t.id}')">⚡ Claim Task</button>`: ''} ${isMine && t.status !== 'Done' ?`<button class="btn sm" onclick="dropTask('${t.id}')">↩ Drop Task</button>`: ''} ${isMine && t.status === 'Claimed' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','In Progress')">→ Start Progress</button>`: ''} ${isMine && t.status === 'In Progress' ?`<button class="btn sm primary" onclick="moveTask('${t.id}','Review')">→ Submit for Review</button>`: ''} ${isReviewer && t.status === 'Review' ?`<button class="btn sm primary" style="background:var(--green);border-color:var(--green);color:#000" onclick="moveTask('${t.id}','Done')">✓ Confirm Done</button>`: ''} ${t.status === 'Review' && !isReviewer ?`<div style="font-size:10px;color:var(--muted)">Awaiting review confirmation</div>`: ''} ${(t.created_by === currentUser.id || canManageProjects()) && t.status !== 'Done' ?`<button class="btn sm" style="border-color:#ffd54f;color:#ffd54f" onclick="extendTaskDeadline('${t.id}')">📅 Extend Deadline</button>`: ''} ${isMine && t.status !== 'Done' && t.created_by !== currentUser.id ?`<button class="btn sm" style="border-color:var(--muted);color:var(--muted)" onclick="requestDeadlineExtension('${t.id}')">⏳ Request Extension</button>`: ''} </div> ${(t.created_by === currentUser.id || canManageProjects()) ?`<button class="btn danger sm" style="margin-top:10px;width:100%" onclick="deleteTask('${t.id}')">Delete</button>` : ''}
 <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
   <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
     <span>Attachments</span>
@@ -3548,6 +3583,41 @@ if (!confirm('Delete this task?')) return;
 await sb.from('hub_tasks').delete().eq('id', taskId);
 document.getElementById('rpContent').innerHTML = '<div style="color:var(--muted);font-size:11px;text-align:center;margin-top:32px">Task deleted</div>';
 await loadTasks();
+}
+
+async function extendTaskDeadline(taskId) {
+  const task = tasksCache.find(t => t.id === taskId);
+  if (!task) return;
+  const currentDue = task.due_date || '';
+  const newDate = prompt(`Extend deadline for "${task.title}"\n\nCurrent due date: ${currentDue || 'none'}\n\nEnter new due date (YYYY-MM-DD):`, currentDue);
+  if (!newDate || newDate === currentDue) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate.trim())) { showToast('Invalid date — use YYYY-MM-DD format', 'error'); return; }
+  const { error } = await sb.from('hub_tasks').update({ due_date: newDate.trim() }).eq('id', taskId);
+  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
+  await sb.from('task_activity').insert({ task_id: taskId, user_id: currentUser.id, action: 'deadline_extended', note: `${currentProfile.full_name} extended deadline from ${currentDue || 'none'} → ${newDate.trim()}` });
+  // Notify the worker if different person
+  if (task.claimed_by && task.claimed_by !== currentUser.id) {
+    await addNotification('deadline', `Deadline extended for "${task.title}" → ${newDate.trim()}`, taskId, task.claimed_by);
+  }
+  showToast(`Deadline extended to ${newDate.trim()} ✓`);
+  await loadTasks();
+  showTaskDetail(taskId);
+}
+
+async function requestDeadlineExtension(taskId) {
+  const task = tasksCache.find(t => t.id === taskId);
+  if (!task) return;
+  const reason = prompt(`Request deadline extension for:\n"${task.title}"\n\nCurrent due: ${task.due_date || 'none'}\n\nBriefly explain why you need more time:`);
+  if (!reason?.trim()) return;
+  const msg = `⏳ ${currentProfile.full_name} requests deadline extension for "${task.title}": ${reason.trim()}`;
+  await sb.from('task_activity').insert({ task_id: taskId, user_id: currentUser.id, action: 'extension_requested', note: msg });
+  // Notify task creator
+  if (task.created_by && task.created_by !== currentUser.id) {
+    await addNotification('deadline', msg, taskId, task.created_by);
+  }
+  // Notify team lead / admins
+  await notifyLeadAndAdmins(activeTeamId, 'deadline', msg, task.created_by ? [task.created_by] : [], taskId);
+  showToast('Extension request sent ✓');
 }
 
 async function populateAssigneeDropdown(forTeamId) {
@@ -3836,20 +3906,25 @@ async function notifyLeadAndAdmins(teamId, type, message, alreadyNotifiedIds = [
   await sb.from('notifications').insert([...targets].map(uid => ({ user_id: uid, type, message, reference_id: refId })));
 }
 
-async function sendTaskEmail(toEmail, taskTitle, fromName, taskBodyType, context) {
+async function sendTaskEmail(toEmail, taskTitle, fromName, taskBodyType, context, extraHtml = '') {
   if (!toEmail) return;
   const typeLabel = taskBodyType === 'code' ? ' [Code Task]' : '';
+  const subject = `New Task${typeLabel}: "${taskTitle}"`;
+  const plainBody = `Hello,\n\n${fromName} created a new task ${context}${typeLabel}:\n\n"${taskTitle}"\n\nLog in to Prodeegee Hub to view and take action on this task.\n\n— Prodeegee Hub`;
+  const contentHtml = `
+    <h2>New Task${typeLabel ? ` <span style="font-size:12px;color:#666">${typeLabel.trim()}</span>` : ''}</h2>
+    <p><strong>${escHtml(fromName)}</strong> created a new task <em>${context}</em>:</p>
+    <div style="margin:12px 0;padding:12px 16px;background:#f9f9f9;border-left:4px solid #f59e0b;border-radius:0 4px 4px 0">
+      <strong style="font-size:15px;color:#0d1321">${escHtml(taskTitle)}</strong>
+    </div>
+    <p style="color:#666">Log in to Prodeegee Hub to view and take action on this task.</p>
+    ${extraHtml}`;
+  const html = buildHubEmailHtml(subject, contentHtml);
   try {
     await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fromAddress: 'system@prodeegee.com',
-        fromName: 'Prodeegee Hub',
-        to: toEmail,
-        subject: `New Task${typeLabel}: "${taskTitle}"`,
-        body: `Hello,\n\n${fromName} created a new task ${context}${typeLabel}:\n\n"${taskTitle}"\n\nLog in to Prodeegee Hub to view and take action on this task.\n\n— Prodeegee Hub`
-      })
+      body: JSON.stringify({ fromAddress: 'system@prodeegee.com', fromName: 'Prodeegee Hub', to: toEmail, subject, body: plainBody, html })
     });
   } catch(e) { /* silent — email is best-effort */ }
 }
@@ -3862,21 +3937,55 @@ overlay.addEventListener('click', e => { if (e.target === overlay) overlay.class
 // ════════════════════════════════════════════════
 // NOTIFICATIONS
 // ════════════════════════════════════════════════
-async function loadNotifications() {
+const NOTIF_PAGE_SIZE = 10;
+let notifOffset = 0;
+let notifHasMore = false;
+
+async function loadNotifications(append = false) {
+if (!append) notifOffset = 0;
 const data = await sbFetch(
-`notifications?select=*&user_id=eq.${currentUser.id}&order=created_at.desc&limit=30`
+`notifications?select=*&user_id=eq.${currentUser.id}&order=created_at.desc&limit=${NOTIF_PAGE_SIZE + 1}&offset=${notifOffset}`
 ).catch(() => null);
-renderNotifications(data || []);
+const notifs = data || [];
+notifHasMore = notifs.length > NOTIF_PAGE_SIZE;
+if (notifHasMore) notifs.pop();
+notifOffset += notifs.length;
+renderNotifications(notifs, append);
 }
 
-function renderNotifications(notifs) {
-unreadNotifs = notifs.filter(n => !n.read).length;
-updateNotifBadge(unreadNotifs);
-document.getElementById('unreadNotifCount').textContent = unreadNotifs;
+async function loadMoreNotifications() {
+const btn = document.getElementById('notifShowMoreBtn');
+if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+await loadNotifications(true);
+}
+
+function renderNotifications(notifs, append = false) {
 const wrap = document.getElementById('notifListWrap');
-if (!notifs.length) { wrap.innerHTML = '<div class="empty-state"><div class="big">◉</div>No notifications yet</div>'; return; }
-const iconMap = { mention: '#', email: '✉', email_sent: '✉', task_assigned: '◈', deadline: '⚡', dm: '◎', project_update: '◈', review_reminder: '⏰' };
-wrap.innerHTML = notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}','${n.type}','${n.reference_id||''}')" style="cursor:pointer"><div class="notif-icon">${iconMap[n.type]||'◉'}</div><div style="flex:1;min-width:0"><div class="notif-text">${escHtml(n.message)}</div><div class="notif-when">${formatTime(n.created_at)}</div></div><div style="font-size:9px;color:var(--orange);flex-shrink:0;align-self:center">→</div></div>`).join('');
+if (!append) {
+  // Recalculate unread count from fresh load
+  const unreadEl = document.getElementById('unreadNotifCount');
+  // We only have the current page; fetch total unread separately
+  sbFetch(`notifications?select=id&user_id=eq.${currentUser.id}&read=eq.false`).then(all => {
+    const cnt = (all || []).length;
+    unreadNotifs = cnt;
+    updateNotifBadge(cnt);
+    if (unreadEl) unreadEl.textContent = cnt;
+  }).catch(() => {});
+}
+const iconMap = { mention:'😊', email:'📧', email_sent:'📤', task_assigned:'🎯', deadline:'⏰', dm:'😀', project_update:'📢', task_overdue:'😬', review_reminder:'👀' };
+const html = notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}','${n.type}','${n.reference_id||''}')" style="cursor:pointer"><div class="notif-icon">${iconMap[n.type]||'🔔'}</div><div style="flex:1;min-width:0"><div class="notif-text">${escHtml(n.message)}</div><div class="notif-when">${formatTime(n.created_at)}</div></div><div style="font-size:9px;color:var(--orange);flex-shrink:0;align-self:center">→</div></div>`).join('');
+if (!append) {
+  if (!notifs.length && !notifHasMore) { wrap.innerHTML = '<div class="empty-state"><div class="big">🔔</div>No notifications yet</div>'; return; }
+  wrap.innerHTML = html;
+} else {
+  const oldBtn = document.getElementById('notifShowMoreBtn');
+  if (oldBtn) oldBtn.parentNode.removeChild(oldBtn);
+  wrap.insertAdjacentHTML('beforeend', html);
+}
+if (notifHasMore) {
+  const btnHtml = `<div id="notifShowMoreBtn" style="padding:10px 16px;text-align:center"><button class="btn sm" style="width:100%" onclick="loadMoreNotifications()">Show more…</button></div>`;
+  wrap.insertAdjacentHTML('beforeend', btnHtml);
+}
 }
 
 function updateNotifBadge(count) {
@@ -3927,6 +4036,7 @@ if (type === 'dm') { refId ? navigateToDM(refId) : switchSection('dm'); return; 
 if ((type === 'task_assigned' || type === 'task_overdue' || type === 'review_reminder' || type === 'project_update') && refId) { navigateToTask(refId); return; }
 if (type === 'mention' && refId) { navigateToMessage(refId); return; }
 if (type === 'email' || type === 'email_sent') { switchSection('email'); return; }
+if (type === 'deadline' && refId) { navigateToTask(refId); return; }
 if (type === 'project_update' || type === 'deadline') switchSection('projects');
 }
 
@@ -5211,8 +5321,9 @@ if (dmNav) dmList.innerHTML = dmNav.innerHTML;
 // ── Beautiful notification toast ──────────────────
 let notifToastTimer = null;
 const notifIcons = {
-mention: '💬', dm: '◎', email_sent: '✉', task_assigned: '◈',
-deadline: '⚡', project_update: '◈', default: '◉'
+  mention: '😊', dm: '😀', email: '📧', email_sent: '📤',
+  task_assigned: '🎯', deadline: '⏰', project_update: '📢',
+  task_overdue: '😬', review_reminder: '👀', default: '🔔'
 };
 
 function showNotifToast(title, message, type) {
@@ -5227,12 +5338,10 @@ titleEl.textContent = title;
 msgEl.textContent   = message;
 timeEl.textContent  = 'Just now';
 
-// Color by type
-const colors = { mention: '#4fc3f7', dm: 'var(--green)', task_assigned: 'var(--orange)', default: 'var(--orange)' };
-const col = colors[type] || colors.default;
-iconEl.parentElement.style.background = col.replace(')', ',.15)').replace('(', 'a(').replace('vara', 'var');
-iconEl.parentElement.style.borderColor = col.replace(')', ',.3)').replace('(', 'a(').replace('vara', 'var');
-titleEl.style.color = col;
+// Reset any inline color overrides — toast is always yellow/black
+iconEl.parentElement.style.background = '';
+iconEl.parentElement.style.borderColor = '';
+titleEl.style.color = '';
 
 // Show with spring animation
 toast.classList.remove('show');
