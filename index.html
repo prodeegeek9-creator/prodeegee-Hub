@@ -860,7 +860,20 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
 }
 #hubLogoSvg.logo-flickering{animation:fluorFlicker 5s linear forwards}
 
-/* ── 25. NOTIFICATION READ STATE ── */
+/* ── 25. NAV ICON NOTIFICATION FLICKER ── */
+@keyframes notifIconFlicker{
+  0%,100%{opacity:1}
+  4%{opacity:0.15}5%{opacity:1}
+  15%{opacity:0.55}16%{opacity:1}
+  28%{opacity:0.05}29%{opacity:1}30%{opacity:0.35}31%{opacity:1}
+  48%{opacity:0.05}49%{opacity:1}50%{opacity:0.35}51%{opacity:1}
+  70%{opacity:0.75}71%{opacity:0.15}72%{opacity:1}
+  85%{opacity:0.25}86%{opacity:1}
+}
+.mob-nav-icon.icon-flickering{color:var(--orange)!important}
+.mob-nav-icon.icon-flickering i{animation:notifIconFlicker 5s linear forwards}
+
+/* ── 26. NOTIFICATION READ STATE ── */
 .notif-item:not(.unread){opacity:0.5;transition:opacity 0.2s ease}
 .notif-item.unread{opacity:1}
 </style>
@@ -3022,11 +3035,15 @@ async function loadInbox() {
     renderInboxList(normalised);
     unreadEmails = normalised.filter(e => e.unread).length;
     document.getElementById('statEmails').textContent = unreadEmails;
+    const mobEmailBadge = document.getElementById('mobbadge-email');
     if (unreadEmails > 0) {
       document.getElementById('emailBadge').textContent = unreadEmails;
       document.getElementById('emailBadge').style.display = 'inline-flex';
+      if (mobEmailBadge) { mobEmailBadge.textContent = unreadEmails; mobEmailBadge.style.display = 'inline-flex'; }
+      if (typeof triggerNavIconFlicker === 'function') triggerNavIconFlicker('mobnav-email');
     } else {
       document.getElementById('emailBadge').style.display = 'none';
+      if (mobEmailBadge) mobEmailBadge.style.display = 'none';
     }
   } catch (e) {
     document.getElementById('emailListItems').innerHTML =
@@ -4428,11 +4445,12 @@ if (notifHasMore) {
 
 function updateNotifBadge(count) {
 const b = document.getElementById('notifBadge');
-const mb = document.getElementById('mobbadge-notifs');
+const mb = document.getElementById('mobbadge-notif');
 const btn = document.getElementById('notifBtnBadge');
 if (b) { b.textContent = count; b.style.display = count > 0 ? 'inline-flex' : 'none'; }
 if (mb) { mb.textContent = count; mb.style.display = count > 0 ? 'inline-flex' : 'none'; }
 if (btn) { btn.textContent = count; btn.style.display = count > 0 ? 'flex' : 'none'; }
+if (count > 0 && typeof triggerNavIconFlicker === 'function') triggerNavIconFlicker('mobnav-menu');
 }
 
 async function addNotification(type, message, refId, targetUserId) {
@@ -5231,6 +5249,7 @@ function connectRealtime() {
           // different conversation — bump badge
           const badge = document.getElementById('mobbadge-dm');
           if (badge) { badge.textContent = parseInt(badge.textContent || 0) + 1; badge.style.display = 'inline-flex'; }
+          if (typeof triggerNavIconFlicker === 'function') triggerNavIconFlicker('mobnav-dm');
         }
       }
     })
@@ -6370,6 +6389,21 @@ window.location.href = '/login.html';
      MICRO-INTERACTIONS  — purely presentational, no backend
      ═══════════════════════════════════════════════════════ -->
 <script>
+// Global nav icon flicker — orange flash when a notification arrives,
+// 5-second animation then 1-minute cooldown per icon.
+const _navFlickerCooldown = {};
+function triggerNavIconFlicker(navId) {
+  const now = Date.now();
+  if (_navFlickerCooldown[navId] && now - _navFlickerCooldown[navId] < 60000) return;
+  const item = document.getElementById(navId);
+  if (!item) return;
+  const iconSpan = item.querySelector('.mob-nav-icon');
+  if (!iconSpan) return;
+  _navFlickerCooldown[navId] = now;
+  iconSpan.classList.add('icon-flickering');
+  setTimeout(() => iconSpan.classList.remove('icon-flickering'), 5100);
+}
+
 (function () {
   'use strict';
 
