@@ -558,6 +558,313 @@ body.warm .btn-warm{background:#C47A0C;color:#fff;border-color:#C47A0C}
 .kcard[data-tilt]:hover{border-color:var(--orange);box-shadow:0 6px 22px rgba(255,107,43,.18)}
 </style>
 
+<!-- ════ DESIGN AUDIT OVERRIDES ════ -->
+<style>
+/* ── 0. CRITICAL BUG FIX: remove will-change that breaks display switching ── */
+.section{will-change:auto!important}
+.section.active{opacity:1!important}
+
+/* ── 1. WARM PALETTE ROOT OVERRIDES ── */
+:root{
+  --bg:#0e1420;
+  --sidebar:#0a0f1e;
+  --panel:#111d35;
+  --surface:#1a2540;
+  --dim:#1a2540;
+  --border:rgba(255,255,255,.05);
+  --orange:#E8A020;
+  --text:#ffffff;
+  --muted:#7d8798;
+  --secondary:#b4bccd;
+  --shadow:rgba(0,0,0,.15);
+  --radius:16px;
+}
+
+/* ── 2. BODY / GLOBAL TYPOGRAPHY ── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  letter-spacing:0.01em;
+  line-height:1.6;
+}
+
+/* ── 3. SECTION BG SOFTNESS ── */
+.section{background:transparent}
+#homeSection{background:linear-gradient(180deg,#0e1420,#111d35)!important}
+
+/* ── 4. GLASS TOPBAR ── */
+.topbar{
+  background:rgba(10,15,30,0.7)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+}
+.topbar-title{
+  color:var(--text)!important;
+  text-transform:none!important;
+  letter-spacing:0.01em!important;
+}
+
+/* ── 5. SIDEBAR ── */
+.sidebar{background:var(--sidebar)!important;border-right:1px solid rgba(255,255,255,.04)!important}
+
+/* ── 6. REMOVE ALL UPPERCASE ── */
+.nav-section,.kol-header,.home-stat-label,.an-stat-label,
+.modal-title,.field-label,.compose-label,.section-title,
+.tab-btn,.badge,.pill,.tag,.form-label,
+h1,h2,h3,h4,h5,h6{text-transform:none!important}
+
+/* ── 7. TEXT HIERARCHY ── */
+h1,h2,h3,.modal-title,.section-title,.page-title{color:#ffffff!important}
+p,.field-label,.compose-label,.form-label,.nav-label,
+.card-meta,.task-meta,.project-meta{color:var(--secondary)!important}
+.muted,.timestamp,.meta,.caption,.helper-text,
+.nav-section,.kol-header,.an-stat-label,.home-stat-label{color:var(--muted)!important}
+
+/* ── 8. REMOVE BORDERS → SHADOW+RADIUS SYSTEM ── */
+.kcard{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.kcard:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.project-card{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.project-card:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.task-card{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+  transition:all 0.2s ease!important;
+}
+.task-card:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.25)!important;
+}
+.modal-box,.modal-content{
+  border:none!important;
+  border-radius:18px!important;
+  box-shadow:0 16px 48px rgba(0,0,0,.4)!important;
+  padding:28px 32px!important;
+}
+.panel,.card,.info-card,.stat-card,.home-stat,.an-stat{
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:20px 24px!important;
+}
+
+/* ── 9. GRID GAPS ── */
+.projects-grid,.tasks-grid,.members-grid,.stats-row,.home-stats,
+.kol-cards,.an-stats,.dash-grid{gap:20px!important}
+
+/* ── 10. ACTIVITY FEED — borderless, avatar left, timestamp bottom-right ── */
+.feed-item{
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:12px!important;
+  padding:10px 0!important;
+  border-bottom:1px solid rgba(255,255,255,.04)!important;
+  position:relative!important;
+}
+.feed-item:last-child{border-bottom:none!important}
+.feed-avatar,.feed-item .avatar{
+  flex-shrink:0!important;
+  width:36px!important;height:36px!important;
+  border-radius:50%!important;
+  align-self:flex-start!important;
+}
+.feed-body,.feed-content,.feed-text{
+  flex:1!important;
+  min-width:0!important;
+}
+.feed-time,.feed-timestamp{
+  position:absolute!important;
+  bottom:10px!important;right:0!important;
+  font-size:.72rem!important;
+  color:var(--muted)!important;
+}
+
+/* ── 11. YELLOW DISCIPLINE ── */
+/* keep orange ONLY on primary CTAs, active nav, alerts */
+.btn-primary,.btn-orange,.btn-cta{background:var(--orange)!important;color:#111!important;border-color:var(--orange)!important}
+.nav-item.active,.mob-nav-item.active{color:var(--orange)!important}
+.nav-item.active .mob-nav-icon{color:var(--orange)!important}
+/* everything else: mute away from orange */
+.btn-secondary,.btn-outline{
+  background:transparent!important;
+  color:var(--secondary)!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+.badge:not(.badge-warn):not(.badge-alert),
+.status-badge:not(.status-pending):not(.status-overdue){
+  background:rgba(255,255,255,.07)!important;
+  color:var(--secondary)!important;
+}
+
+/* ── 12. MUTE SECONDARY COLORS ── */
+/* green: success only */
+.status-complete,.badge-success,.text-success{color:#22c55e!important}
+/* blue at 60% opacity */
+.text-blue,.badge-blue,.info,.status-info{color:rgba(96,165,250,.6)!important}
+/* purple at 60% opacity */
+.text-purple,.badge-purple{color:rgba(167,139,250,.6)!important}
+/* red at 60% opacity — keep full red on actual destructive buttons */
+.text-red:not(.btn),.badge-red:not(.btn){color:rgba(248,113,113,.6)!important}
+
+/* ── 13. SOFTNESS PASS ── */
+/* all interactive elements */
+a,button,.btn,.nav-item,.mob-nav-item,.tab-btn,
+.kcard,.project-card,.task-card,.feed-item,
+input,select,textarea,.form-control{
+  transition:all 0.2s ease!important;
+}
+/* soft shadows globally */
+*{box-shadow:none}
+.modal-box,
+.modal-content,
+.kcard,
+.project-card,
+.task-card,
+.panel,.card,.stat-card,.home-stat,.an-stat,.info-card{
+  box-shadow:0 2px 12px rgba(0,0,0,.15)!important;
+}
+
+/* ── 14. STATS CARDS CONTEXT LINE ── */
+.home-stat,.an-stat,.stat-card{position:relative;overflow:hidden}
+.home-stat .stat-context,.an-stat .stat-context,.stat-card .stat-context{
+  display:block;font-size:.72rem;color:var(--muted);margin-top:4px;
+}
+
+/* ── 15. MOBILE HEADER ── */
+@media(max-width:768px){
+  .topbar-search{width:100%!important;max-width:100%!important}
+  .topbar .warm-toggle-wrap{display:none!important}
+  .topbar .notif-btn span:not(.ri-notification-3-line){display:none!important}
+  .topbar-actions .notif-label{display:none!important}
+}
+
+/* ── 16. INPUT / FORM SOFTNESS ── */
+input,select,textarea,.form-control{
+  background:var(--surface)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  color:var(--text)!important;
+  padding:10px 14px!important;
+}
+input:focus,select:focus,textarea:focus,.form-control:focus{
+  outline:none!important;
+  border-color:var(--orange)!important;
+  box-shadow:0 0 0 3px rgba(232,160,32,.15)!important;
+}
+
+/* ── 17. KANBAN COLUMN HEADER SOFTNESS ── */
+.kol{
+  background:var(--panel)!important;
+  border:none!important;
+  border-radius:var(--radius)!important;
+  box-shadow:0 2px 12px var(--shadow)!important;
+  padding:16px!important;
+}
+.kol-header{
+  color:var(--secondary)!important;
+  font-size:.75rem!important;
+  letter-spacing:0.04em!important;
+  margin-bottom:12px!important;
+}
+
+/* ── 18. NAV SIDEBAR LINKS ── */
+.nav-item{
+  border-radius:10px!important;
+  margin:1px 4px!important;
+  padding:9px 14px!important;
+  color:var(--secondary)!important;
+  transition:all 0.2s ease!important;
+}
+.nav-item:hover{background:rgba(255,255,255,.05)!important;color:#fff!important}
+.nav-item.active{background:rgba(232,160,32,.12)!important;color:var(--orange)!important}
+.nav-section{font-size:.68rem!important;letter-spacing:0.06em!important;padding:14px 14px 4px!important;color:var(--muted)!important}
+
+/* ── 19. REMOVE HOMEPAGE GRID BACKGROUND ── */
+#homeSection,#homeSection .hero-bg,.hero,.hero-bg{
+  background:linear-gradient(180deg,#0e1420,#111d35)!important;
+  background-image:none!important;
+}
+/* remove any grid overlay */
+#homeSection::before,.hero::before{display:none!important;content:none!important}
+
+/* ── 20. TOPBAR NOTIFICATION ICON ONLY ON MOBILE ── */
+@media(max-width:768px){
+  .notif-btn .notif-count-label,.notif-text{display:none!important}
+}
+
+/* ── 21. LETTER SPACING + LINE HEIGHT ON BODY TEXT ── */
+.card-body,.task-desc,.project-desc,.feed-text,
+.notif-body,.modal-body,.profile-bio,p{
+  letter-spacing:0.01em!important;
+  line-height:1.6!important;
+}
+
+/* ── 22. ACTIVITY FEED — constrain container height ── */
+#feedList{max-height:260px!important;overflow-y:auto!important}
+/* the wrapper panel above feedList must not grow unbounded */
+#feedList + *,#feedList{flex-shrink:0}
+
+/* ── 23. HERO CANDLE CHARACTER ── */
+.hero-candle-char{
+  position:absolute;bottom:-2px;right:28px;z-index:6;
+  pointer-events:none;user-select:none;
+  animation:candleFloat 3s ease-in-out infinite;
+}
+.hero-candle-inner{display:flex;flex-direction:column;align-items:center;gap:0}
+.candle-flame{
+  font-size:18px;line-height:1;display:block;
+  animation:flameFlicker 0.6s ease-in-out infinite alternate;
+  transform-origin:bottom center;
+}
+.candle-body{font-size:22px;line-height:1;display:block;margin-top:-4px}
+@keyframes candleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes flameFlicker{
+  0%{transform:scaleX(1) scaleY(1) rotate(-3deg);filter:brightness(1)}
+  50%{transform:scaleX(0.85) scaleY(1.15) rotate(2deg);filter:brightness(1.3)}
+  100%{transform:scaleX(1.1) scaleY(0.9) rotate(-1deg);filter:brightness(0.9)}
+}
+
+/* ── 24. LOGO FLICKER (fluorescent damaged tube) ── */
+@keyframes fluorFlicker{
+  0%,100%{opacity:1}
+  4%{opacity:0.2}5%{opacity:1}
+  15%{opacity:0.6}16%{opacity:1}
+  28%{opacity:0.05}29%{opacity:1}30%{opacity:0.4}31%{opacity:1}
+  48%{opacity:0.05}49%{opacity:1}50%{opacity:0.4}51%{opacity:1}
+  70%{opacity:0.8}71%{opacity:0.2}72%{opacity:1}
+  85%{opacity:0.3}86%{opacity:1}
+}
+#hubLogoSvg.logo-flickering{animation:fluorFlicker 5s linear forwards}
+
+/* ── 25. NOTIFICATION READ STATE ── */
+.notif-item:not(.unread){opacity:0.5;transition:opacity 0.2s ease}
+.notif-item.unread{opacity:1}
+</style>
+
 </head>
 <body>
 
@@ -731,9 +1038,11 @@ body.warm .btn-warm{background:#C47A0C;color:#fff;border-color:#C47A0C}
   </div>
 
   <div class="nav-section" style="margin-top:8px">Direct Messages</div>
-  <div id="dmNavList">
-    <div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading members...</div>
+  <div style="padding:4px 8px 2px">
+    <input id="dmSearchInput" class="field-input" placeholder="Search to message…" oninput="filterDmSearch(this.value)"
+      style="font-size:11px;padding:6px 10px;width:100%;box-sizing:border-box" />
   </div>
+  <div id="dmNavList" style="max-height:180px;overflow-y:auto"></div>
 </div>
 
 <div class="members-section">
@@ -810,11 +1119,17 @@ body.warm .btn-warm{background:#C47A0C;color:#fff;border-color:#C47A0C}
         </div>
       </div>
       <!-- Mouse character sitting at the bottom edge of the hero -->
-      <div class="hero-mouse-char">
+      <!-- day: mouse, night: candle — switched by JS on load -->
+      <div class="hero-mouse-char" id="heroMouseChar">
         <div class="hero-mouse-inner">
           <span class="hero-mouse-emoji">🐭</span>
           <span class="hero-mouse-laptop">💻</span>
-          <span class="hero-mouse-legs">🦵🦵</span>
+        </div>
+      </div>
+      <div class="hero-candle-char" id="heroCandleChar" style="display:none">
+        <div class="hero-candle-inner">
+          <span class="candle-flame">🔥</span>
+          <span class="candle-body">🕯️</span>
         </div>
       </div>
       </div><!-- end hero-mouse-wrap -->
@@ -1921,6 +2236,20 @@ async function loadAllProfiles() {
   await loadChannelNav();
 }
 
+function getProjectMateIds() {
+  const ids = new Set();
+  (projectsCache || []).forEach(proj => {
+    const isMyProject = myProjectIds.includes(proj.id);
+    if (!isMyProject) return;
+    (proj.hub_project_members || []).forEach(m => { if (m.user_id !== currentUser.id) ids.add(m.user_id); });
+  });
+  return ids;
+}
+
+function getProjectMateCount() {
+  return getProjectMateIds().size + 1; // +1 for self
+}
+
 const DEFAULT_CHANNELS = ['general', 'projects', 'social'];
 
 async function loadChannelNav() {
@@ -2026,15 +2355,38 @@ function renderMembers() {
 }
 
 function renderDMNav() {
+  // Sidebar now uses search-to-DM; just wire up badge IDs without flooding the list
   const nav = document.getElementById('dmNavList');
-  nav.innerHTML = allProfiles.map(p => `
+  // Show empty state — user types in the search box to find someone
+  nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">Type a name above ↑</div>';
+  const mobDM = document.getElementById('mobDMList');
+  if (mobDM) mobDM.innerHTML = allProfiles.map(p => `
     <div class="nav-item" id="dmnav-${p.id}" onclick="openDM('${p.id}','${escHtml(p.full_name)}')">
       <span class="nav-icon"><i class="ri-at-line"></i></span> ${p.full_name.split(' ')[0]}
       <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
     </div>
   `).join('');
-  const mobDM = document.getElementById('mobDMList');
-  if (mobDM) mobDM.innerHTML = nav.innerHTML;
+}
+
+function filterDmSearch(q) {
+  const nav = document.getElementById('dmNavList');
+  if (!nav) return;
+  const term = q.trim().toLowerCase();
+  if (!term) {
+    nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">Type a name above ↑</div>';
+    return;
+  }
+  const matches = allProfiles.filter(p => (p.full_name || '').toLowerCase().includes(term));
+  if (!matches.length) {
+    nav.innerHTML = '<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No match</div>';
+    return;
+  }
+  nav.innerHTML = matches.map(p => `
+    <div class="nav-item" id="dmnav-${p.id}" onclick="openDM('${p.id}','${escHtml(p.full_name)}');document.getElementById('dmSearchInput').value='';filterDmSearch('')">
+      <span class="nav-icon"><i class="ri-at-line"></i></span> ${escHtml(p.full_name.split(' ')[0])}
+      <span class="badge" id="dmbadge-${p.id}" style="display:none">0</span>
+    </div>
+  `).join('');
 }
 
 // ════════════════════════════════════════════════
@@ -2925,7 +3277,38 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false) {
 // SENT EMAILS
 
 function buildHubEmailHtml(title, contentHtml, ctaUrl = 'https://prodeegee-hub.pages.dev') {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif}.wrap{max-width:600px;margin:24px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.1)}.hdr{background:#0d1321;padding:20px 28px;border-bottom:4px solid #f59e0b}.hdr-title{color:#f59e0b;font-size:16px;font-weight:700;letter-spacing:1px;margin:0}.hdr-sub{color:#8899aa;font-size:11px;margin-top:4px}.body{padding:24px 28px;color:#333;font-size:14px;line-height:1.7}.body h2{color:#0d1321;font-size:18px;margin:0 0 12px}.body p{margin:0 0 10px}.cta{display:inline-block;margin:16px 0;padding:10px 22px;background:#f59e0b;color:#000;font-weight:700;font-size:13px;text-decoration:none;border-radius:5px;letter-spacing:.5px}.divider{border:none;border-top:1px solid #eee;margin:16px 0}.ftr{padding:14px 28px;background:#f9f9f9;border-top:1px solid #eee;font-size:11px;color:#999;text-align:center}</style></head><body><div class="wrap"><div class="hdr"><div class="hdr-title">🐾 Prodeegee Hub</div><div class="hdr-sub">Team Workspace</div></div><div class="body">${contentHtml}<a href="${ctaUrl}" class="cta">Open Prodeegee Hub →</a></div><div class="ftr">© Prodeegee Hub · You received this because you are a workspace member</div></div></body></html>`;
+  const ctaBtn = ctaUrl ? `<a href="${ctaUrl}" class="cta">Open Prodeegee Hub →</a>` : '';
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>
+body{margin:0;padding:0;background:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
+.wrap{max-width:600px;margin:24px auto;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.hdr{background:#0d1321;padding:22px 28px;border-bottom:3px solid #E8A020}
+.hdr-logo{color:#E8A020;font-size:17px;font-weight:700;letter-spacing:2px;margin:0;font-family:'Courier New',monospace}
+.hdr-sub{color:#7a8fa0;font-size:11px;margin-top:3px;letter-spacing:0.5px}
+.body{padding:28px 32px;color:#2c2c2c;font-size:14px;line-height:1.7}
+.body h2{color:#0d1321;font-size:18px;margin:0 0 14px;font-weight:700}
+.body h3{margin:20px 0 8px;font-size:13px;letter-spacing:0.03em;padding-bottom:5px;border-bottom-width:2px;border-bottom-style:solid}
+.body p{margin:0 0 10px}
+.body table{width:100%;border-collapse:collapse}
+.cta{display:inline-block;margin:18px 0 8px;padding:11px 24px;background:#E8A020;color:#000;font-weight:700;font-size:13px;text-decoration:none;border-radius:6px;letter-spacing:.5px}
+.rec-box{background:#fffbf0;border:1px solid #f0d070;border-radius:8px;padding:14px 18px;margin:8px 0}
+.rec-item{font-size:13px;color:#333;margin:0 0 8px;padding-left:14px;border-left:3px solid #E8A020}
+.rec-item:last-child{margin-bottom:0}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:0.5px}
+.divider{border:none;border-top:1px solid #eee;margin:18px 0}
+.ftr{padding:14px 28px;background:#f7f8fa;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center}
+</style></head><body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-logo">PRODEEGEE HUB</div>
+    <div class="hdr-sub">// Team Workspace</div>
+  </div>
+  <div class="body">
+    ${contentHtml}
+    ${ctaBtn}
+  </div>
+  <div class="ftr">© Prodeegee Hub &nbsp;·&nbsp; You received this because you are a workspace member</div>
+</div>
+</body></html>`;
 }
 
 // System email helper — automated hub emails (no sent_emails log, no toast)
@@ -4054,6 +4437,13 @@ if (btn) { btn.textContent = count; btn.style.display = count > 0 ? 'flex' : 'no
 
 async function addNotification(type, message, refId, targetUserId) {
 const userId = targetUserId || currentUser.id;
+// Dedup: skip if an unread notification of same type+ref already exists for this user
+if (refId) {
+  const { data: dup } = await sb.from('notifications')
+    .select('id').eq('user_id', userId).eq('type', type)
+    .eq('reference_id', refId).eq('read', false).limit(1);
+  if (dup && dup.length > 0) return;
+}
 await sb.from('notifications').insert({ user_id: userId, type, message, reference_id: refId });
 const titles = { mention: 'Mention', dm: 'Direct Message', task_assigned: 'Task Assigned', project_update: 'Project Update', email_sent: 'Email Sent', deadline: 'Deadline' };
 const title = titles[type] || 'Prodeegee Hub';
@@ -4076,16 +4466,17 @@ sendPush([proj.created_by], title, message);
 }
 
 async function markNotifRead(notifId, type, refId) {
-// Optimistic update: grey out the item and decrement badge immediately
+// Optimistic: grey out immediately, decrement badge — no full reload
 const el = document.querySelector(`.notif-item[onclick*="'${notifId}'"]`);
-if (el && el.classList.contains('unread')) {
-  el.classList.remove('unread');
+const wasUnread = el && el.classList.contains('unread');
+if (el) { el.classList.remove('unread'); el.style.opacity = '0.5'; }
+if (wasUnread) {
   unreadNotifs = Math.max(0, unreadNotifs - 1);
   updateNotifBadge(unreadNotifs);
-  document.getElementById('unreadNotifCount').textContent = unreadNotifs;
+  const uc = document.getElementById('unreadNotifCount');
+  if (uc) uc.textContent = unreadNotifs;
 }
 await sb.from('notifications').update({ read: true }).eq('id', notifId);
-loadNotifications();
 // Navigate to the relevant content
 if (type === 'dm') { refId ? navigateToDM(refId) : switchSection('dm'); return; }
 if ((type === 'task_assigned' || type === 'task_overdue' || type === 'review_reminder' || type === 'project_update') && refId) { navigateToTask(refId); return; }
@@ -4444,9 +4835,9 @@ sbFetch(`task_activity?select=action,hub_tasks(title)&created_at=gte.${yesterday
 const setEl = (id, val) => { const e = el(id); if (e) e.textContent = val; };
 setEl('hstatTasks',  Array.isArray(myTasks) ? myTasks.length : '—');
 setEl('hstatNotifs', Array.isArray(notifs)  ? notifs.length  : '—');
-setEl('hstatOnline', allProfiles.length + 1);
+setEl('hstatOnline', getProjectMateCount());
 setEl('hstatEmails', el('emailBadge')?.textContent || '0');
-setEl('statOnline',  allProfiles.length + 1);
+setEl('statOnline',  getProjectMateCount());
 
 // My Tasks
 const tasksEl = el('homeMyTasks');
@@ -4518,10 +4909,11 @@ if (digestBody) {
 // Fire digest email (once per day, non-blocking)
 setTimeout(() => sendDailyDigest(), 3000);
 
-// Team online
+// Team online — filtered to project mates only
 const teamEl = el('homeTeamOnline');
 if (teamEl) {
-const allPeople = [currentProfile, ...allProfiles].filter(Boolean);
+const mateIds = getProjectMateIds();
+const allPeople = [currentProfile, ...allProfiles].filter(p => p && (p.id === currentUser.id || mateIds.has(p.id)));
 const online = onlineUserIds.size > 0
   ? allPeople.filter(p => onlineUserIds.has(p.id))
   : allPeople.slice(0, 1);
@@ -4540,39 +4932,183 @@ const digestKey = `digest_${currentUser.id}_${todayStr}`;
 if (localStorage.getItem(digestKey)) return;
 const to = currentProfile.notification_email || currentProfile.email;
 if (!to) return;
+
 const uid = currentUser.id;
 const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
 const yesterdayStr = yesterday.toISOString().slice(0, 10);
-const [overdue, dueToday, assigned, yAct] = await Promise.all([
-  sbFetch(`hub_tasks?select=id,title,priority,status&status=neq.Done&due_date=lt.${todayStr}&due_date=not.is.null&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=due_date.asc&limit=10`).catch(() => []),
-  sbFetch(`hub_tasks?select=id,title,priority,status&status=neq.Done&due_date=eq.${todayStr}&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=created_at.asc&limit=10`).catch(() => []),
-  sbFetch(`hub_tasks?select=id,title,priority,status&assigned_to=eq.${uid}&status=neq.Done&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=10`).catch(() => []),
-  sbFetch(`task_activity?select=action,note,hub_tasks(title)&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=100`).catch(() => []),
-]);
-const o = Array.isArray(overdue) ? overdue : [];
-const d = Array.isArray(dueToday) ? dueToday : [];
-const a = Array.isArray(assigned) ? assigned : [];
-const y = Array.isArray(yAct) ? yAct : [];
-const yDone = y.filter(x => x.action === 'done').length;
-const yCreated = y.filter(x => x.action === 'created').length;
 const name = currentProfile.full_name || 'Team Member';
+const hour = new Date().getHours();
+const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 const dateLabel = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
-const subject = `Prodeegee Hub Digest — ${dateLabel}`;
-const taskLine = t => `  • ${t.title} [${t.priority || 'No priority'} · ${t.status}]`;
-const sections = [];
-if (o.length) sections.push(`⚠ OVERDUE (${o.length})\n${o.map(taskLine).join('\n')}`);
-if (d.length) sections.push(`📅 DUE TODAY (${d.length})\n${d.map(taskLine).join('\n')}`);
-if (a.length) sections.push(`◈ NEWLY ASSIGNED TO YOU\n${a.map(taskLine).join('\n')}`);
-const yLines = [];
-if (yDone) yLines.push(`  ✓ ${yDone} task${yDone>1?'s':''} completed`);
-if (yCreated) yLines.push(`  + ${yCreated} task${yCreated>1?'s':''} created`);
-if (yLines.length) sections.push(`▸ YESTERDAY\n${yLines.join('\n')}`);
-if (!sections.length) { localStorage.setItem(digestKey, '1'); return; }
-const body = `Hello ${name},\n\nHere's your daily digest for ${dateLabel}:\n\n${sections.join('\n\n')}\n\n— Prodeegee Hub\nhttps://prodeegee-hub.pages.dev`;
+
+// Fetch everything in parallel
+const [overdueRaw, dueTodayRaw, assignedRaw, yActRaw, unreadNotifsRaw, recentDMsRaw, doneByOthersRaw] = await Promise.all([
+  sbFetch(`hub_tasks?select=id,title,priority,status,due_date,assigned_to&status=neq.Done&due_date=lt.${todayStr}&due_date=not.is.null&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=due_date.asc&limit=10`).catch(() => []),
+  sbFetch(`hub_tasks?select=id,title,priority,status,due_date&status=neq.Done&due_date=eq.${todayStr}&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})&order=created_at.asc&limit=10`).catch(() => []),
+  sbFetch(`hub_tasks?select=id,title,priority,status&assigned_to=eq.${uid}&status=neq.Done&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=10`).catch(() => []),
+  sbFetch(`task_activity?select=action,hub_tasks(title)&user_id=eq.${uid}&created_at=gte.${yesterdayStr}T00:00:00Z&created_at=lt.${todayStr}T00:00:00Z&order=created_at.desc&limit=100`).catch(() => []),
+  sbFetch(`notifications?select=id,type,message&user_id=eq.${uid}&read=eq.false&order=created_at.desc&limit=5`).catch(() => []),
+  sbFetch(`chat_messages?select=id,body,sender_id,created_at&dm_to=eq.${uid}&created_at=gte.${yesterdayStr}T00:00:00Z&order=created_at.desc&limit=30`).catch(() => []),
+  // Tasks I created that workers marked Done recently (needs my review/push)
+  sbFetch(`hub_tasks?select=id,title,status,claimed_by&created_by=eq.${uid}&status=eq.Done&updated_at=gte.${yesterdayStr}T00:00:00Z&limit=5`).catch(() => []),
+]);
+
+const overdue   = Array.isArray(overdueRaw)       ? overdueRaw       : [];
+const dueToday  = Array.isArray(dueTodayRaw)       ? dueTodayRaw      : [];
+const assigned  = Array.isArray(assignedRaw)       ? assignedRaw      : [];
+const yAct      = Array.isArray(yActRaw)           ? yActRaw          : [];
+const unreadN   = Array.isArray(unreadNotifsRaw)   ? unreadNotifsRaw  : [];
+const recentDMs = Array.isArray(recentDMsRaw)      ? recentDMsRaw     : [];
+const doneByOth = Array.isArray(doneByOthersRaw)   ? doneByOthersRaw  : [];
+
+// Unclaimed tasks in my teams
+const myTeamIds = (teamsCache || []).filter(t => myProjectIds.includes(t.project_id)).map(t => t.id);
+let unclaimed = [];
+if (myTeamIds.length) {
+  const u = await sbFetch(`hub_tasks?select=id,title,priority,team_id&status=eq.Queue&claimed_by=is.null&team_id=in.(${myTeamIds.join(',')})&order=created_at.desc&limit=8`).catch(() => []);
+  unclaimed = Array.isArray(u) ? u : [];
+}
+
+// DM digest — group by sender
+const dmSenders = {};
+recentDMs.forEach(m => {
+  if (!dmSenders[m.sender_id]) dmSenders[m.sender_id] = { count: 0, preview: '' };
+  dmSenders[m.sender_id].count++;
+  if (!dmSenders[m.sender_id].preview) dmSenders[m.sender_id].preview = (m.body || '').slice(0, 70);
+});
+const dmSenderIds = Object.keys(dmSenders);
+
+// Yesterday stats
+const yDone    = yAct.filter(a => a.action === 'done').length;
+const yCreated = yAct.filter(a => a.action === 'created').length;
+const yInProg  = yAct.filter(a => a.action === 'status_changed').length;
+const yTotal   = yDone + yCreated + yInProg;
+
+// Skip digest if truly nothing to report
+const hasContent = overdue.length || dueToday.length || assigned.length ||
+  dmSenderIds.length || unreadN.length || unclaimed.length || yTotal || doneByOth.length;
+if (!hasContent) { localStorage.setItem(digestKey, '1'); return; }
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const priColor = { High:'#ef5350', Medium:'#f59e0b', Low:'#22c55e' };
+const priDot = p => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${priColor[p]||'#999'};flex-shrink:0;margin-right:6px;vertical-align:middle"></span>`;
+const esc = s => escHtml(s || '');
+
+const sHead = (icon, text, color) =>
+  `<h3 style="margin:22px 0 8px;font-size:13px;color:${color};border-bottom:2px solid ${color};padding-bottom:5px;text-transform:none;letter-spacing:0.02em">${icon}&nbsp; ${text}</h3>`;
+
+const taskRow = t => `
+  <tr>
+    <td style="padding:8px 0;border-bottom:1px solid #f0f0f0;vertical-align:top">
+      <div>${priDot(t.priority)}<strong style="font-size:13px;color:#1a1a2e">${esc(t.title)}</strong></div>
+      <div style="font-size:11px;color:#888;margin-top:3px;padding-left:14px">
+        ${t.priority||'No priority'} · ${t.status||''}${t.due_date ? ' · Due <strong>' + t.due_date + '</strong>' : ''}
+      </div>
+    </td>
+  </tr>`;
+
+// ── Build recommendations ────────────────────────────────────────────────────
+const recs = [];
+if (overdue.length === 1)
+  recs.push(`You have 1 overdue task: <strong>${esc(overdue[0].title)}</strong>. Prioritise this today — pick it up or reach out to the task owner.`);
+else if (overdue.length > 1)
+  recs.push(`You have <strong>${overdue.length} overdue tasks</strong>. Start with the oldest: <strong>${esc(overdue[0].title)}</strong>. Clear the backlog to keep the team unblocked.`);
+
+doneByOth.forEach(t => {
+  const worker = allProfiles.find(p => p.id === t.claimed_by);
+  const wName = worker?.full_name || 'a team member';
+  recs.push(`<strong>${esc(t.title)}</strong> was completed by <strong>${esc(wName)}</strong> and is awaiting your review. Close it out or give feedback to keep the workflow moving.`);
+});
+
+if (unclaimed.length >= 3)
+  recs.push(`<strong>${unclaimed.length} tasks in your teams are unclaimed</strong>. Assign them or nudge the team — unassigned work tends to stall.`);
+
+if (dmSenderIds.length) {
+  const n = dmSenderIds.length;
+  recs.push(`You have unread messages from <strong>${n} person${n > 1 ? 's' : ''}</strong>. Unread DMs can block teammates — reply when you get a moment.`);
+}
+
+if (unreadN.length >= 5)
+  recs.push(`You have <strong>${unreadN.length}+ unread notifications</strong>. Review them to stay on top of mentions, tasks, and project updates.`);
+
+// ── Assemble HTML body ───────────────────────────────────────────────────────
+let html = `
+  <p style="font-size:16px;color:#1a1a2e;margin:0 0 4px"><strong>${esc(greeting)}, ${esc(name)}!</strong></p>
+  <p style="font-size:13px;color:#666;margin:0 0 20px">Here's your Prodeegee Hub briefing for <strong>${dateLabel}</strong>.</p>`;
+
+if (overdue.length) {
+  html += sHead('🚨', `Overdue Tasks — ${overdue.length}`, '#ef5350');
+  html += `<table><tbody>${overdue.map(taskRow).join('')}</tbody></table>`;
+}
+
+if (dueToday.length) {
+  html += sHead('📅', `Due Today — ${dueToday.length}`, '#f59e0b');
+  html += `<table><tbody>${dueToday.map(taskRow).join('')}</tbody></table>`;
+} else {
+  html += `<p style="font-size:12px;color:#22c55e;margin:10px 0">✓ Nothing due today — you're on track!</p>`;
+}
+
+if (assigned.length) {
+  html += sHead('◈', `Newly Assigned to You — ${assigned.length}`, '#6366f1');
+  html += `<table><tbody>${assigned.map(taskRow).join('')}</tbody></table>`;
+}
+
+if (unclaimed.length) {
+  html += sHead('⚡', `Unclaimed in Your Teams — ${unclaimed.length}`, '#f59e0b');
+  html += `<table><tbody>${unclaimed.map(taskRow).join('')}</tbody></table>`;
+}
+
+if (dmSenderIds.length) {
+  html += sHead('💬', `Pending Direct Messages — ${recentDMs.length}`, '#4fc3f7');
+  html += `<table><tbody>`;
+  dmSenderIds.forEach(sid => {
+    const sender = allProfiles.find(p => p.id === sid);
+    const sName = sender?.full_name || 'A teammate';
+    const { count, preview } = dmSenders[sid];
+    html += `<tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0">
+      <strong style="font-size:13px;color:#1a1a2e">${esc(sName)}</strong>
+      <span style="font-size:11px;color:#888"> — ${count} message${count>1?'s':''}</span>
+      <div style="font-size:11px;color:#888;margin-top:3px;font-style:italic">"${esc(preview)}${count>1?'…':''}"</div>
+    </td></tr>`;
+  });
+  html += `</tbody></table>`;
+}
+
+if (unreadN.length) {
+  const nIcon = { mention:'💬', email:'📧', task_assigned:'🎯', deadline:'⏰', dm:'💌', project_update:'📢', task_overdue:'⚠️', review_reminder:'👀' };
+  html += sHead('🔔', `Unread Notifications — ${unreadN.length}+`, '#ce93d8');
+  html += `<table><tbody>`;
+  unreadN.forEach(n => {
+    html += `<tr><td style="padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#333">
+      ${nIcon[n.type]||'🔔'}&nbsp; ${esc(n.message)}
+    </td></tr>`;
+  });
+  html += `</tbody></table>`;
+}
+
+if (yTotal) {
+  html += sHead('✅', 'Your Activity Yesterday', '#22c55e');
+  html += `<table><tbody>`;
+  if (yDone)    html += `<tr><td style="padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#22c55e">✓&nbsp; ${yDone} task${yDone>1?'s':''} completed</td></tr>`;
+  if (yCreated) html += `<tr><td style="padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#f59e0b">+&nbsp; ${yCreated} task${yCreated>1?'s':''} created</td></tr>`;
+  if (yInProg)  html += `<tr><td style="padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;color:#4fc3f7">→&nbsp; ${yInProg} task${yInProg>1?'s':''} progressed</td></tr>`;
+  html += `</tbody></table>`;
+}
+
+if (recs.length) {
+  html += sHead('💡', 'Recommendations', '#E8A020');
+  html += `<div class="rec-box">`;
+  recs.forEach(r => { html += `<p class="rec-item">💡&nbsp; ${r}</p>`; });
+  html += `</div>`;
+}
+
+const fullHtml = buildHubEmailHtml(`Prodeegee Hub Digest — ${dateLabel}`, html, null);
+const subject  = `Prodeegee Hub Digest — ${dateLabel}`;
 await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject, body })
+  body: JSON.stringify({ fromAddress: 'hub@prodeegee.com', fromName: 'Prodeegee Hub', to, subject,
+    body: `Daily digest for ${dateLabel}. Log in to review your tasks, messages, and activity.`, html: fullHtml })
 }).catch(() => {});
 localStorage.setItem(digestKey, '1');
 }
@@ -4635,7 +5171,7 @@ if (locEl) locEl.textContent = '';
 // ════════════════════════════════════════════════
 function updateStats() {
 const el = document.getElementById('statOnline');
-if (el) el.textContent = allProfiles.length + 1;
+if (el) el.textContent = getProjectMateCount();
 }
 
 // ════════════════════════════════════════════════
@@ -6020,6 +6556,39 @@ window.location.href = '/login.html';
   } else {
     setTimeout(init, 150);
   }
+})();
+</script>
+
+<script>
+// ════ TIME-BASED HERO CHARACTER + LOGO FLICKER ════
+(function() {
+  function applyHeroChar() {
+    const h = new Date().getHours();
+    const isNight = h >= 20 || h < 6;
+    const mouseEl = document.getElementById('heroMouseChar');
+    const candleEl = document.getElementById('heroCandleChar');
+    if (!mouseEl || !candleEl) return;
+    mouseEl.style.display = isNight ? 'none' : '';
+    candleEl.style.display = isNight ? '' : 'none';
+  }
+
+  function startLogoFlicker() {
+    const svg = document.getElementById('hubLogoSvg');
+    if (!svg) return;
+    svg.classList.add('logo-flickering');
+    svg.addEventListener('animationend', () => svg.classList.remove('logo-flickering'), { once: true });
+  }
+
+  // Apply on load
+  document.addEventListener('DOMContentLoaded', () => {
+    applyHeroChar();
+    // Flicker logo every 30 seconds, lasts 5 seconds
+    setInterval(startLogoFlicker, 30000);
+    // Re-check hero char every hour
+    setInterval(applyHeroChar, 3600000);
+  });
+  // Also apply immediately if DOM already ready
+  if (document.readyState !== 'loading') applyHeroChar();
 })();
 </script>
 
