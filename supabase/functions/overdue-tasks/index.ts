@@ -94,8 +94,9 @@ Deno.serve(async (_req) => {
 
     for (const sub of subs || []) {
       try {
+        const subObj = typeof sub.subscription === 'string' ? JSON.parse(sub.subscription) : sub.subscription
         await webpush.sendNotification(
-          JSON.parse(sub.subscription),
+          subObj,
           JSON.stringify({
             title: '⛔ Task Auto-Dropped',
             body: 'A task you held was overdue by 2+ days and has been returned to the queue.',
@@ -180,8 +181,9 @@ Deno.serve(async (_req) => {
         : `${tasks.length} tasks are overdue and will be auto-dropped tomorrow`
 
       try {
+        const subObj = typeof sub.subscription === 'string' ? JSON.parse(sub.subscription) : sub.subscription
         await webpush.sendNotification(
-          JSON.parse(sub.subscription),
+          subObj,
           JSON.stringify({
             title: '⚠️ Task Due Date Warning',
             body,
