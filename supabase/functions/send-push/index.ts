@@ -2,16 +2,26 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore
 import webpush from 'npm:web-push'
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+}
+
 Deno.serve(async (req) => {
-  // Only allow POST
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS })
+  }
+
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { status: 405, headers: CORS })
   }
 
   // Verify auth token
   const authHeader = req.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
-    return new Response('Unauthorized', { status: 401 })
+    return new Response('Unauthorized', { status: 401, headers: CORS })
   }
 
   const supabase = createClient(
@@ -23,7 +33,7 @@ Deno.serve(async (req) => {
   const token = authHeader.slice(7)
   const { data: { user }, error: authErr } = await supabase.auth.getUser(token)
   if (authErr || !user) {
-    return new Response('Unauthorized', { status: 401 })
+    return new Response('Unauthorized', { status: 401, headers: CORS })
   }
 
   const vapidPublic  = Deno.env.get('VAPID_PUBLIC_KEY')
@@ -32,7 +42,7 @@ Deno.serve(async (req) => {
   if (!vapidPublic || !vapidPrivate) {
     return new Response(JSON.stringify({ error: 'Push not configured' }), {
       status: 503,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   }
 
@@ -42,7 +52,7 @@ Deno.serve(async (req) => {
   try {
     body = await req.json()
   } catch {
-    return new Response('Bad request', { status: 400 })
+    return new Response('Bad request', { status: 400, headers: CORS })
   }
 
   const { user_id, title, body: msgBody, url } = body
@@ -51,7 +61,7 @@ Deno.serve(async (req) => {
   if (!userIds.length || !title) {
     return new Response(JSON.stringify({ error: 'user_id and title are required' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   }
 
@@ -64,7 +74,7 @@ Deno.serve(async (req) => {
   if (subsErr) {
     return new Response(JSON.stringify({ error: subsErr.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...CORS, 'Content-Type': 'application/json' },
     })
   }
 
@@ -103,6 +113,6 @@ Deno.serve(async (req) => {
 
   return new Response(
     JSON.stringify({ sent, failed, expired_removed: expiredIds.length }),
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { ...CORS, 'Content-Type': 'application/json' } }
   )
 })
