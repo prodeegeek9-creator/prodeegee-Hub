@@ -3952,14 +3952,14 @@ loadTaskActivity(taskId);
 async function claimTask(taskId) {
 const t = tasksCache.find(t => t.id === taskId);
 if (!t) return;
-// Enforce one active task per user
+// Enforce max 3 active tasks per user
 const { data: activeTasks } = await sb.from('hub_tasks')
   .select('id, title')
   .eq('claimed_by', currentUser.id)
   .in('status', ['Claimed', 'In Progress'])
-  .limit(1);
-if (activeTasks?.length) {
-  showToast(`You already have an active task: "${activeTasks[0].title}". Complete or drop it first.`, 'error');
+  .limit(3);
+if (activeTasks?.length >= 3) {
+  showToast(`You already have 3 active tasks in your queue. Complete or drop one first.`, 'error');
   return;
 }
 const { error } = await sb.from('hub_tasks').update({
