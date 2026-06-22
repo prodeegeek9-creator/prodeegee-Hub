@@ -3323,8 +3323,7 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false, cc = ''
   if (status) status.textContent = 'Sending...';
 
   try {
-    const payload = { fromAddress: fromAddr, fromName, to, subject, body };
-    if (cc) payload.cc = cc;
+    const payload = { fromAddress: fromAddr, fromName, to, subject, body, cc: cc || '' };
     const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
