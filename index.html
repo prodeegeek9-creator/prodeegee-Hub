@@ -3122,8 +3122,15 @@ function replyToEmail(i) {
 // GMAIL — SEND
 // ════════════════════════════════════════════════
 // ── Email To field autocomplete ──────────────────
-let emailToResolved = null; // { label, emails[] } when a team/project is selected
+// maps label → emails[] for each resolved group/person token in the To field
+let emailToResolvedMap = {};
 let _activeEmailInput = null;
+
+function _currentToken(input) {
+  // returns the text after the last comma (the token being typed right now)
+  const parts = input.value.split(',');
+  return parts[parts.length - 1].trim();
+}
 
 function initEmailToAutocomplete() {
   ['composeTo', 'modalTo'].forEach(inputId => {
@@ -3144,14 +3151,14 @@ function initEmailToAutocomplete() {
       menu.style.left = r.left + 'px';
       menu.style.width = r.width + 'px';
     };
-    input.addEventListener('input', () => { emailToResolved = null; reposition(); handleEmailToInput(input, menu); });
-    input.addEventListener('focus', () => { if (input.value.trim()) { reposition(); handleEmailToInput(input, menu); } });
+    input.addEventListener('input', () => { reposition(); handleEmailToInput(input, menu); });
+    input.addEventListener('focus', () => { if (_currentToken(input)) { reposition(); handleEmailToInput(input, menu); } });
     input.addEventListener('blur', () => setTimeout(() => { menu.style.display = 'none'; }, 200));
   });
 }
 
 function handleEmailToInput(inputEl, menu) {
-  const q = inputEl.value.trim().toLowerCase();
+  const q = _currentToken(inputEl).toLowerCase();
   _activeEmailInput = inputEl;
   if (!q) { menu.style.display = 'none'; return; }
 
@@ -3218,9 +3225,28 @@ function selectEmailTarget(menuId, idx) {
   const menu = document.getElementById(menuId);
   const item = menu?._etItems?.[idx];
   if (!item || !_activeEmailInput) return;
-  _activeEmailInput.value = item.label;
-  emailToResolved = { label: item.label, emails: item.emails };
+  // Replace the last (current) token with the selected label
+  const parts = _activeEmailInput.value.split(',');
+  parts[parts.length - 1] = ' ' + item.label;
+  _activeEmailInput.value = parts.join(',').replace(/^,\s*/, '') + ', ';
+  emailToResolvedMap[item.label] = item.emails;
   menu.style.display = 'none';
+  _activeEmailInput.focus();
+}
+
+function resolveToAddresses(toValue) {
+  // Split by comma, resolve each token via map or treat as plain email
+  const tokens = toValue.split(',').map(t => t.trim()).filter(Boolean);
+  const addresses = [];
+  tokens.forEach(token => {
+    if (emailToResolvedMap[token]) {
+      addresses.push(...emailToResolvedMap[token]);
+    } else {
+      addresses.push(token);
+    }
+  });
+  emailToResolvedMap = {};
+  return addresses;
 }
 
 async function sendEmail() {
@@ -3229,9 +3255,7 @@ async function sendEmail() {
   const subject = document.getElementById('composeSubject').value.trim();
   const body = document.getElementById('composeBodyText').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
-  emailToResolved = null;
-  await sendEmailToAddresses(addresses, subject, body, 'sendingStatus', cc);
+  await sendEmailToAddresses(resolveToAddresses(to), subject, body, 'sendingStatus', cc);
 }
 
 async function sendModalEmail() {
@@ -3240,9 +3264,7 @@ async function sendModalEmail() {
   const subject = document.getElementById('modalSubject').value.trim();
   const body = document.getElementById('modalBody').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
-  emailToResolved = null;
-  const ok = await sendEmailToAddresses(addresses, subject, body, 'modalSendStatus', cc);
+  const ok = await sendEmailToAddresses(resolveToAddresses(to), subject, body, 'modalSendStatus', cc);
   if (ok) closeModal('composeModal');
 }
 
