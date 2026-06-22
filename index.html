@@ -3182,11 +3182,13 @@ function handleEmailToInput(inputEl, menu) {
   // Individual people
   [currentProfile, ...allProfiles].forEach(p => {
     if (!p) return;
+    const name = p.full_name || '';
     const email = p.prodeegee_email || p.email || '';
-    if (p.full_name.toLowerCase().includes(q) || email.toLowerCase().includes(q)) {
-      rows.push({ type: 'person', label: p.full_name, sub: email, emails: [email],
-        color: stringToColor(p.id),
-        initials: p.full_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) });
+    if (!email) return;
+    if (name.toLowerCase().includes(q) || email.toLowerCase().includes(q)) {
+      const initials = name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+      rows.push({ type: 'person', label: name || email, sub: email, emails: [email],
+        color: stringToColor(p.id), initials });
     }
   });
 
@@ -3250,14 +3252,26 @@ function selectEmailTarget(menuId, idx) {
 }
 
 function resolveAddresses(value) {
-  // Split by comma, expand group labels via map, fall back to plain email
+  if (!value) return [];
   const tokens = value.split(',').map(t => t.trim()).filter(Boolean);
   const addresses = [];
   tokens.forEach(token => {
     if (emailToResolvedMap[token]) {
       addresses.push(...emailToResolvedMap[token]);
-    } else {
+    } else if (token.includes('@')) {
       addresses.push(token);
+    } else {
+      // Try to match a project name directly (case-insensitive) in case user typed without selecting
+      const proj = projectsCache.find(p => p.name.toLowerCase() === token.toLowerCase());
+      if (proj) {
+        const memberIds = (proj.hub_project_members || []).map(m => m.user_id);
+        const emails = [currentProfile, ...allProfiles]
+          .filter(p => p && memberIds.includes(p.id))
+          .map(p => p.prodeegee_email || p.email).filter(Boolean);
+        addresses.push(...emails);
+      } else {
+        showToast(`"${token}" is not a valid email or known group — skipped`, 'error');
+      }
     }
   });
   return addresses;
