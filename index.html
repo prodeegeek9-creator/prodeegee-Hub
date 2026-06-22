@@ -5095,13 +5095,29 @@ content.innerHTML = buildRangeTabs() + `
   </div>
 </div>
 
-<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Member Leaderboard</div>
+<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Member Leaderboard · click a member for their full report</div>
 ${members.length ? members.map(m => {
   const total = m.done + m.active + m.overdue;
   const rate = total ? Math.round(m.done / total * 100) : 0;
-  const initials = m.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  return '<div class="an-member-card"><div class="an-member-head"><div class="msg-av" style="background:' + stringToColor(m.id) + ';width:32px;height:32px;font-size:11px;flex-shrink:0;border-radius:8px">' + initials + '</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(m.name) + '</div><div style="font-size:10px;color:var(--muted)">' + total + ' task' + (total !== 1 ? 's' : '') + ' · ' + rate + '% complete</div></div>' + (m.overdue ? '<div style="font-size:9px;background:#ef4444;color:#fff;padding:2px 7px;border-radius:10px;font-weight:700">' + m.overdue + ' OVERDUE</div>' : '') + '</div><div class="an-bar-wrap"><div class="an-bar-row"><div class="an-bar-label">Done</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.done / maxTotal * 100) + '%;background:var(--green)"></div></div><div class="an-bar-count">' + m.done + '</div></div><div class="an-bar-row"><div class="an-bar-label">Active</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.active / maxTotal * 100) + '%;background:var(--orange)"></div></div><div class="an-bar-count">' + m.active + '</div></div><div class="an-bar-row"><div class="an-bar-label" style="color:#ef4444">Overdue</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.overdue / maxTotal * 100) + '%;background:#ef4444"></div></div><div class="an-bar-count" style="color:#ef4444">' + m.overdue + '</div></div></div></div>';
+  const initials = (m.name||'?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  return '<div class="an-member-card" style="cursor:pointer" onclick="openMemberReport(\'' + m.id + '\',\'' + escHtml(m.name).replace(/'/g,"\\'") + '\')">' +
+    '<div class="an-member-head">' +
+      '<div class="msg-av" style="background:' + stringToColor(m.id) + ';width:32px;height:32px;font-size:11px;flex-shrink:0;border-radius:8px">' + initials + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;font-weight:600;color:var(--text)">' + escHtml(m.name) + '</div>' +
+        '<div style="font-size:10px;color:var(--muted)">' + total + ' task' + (total !== 1 ? 's' : '') + ' · ' + rate + '% complete · click for full report</div>' +
+      '</div>' +
+      (m.overdue ? '<div style="font-size:9px;background:#ef4444;color:#fff;padding:2px 7px;border-radius:10px;font-weight:700">' + m.overdue + ' OVERDUE</div>' : '') +
+      '<div style="font-size:18px;color:var(--orange);padding-left:8px">→</div>' +
+    '</div>' +
+    '<div class="an-bar-wrap">' +
+      '<div class="an-bar-row"><div class="an-bar-label">Done</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.done/maxTotal*100) + '%;background:var(--green)"></div></div><div class="an-bar-count">' + m.done + '</div></div>' +
+      '<div class="an-bar-row"><div class="an-bar-label">Active</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.active/maxTotal*100) + '%;background:var(--orange)"></div></div><div class="an-bar-count">' + m.active + '</div></div>' +
+      '<div class="an-bar-row"><div class="an-bar-label" style="color:#ef4444">Overdue</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + Math.round(m.overdue/maxTotal*100) + '%;background:#ef4444"></div></div><div class="an-bar-count" style="color:#ef4444">' + m.overdue + '</div></div>' +
+    '</div>' +
+  '</div>';
 }).join('') : '<div style="color:var(--muted);font-size:12px;padding:16px">No members with claimed tasks yet</div>'}`;
+
 }
 
 function buildRangeTabs() {
@@ -5143,6 +5159,195 @@ return '<svg viewBox="0 0 300 60" style="width:100%;height:70px;overflow:visible
   '<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:2px">' +
   buckets.map((b, i) => (i === 0 || i === bucketCount - 1) ? '<span>' + b.label + '</span>' : '<span></span>').join('') +
   '</div>';
+}
+
+// ════════════════════════════════════════════════
+// MEMBER PROGRESS REPORT
+// ════════════════════════════════════════════════
+async function openMemberReport(memberId, memberName) {
+  const content = document.getElementById('analyticsContent');
+  if (!content) return;
+  content.innerHTML = '<div class="loading" style="padding:40px"><div class="spinner"></div></div>';
+
+  const today = new Date().toISOString().split('T')[0];
+  const initials = (memberName||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const color = stringToColor(memberId);
+
+  const [tasks, activity, teamMemberships, projectMemberships] = await Promise.all([
+    sbFetch(`hub_tasks?select=*,hub_projects(name)&or=(claimed_by.eq.${memberId},assigned_to.eq.${memberId})&order=created_at.desc`).catch(() => []),
+    sbFetch(`task_activity?select=*,hub_tasks(title)&user_id=eq.${memberId}&order=created_at.desc&limit=30`).catch(() => []),
+    sbFetch(`hub_team_members?select=*,hub_teams(name,color,hub_projects(name))&user_id=eq.${memberId}`).catch(() => []),
+    sbFetch(`hub_project_members?select=*,hub_projects(id,name,status)&user_id=eq.${memberId}`).catch(() => []),
+  ]);
+
+  const allTasks  = Array.isArray(tasks) ? tasks : [];
+  const acts      = Array.isArray(activity) ? activity : [];
+  const teams     = Array.isArray(teamMemberships) ? teamMemberships : [];
+  const projects  = Array.isArray(projectMemberships) ? projectMemberships : [];
+
+  // Core stats
+  const done     = allTasks.filter(t => t.status === 'Done').length;
+  const active   = allTasks.filter(t => t.status !== 'Done' && !(t.due_date && t.due_date < today)).length;
+  const overdue  = allTasks.filter(t => t.status !== 'Done' && t.due_date && t.due_date < today).length;
+  const total    = allTasks.length;
+  const rate     = total ? Math.round(done / total * 100) : 0;
+  const inProg   = allTasks.filter(t => t.status === 'In Progress').length;
+  const review   = allTasks.filter(t => t.status === 'Review').length;
+
+  // Avg completion time (days) for Done tasks that have updated_at & created_at
+  const doneTasks = allTasks.filter(t => t.status === 'Done' && t.created_at && t.updated_at);
+  const avgDays = doneTasks.length
+    ? (doneTasks.reduce((s, t) => s + (new Date(t.updated_at) - new Date(t.created_at)), 0) / doneTasks.length / 86400000).toFixed(1)
+    : null;
+
+  // Priority breakdown
+  const priC = { High: 0, Medium: 0, Low: 0 };
+  allTasks.forEach(t => { if (priC[t.priority] !== undefined) priC[t.priority]++; });
+
+  // Per-project breakdown
+  const projMap = {};
+  allTasks.forEach(t => {
+    const pname = t.hub_projects?.name || 'No Project';
+    if (!projMap[pname]) projMap[pname] = { done: 0, total: 0 };
+    projMap[pname].total++;
+    if (t.status === 'Done') projMap[pname].done++;
+  });
+  const projRows = Object.entries(projMap).sort((a, b) => b[1].total - a[1].total);
+
+  // Status breakdown
+  const sc = { Queue: 0, Claimed: 0, 'In Progress': 0, Review: 0, Done: 0 };
+  allTasks.forEach(t => { if (sc[t.status] !== undefined) sc[t.status]++; });
+  const scColors = { Queue:'#64748b', Claimed:'#f59e0b', 'In Progress':'#4fc3f7', Review:'#a78bfa', Done:'#22c55e' };
+
+  // Active tasks (not done), sorted by overdue first then due date
+  const activeTasks = allTasks
+    .filter(t => t.status !== 'Done')
+    .sort((a, b) => {
+      const aOver = a.due_date && a.due_date < today;
+      const bOver = b.due_date && b.due_date < today;
+      if (aOver && !bOver) return -1;
+      if (!aOver && bOver) return 1;
+      return (a.due_date || '9999') < (b.due_date || '9999') ? -1 : 1;
+    });
+
+  const priColors = { High:'#ef4444', Medium:'#f59e0b', Low:'#22c55e' };
+
+  content.innerHTML = `
+    <!-- Back + header -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <button class="btn sm" onclick="loadAnalytics()" style="font-size:10px">← Back</button>
+      <span style="font-size:10px;color:var(--orange);letter-spacing:3px;text-transform:uppercase;flex:1">▦ Member Report</span>
+      <span style="font-size:10px;color:var(--muted)">${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</span>
+    </div>
+
+    <!-- Profile card -->
+    <div style="background:var(--panel);border:1px solid var(--border);padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px">
+      <div class="msg-av" style="background:${color};width:52px;height:52px;font-size:18px;flex-shrink:0;border-radius:12px">${initials}</div>
+      <div style="flex:1">
+        <div style="font-size:18px;font-weight:700;color:var(--text)">${escHtml(memberName)}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">${teams.map(m=>escHtml(m.hub_teams?.name||'')).filter(Boolean).join(' · ') || 'No teams'}</div>
+        <div style="font-size:10px;color:var(--muted)">${projects.map(m=>escHtml(m.hub_projects?.name||'')).filter(Boolean).join(', ') || 'No projects'}</div>
+      </div>
+      ${overdue ? `<div style="background:#ef4444;color:#fff;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700">${overdue} OVERDUE</div>` : `<div style="background:var(--green);color:#000;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700">ON TRACK</div>`}
+    </div>
+
+    <!-- KPI stats -->
+    <div class="an-overview" style="margin-bottom:16px">
+      <div class="an-stat"><div class="an-stat-num">${total}</div><div class="an-stat-label">Total Tasks</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--green)">${done}</div><div class="an-stat-label">Completed</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#ef4444">${overdue}</div><div class="an-stat-label">Overdue</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${rate}%</div><div class="an-stat-label">Completion Rate</div></div>
+    </div>
+    <div class="an-overview" style="margin-bottom:16px">
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--orange)">${active}</div><div class="an-stat-label">Active</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${inProg}</div><div class="an-stat-label">In Progress</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#a78bfa">${review}</div><div class="an-stat-label">In Review</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--muted)">${avgDays !== null ? avgDays + 'd' : '—'}</div><div class="an-stat-label">Avg Completion</div></div>
+    </div>
+
+    <!-- Trend + Status pipeline -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Completion Trend</div>
+        ${buildTrendChart(allTasks.filter(t=>t.status==='Done'), analyticsRange || 90)}
+      </div>
+      <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Pipeline</div>
+        ${Object.entries(sc).map(([s,n]) => {
+          const pct = total ? Math.round(n/total*100) : 0;
+          return '<div class="an-bar-row" style="margin-bottom:7px"><div class="an-bar-label">' + s + '</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + pct + '%;background:' + scColors[s] + '"></div></div><div class="an-bar-count" style="color:' + scColors[s] + '">' + n + '</div></div>';
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Priority + By project -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">By Priority</div>
+        ${Object.entries(priC).map(([p,n]) => {
+          const pct = total ? Math.round(n/total*100) : 0;
+          return '<div class="an-bar-row" style="margin-bottom:7px"><div class="an-bar-label" style="color:' + priColors[p] + '">' + p + '</div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + pct + '%;background:' + priColors[p] + '"></div></div><div class="an-bar-count">' + n + '</div></div>';
+        }).join('')}
+      </div>
+      <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">By Project</div>
+        ${projRows.length ? projRows.map(([name, p]) => {
+          const pct = p.total ? Math.round(p.done/p.total*100) : 0;
+          return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text);margin-bottom:3px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + escHtml(name) + '</span><span style="color:var(--muted);flex-shrink:0;margin-left:6px">' + p.done + '/' + p.total + ' · ' + pct + '%</span></div><div class="an-bar-track"><div class="an-bar-fill" style="width:' + pct + '%;background:var(--orange)"></div></div></div>';
+        }).join('') : '<div style="font-size:11px;color:var(--muted)">No project data</div>'}
+      </div>
+    </div>
+
+    <!-- Teams -->
+    ${teams.length ? `
+    <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Teams</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${teams.map(m => {
+          const t = m.hub_teams || {};
+          const proj = t.hub_projects?.name ? ' · ' + t.hub_projects.name : '';
+          return '<div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);padding:5px 10px;border-radius:4px"><div style="width:8px;height:8px;border-radius:50%;background:' + (t.color||'#4fc3f7') + '"></div><span style="font-size:11px">' + escHtml(t.name||'') + '</span><span style="font-size:9px;color:var(--muted)">' + escHtml(proj) + '</span></div>';
+        }).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Active tasks -->
+    <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Active Tasks (${activeTasks.length})</div>
+      ${activeTasks.length ? activeTasks.slice(0, 20).map(t => {
+        const isOver = t.due_date && t.due_date < today;
+        const dueStr = t.due_date ? (isOver ? '⚠ Overdue ' + t.due_date : '📅 ' + t.due_date) : '';
+        const proj   = t.hub_projects?.name || '';
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">' +
+          '<div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:' + (priColors[t.priority]||'var(--muted)') + '"></div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escHtml(t.title) + '</div>' +
+            '<div style="font-size:9px;color:var(--muted);margin-top:2px">' + (proj ? escHtml(proj) + ' · ' : '') + (dueStr ? '<span style="color:' + (isOver?'#ef4444':'var(--muted)') + '">' + dueStr + '</span>' : '') + '</div>' +
+          '</div>' +
+          '<div style="font-size:9px;padding:2px 7px;border-radius:10px;background:var(--surface);color:' + (scColors[t.status]||'var(--muted)') + ';flex-shrink:0">' + escHtml(t.status) + '</div>' +
+        '</div>';
+      }).join('') : '<div style="font-size:11px;color:var(--green)">✓ No active tasks</div>'}
+    </div>
+
+    <!-- Recent activity -->
+    <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Recent Activity</div>
+      ${acts.length ? acts.map(a => {
+        const actColors = { created:'var(--orange)', claimed:'#4fc3f7', dropped:'var(--muted)', status_changed:'#ffd54f', comment:'#ce93d8', done:'var(--green)' };
+        const taskTitle = a.hub_tasks?.title ? '"' + escHtml(a.hub_tasks.title) + '"' : '';
+        return '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px">' +
+          '<div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;background:' + (actColors[a.action]||'var(--muted)') + '"></div>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--text)">' + escHtml(a.note||a.action) + (taskTitle ? ' — <span style="color:var(--muted)">' + taskTitle + '</span>' : '') + '</div></div>' +
+          '<div style="font-size:9px;color:var(--muted);flex-shrink:0">' + formatTime(a.created_at) + '</div>' +
+        '</div>';
+      }).join('') : '<div style="font-size:11px;color:var(--muted)">No recent activity</div>'}
+    </div>
+
+    <!-- Back button -->
+    <div style="text-align:center;padding-bottom:20px">
+      <button class="btn sm" onclick="loadAnalytics()">← Back to Overview</button>
+    </div>
+  `;
 }
 
 async function loadHomeDashboard() {
