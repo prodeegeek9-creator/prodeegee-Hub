@@ -1306,6 +1306,10 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
         <input class="compose-input" id="composeTo" placeholder="recipient@example.com" />
       </div>
       <div class="field-group">
+        <div class="compose-label">CC</div>
+        <input class="compose-input" id="composeCc" placeholder="cc@example.com (optional)" />
+      </div>
+      <div class="field-group">
         <div class="compose-label">Subject</div>
         <input class="compose-input" id="composeSubject" placeholder="Email subject" />
       </div>
@@ -1541,6 +1545,10 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
       <div class="field-group">
         <div class="field-label">To</div>
         <input class="field-input" id="modalTo" placeholder="recipient@example.com" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">CC</div>
+        <input class="field-input" id="modalCc" placeholder="cc@example.com (optional)" />
       </div>
       <div class="field-group">
         <div class="field-label">Subject</div>
@@ -3217,32 +3225,34 @@ function selectEmailTarget(menuId, idx) {
 
 async function sendEmail() {
   const to = document.getElementById('composeTo').value.trim();
+  const cc = document.getElementById('composeCc').value.trim();
   const subject = document.getElementById('composeSubject').value.trim();
   const body = document.getElementById('composeBodyText').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
   const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
   emailToResolved = null;
-  await sendEmailToAddresses(addresses, subject, body, 'sendingStatus');
+  await sendEmailToAddresses(addresses, subject, body, 'sendingStatus', cc);
 }
 
 async function sendModalEmail() {
   const to = document.getElementById('modalTo').value.trim();
+  const cc = document.getElementById('modalCc').value.trim();
   const subject = document.getElementById('modalSubject').value.trim();
   const body = document.getElementById('modalBody').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
   const addresses = (emailToResolved && emailToResolved.label === to) ? emailToResolved.emails : [to];
   emailToResolved = null;
-  const ok = await sendEmailToAddresses(addresses, subject, body, 'modalSendStatus');
+  const ok = await sendEmailToAddresses(addresses, subject, body, 'modalSendStatus', cc);
   if (ok) closeModal('composeModal');
 }
 
-async function sendEmailToAddresses(addresses, subject, body, statusElId) {
-  if (addresses.length === 1) return doSendEmail(addresses[0], subject, body, statusElId);
+async function sendEmailToAddresses(addresses, subject, body, statusElId, cc = '') {
+  if (addresses.length === 1) return doSendEmail(addresses[0], subject, body, statusElId, false, cc);
   const statusEl = document.getElementById(statusElId);
   if (statusEl) statusEl.textContent = `Sending to ${addresses.length}...`;
   let sent = 0;
   for (const addr of addresses) {
-    const ok = await doSendEmail(addr, subject, body, null, true);
+    const ok = await doSendEmail(addr, subject, body, null, true, cc);
     if (ok) sent++;
   }
   if (statusEl) statusEl.textContent = '';
@@ -3250,17 +3260,19 @@ async function sendEmailToAddresses(addresses, subject, body, statusElId) {
   return sent > 0;
 }
 
-async function doSendEmail(to, subject, body, statusElId, quiet = false) {
+async function doSendEmail(to, subject, body, statusElId, quiet = false, cc = '') {
   const fromAddr = currentProfile.prodeegee_email || currentProfile.email;
   const fromName = currentProfile.full_name || '';
   const status = statusElId ? document.getElementById(statusElId) : null;
   if (status) status.textContent = 'Sending...';
 
   try {
+    const payload = { fromAddress: fromAddr, fromName, to, subject, body };
+    if (cc) payload.cc = cc;
     const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromAddress: fromAddr, fromName, to, subject, body })
+      body: JSON.stringify(payload)
     });
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
