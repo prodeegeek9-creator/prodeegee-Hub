@@ -1400,13 +1400,16 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
   </div>
 
   <!-- NOTIFICATIONS -->
-  <div class="section" id="section-notifications" style="display:flex;flex-direction:column;overflow:hidden">
+  <div class="section" id="section-notifications">
     <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
       <span style="font-size:11px;color:var(--muted)"><span id="unreadNotifCount">0</span> unread</span>
       <button class="btn sm" onclick="markAllNotifsRead()">Mark all read</button>
     </div>
-    <div class="notif-list-wrap" id="notifListWrap" style="flex:1;overflow-y:auto">
+    <div class="notif-list-wrap" id="notifListWrap">
       <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div id="notifShowMoreWrap" style="display:none;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">
+      <button class="btn sm" id="notifShowMoreBtn" style="width:100%" onclick="loadMoreNotifications()">Show more…</button>
     </div>
   </div>
 
@@ -4733,6 +4736,7 @@ async function loadMoreNotifications() {
 const btn = document.getElementById('notifShowMoreBtn');
 if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
 await loadNotifications(true);
+// button state is restored in renderNotifications
 }
 
 function renderNotifications(notifs, append = false) {
@@ -4751,17 +4755,16 @@ if (!append) {
 const iconMap = { mention:'😊', email:'📧', email_sent:'📤', task_assigned:'🎯', deadline:'⏰', dm:'😀', project_update:'📢', task_overdue:'😬', review_reminder:'👀' };
 const html = notifs.map(n => `<div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead('${n.id}','${n.type}','${n.reference_id||''}')" style="cursor:pointer"><div class="notif-icon">${iconMap[n.type]||'🔔'}</div><div style="flex:1;min-width:0"><div class="notif-text">${escHtml(n.message)}</div><div class="notif-when">${formatTime(n.created_at)}</div></div><div style="font-size:9px;color:var(--orange);flex-shrink:0;align-self:center">→</div></div>`).join('');
 if (!append) {
-  if (!notifs.length && !notifHasMore) { wrap.innerHTML = '<div class="empty-state"><div class="big">🔔</div>No notifications yet</div>'; return; }
-  wrap.innerHTML = html;
+  if (!notifs.length && !notifHasMore) { wrap.innerHTML = '<div class="empty-state"><div class="big">🔔</div>No notifications yet</div>'; }
+  else wrap.innerHTML = html;
 } else {
-  const oldBtn = document.getElementById('notifShowMoreBtn');
-  if (oldBtn) oldBtn.parentNode.removeChild(oldBtn);
   wrap.insertAdjacentHTML('beforeend', html);
 }
-if (notifHasMore) {
-  const btnHtml = `<div id="notifShowMoreBtn" style="padding:10px 16px;text-align:center"><button class="btn sm" style="width:100%" onclick="loadMoreNotifications()">Show more…</button></div>`;
-  wrap.insertAdjacentHTML('beforeend', btnHtml);
-}
+// Show/hide the sticky "Show more" footer
+const showMoreWrap = document.getElementById('notifShowMoreWrap');
+const showMoreBtn  = document.getElementById('notifShowMoreBtn');
+if (showMoreWrap) showMoreWrap.style.display = notifHasMore ? 'block' : 'none';
+if (showMoreBtn)  { showMoreBtn.textContent = 'Show more…'; showMoreBtn.disabled = false; }
 }
 
 function updateNotifBadge(count) {
