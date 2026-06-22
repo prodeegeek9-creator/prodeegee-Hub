@@ -3035,9 +3035,18 @@ async function sendThreadReply() {
 // from raw multipart email bodies
 // ════════════════════════════════════════════════
 function decodeQuotedPrintable(str) {
-  return str
+  // Decode soft line breaks first, then hex-encoded bytes as UTF-8
+  const decoded = str
     .replace(/=\r\n/g, '').replace(/=\n/g, '')
     .replace(/=([0-9A-Fa-f]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  // Re-interpret the byte string as UTF-8
+  try {
+    return decodeURIComponent(
+      decoded.split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')
+    );
+  } catch {
+    return decoded;
+  }
 }
 
 function parseMimeBody(raw) {
