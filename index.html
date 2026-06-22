@@ -3322,8 +3322,15 @@ async function doSendEmail(to, subject, body, statusElId, quiet = false, cc = ''
   const status = statusElId ? document.getElementById(statusElId) : null;
   if (status) status.textContent = 'Sending...';
 
+  // Build branded HTML from the plain-text body
+  const bodyHtml = body
+    .split('\n')
+    .map(line => line.trim() === '' ? '<br>' : `<p>${escHtml(line)}</p>`)
+    .join('');
+  const html = buildHubEmailHtml(subject, `<h2>${escHtml(subject)}</h2>${bodyHtml}`, null);
+
   try {
-    const payload = { fromAddress: fromAddr, fromName, to, subject, body, cc: cc || '' };
+    const payload = { fromAddress: fromAddr, fromName, to, subject, html, cc: cc || '' };
     const res = await fetch('https://prodeegee-hub-mailer.prodeegeek9.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
