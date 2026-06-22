@@ -3042,21 +3042,23 @@ function decodeQuotedPrintable(str) {
 
 function parseMimeBody(raw) {
   if (!raw) return { text: '', html: '' };
-  // Detect boundary from Content-Type or first boundary line
-  const boundaryMatch = raw.match(/boundary="?([^"\r\n;]+)"?/i)
-    || raw.match(/^(----[^\r\n]+)/m);
-  if (!boundaryMatch) return { text: raw, html: '' };
-  const boundary = boundaryMatch[1].trim();
-  const parts = raw.split(new RegExp('--' + boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:--)?'));
+  // Find the first MIME delimiter line (starts with --)
+  const delimMatch = raw.match(/^(-{2,}[^\r\n]+)/m);
+  if (!delimMatch) return { text: raw, html: '' };
+  const delimiter = delimMatch[1].trim();
+  // Split directly on the delimiter (do NOT prepend '--' — it's already included)
+  const escaped = delimiter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = raw.split(new RegExp(escaped + '(?:--)?[ \t]*(?:\r?\n|$)'));
   let text = '', html = '';
   for (const part of parts) {
-    const sep = part.indexOf('\r\n\r\n') !== -1 ? '\r\n\r\n' : '\n\n';
-    const sepIdx = part.indexOf(sep);
+    if (!part || !part.trim()) continue;
+    const sepIdx = part.search(/\r?\n\r?\n/);
     if (sepIdx === -1) continue;
     const hdrs = part.slice(0, sepIdx).toLowerCase();
-    let body = part.slice(sepIdx + sep.length);
+    if (!hdrs.includes('content-type')) continue; // skip preamble/epilogue
+    let body = part.slice(sepIdx).replace(/^\r?\n\r?\n/, '');
     if (hdrs.includes('quoted-printable')) body = decodeQuotedPrintable(body);
-    body = body.replace(/\r\n$/, '').replace(/\n$/, '').trim();
+    body = body.trim();
     if (hdrs.includes('text/html') && !html) html = body;
     else if (hdrs.includes('text/plain') && !text) text = body;
   }
