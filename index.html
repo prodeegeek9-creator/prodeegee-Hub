@@ -3133,7 +3133,7 @@ function _currentToken(input) {
 }
 
 function initEmailToAutocomplete() {
-  ['composeTo', 'modalTo'].forEach(inputId => {
+  ['composeTo', 'modalTo', 'composeCc', 'modalCc'].forEach(inputId => {
     const input = document.getElementById(inputId);
     if (!input) return;
     const menuId = inputId + '_acMenu';
@@ -3234,9 +3234,9 @@ function selectEmailTarget(menuId, idx) {
   _activeEmailInput.focus();
 }
 
-function resolveToAddresses(toValue) {
-  // Split by comma, resolve each token via map or treat as plain email
-  const tokens = toValue.split(',').map(t => t.trim()).filter(Boolean);
+function resolveAddresses(value) {
+  // Split by comma, expand group labels via map, fall back to plain email
+  const tokens = value.split(',').map(t => t.trim()).filter(Boolean);
   const addresses = [];
   tokens.forEach(token => {
     if (emailToResolvedMap[token]) {
@@ -3245,7 +3245,6 @@ function resolveToAddresses(toValue) {
       addresses.push(token);
     }
   });
-  emailToResolvedMap = {};
   return addresses;
 }
 
@@ -3255,7 +3254,10 @@ async function sendEmail() {
   const subject = document.getElementById('composeSubject').value.trim();
   const body = document.getElementById('composeBodyText').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  await sendEmailToAddresses(resolveToAddresses(to), subject, body, 'sendingStatus', cc);
+  const toAddrs = resolveAddresses(to);
+  const ccStr = resolveAddresses(cc).join(', ');
+  emailToResolvedMap = {};
+  await sendEmailToAddresses(toAddrs, subject, body, 'sendingStatus', ccStr);
 }
 
 async function sendModalEmail() {
@@ -3264,7 +3266,10 @@ async function sendModalEmail() {
   const subject = document.getElementById('modalSubject').value.trim();
   const body = document.getElementById('modalBody').value.trim();
   if (!to || !subject) { showToast('Fill To and Subject', 'error'); return; }
-  const ok = await sendEmailToAddresses(resolveToAddresses(to), subject, body, 'modalSendStatus', cc);
+  const toAddrs = resolveAddresses(to);
+  const ccStr = resolveAddresses(cc).join(', ');
+  emailToResolvedMap = {};
+  const ok = await sendEmailToAddresses(toAddrs, subject, body, 'modalSendStatus', ccStr);
   if (ok) closeModal('composeModal');
 }
 
