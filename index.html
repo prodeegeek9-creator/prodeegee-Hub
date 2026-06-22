@@ -1182,6 +1182,17 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
         </div>
       </div>
 
+      <!-- MY PROGRESS REPORT -->
+      <div style="background:var(--panel);border:1px solid var(--border)" id="homeMyReport">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase">▦ My Progress</span>
+          <button class="btn sm" onclick="if(currentUser){loadAnalytics();setTimeout(()=>openMemberReport(currentUser.id,currentProfile?.full_name||'Me'),600);switchSection('analytics')}" style="font-size:9px;padding:2px 8px">Full Report →</button>
+        </div>
+        <div id="homeMyReportBody" style="padding:14px 16px">
+          <div class="loading" style="padding:20px"><div class="spinner"></div></div>
+        </div>
+      </div>
+
       <!-- QUICK ACTIONS -->
       <div style="display:flex;gap:8px;flex-wrap:wrap" id="quickActions">
         <button class="btn sm" onclick="switchSection('analytics')" style="font-size:11px">▦ Analytics</button>
@@ -5513,6 +5524,81 @@ if (digestBody) {
 
 // Fire digest email (once per day, non-blocking)
 setTimeout(() => sendDailyDigest(), 3000);
+
+// My Progress Report widget
+(async () => {
+  const reportEl = el('homeMyReportBody');
+  if (!reportEl) return;
+  const [allMyTasks, myProjMems] = await Promise.all([
+    sbFetch(`hub_tasks?select=*&or=(assigned_to.eq.${uid},claimed_by.eq.${uid})`).catch(() => []),
+    sbFetch(`hub_project_members?select=*,hub_projects(id,name)&user_id=eq.${uid}`).catch(() => []),
+  ]);
+  const myAll  = Array.isArray(allMyTasks) ? allMyTasks : [];
+  const myProjs = Array.isArray(myProjMems) ? myProjMems : [];
+  const myProjIds = myProjs.map(p => p.hub_projects?.id).filter(Boolean);
+
+  let teamTasks = [];
+  if (myProjIds.length) {
+    const tt = await sbFetch(`hub_tasks?select=project_id,status&project_id=in.(${myProjIds.join(',')})`).catch(() => []);
+    if (Array.isArray(tt)) teamTasks = tt;
+  }
+
+  const rDone    = myAll.filter(t => t.status === 'Done').length;
+  const rOverdue = myAll.filter(t => t.status !== 'Done' && t.due_date && t.due_date < todayStr).length;
+  const rActive  = myAll.filter(t => t.status !== 'Done' && !(t.due_date && t.due_date < todayStr)).length;
+  const rInProg  = myAll.filter(t => t.status === 'In Progress').length;
+  const rReview  = myAll.filter(t => t.status === 'Review').length;
+  const rTotal   = myAll.length;
+  const rRate    = rTotal ? Math.round(rDone / rTotal * 100) : 0;
+
+  const tTotal  = teamTasks.length;
+  const tDone   = teamTasks.filter(t => t.status === 'Done').length;
+  const msTotal = tTotal ? Math.round(rTotal / tTotal * 100) : null;
+  const msDone  = tDone  ? Math.round(rDone  / tDone  * 100) : null;
+  const ci = (msTotal && msDone !== null) ? (msDone / msTotal).toFixed(2) : null;
+  const ciLabel = ci === null ? 'N/A'
+    : ci >= 1.2 ? 'HIGH CONTRIBUTOR' : ci >= 0.8 ? 'BALANCED'
+    : ci >= 0.4 ? 'BELOW SHARE' : 'LOW CONTRIBUTION';
+  const ciColor = ci === null ? 'var(--muted)'
+    : ci >= 1.2 ? 'var(--green)' : ci >= 0.8 ? '#4fc3f7'
+    : ci >= 0.4 ? '#f59e0b' : '#ef4444';
+
+  reportEl.innerHTML = `
+    <div class="an-overview" style="margin-bottom:12px">
+      <div class="an-stat"><div class="an-stat-num">${rTotal}</div><div class="an-stat-label">Total Tasks</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--green)">${rDone}</div><div class="an-stat-label">Completed</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#ef4444">${rOverdue}</div><div class="an-stat-label">Overdue</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${rRate}%</div><div class="an-stat-label">Completion Rate</div></div>
+    </div>
+    <div class="an-overview" style="margin-bottom:${msTotal !== null ? 14 : 0}px">
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--orange)">${rActive}</div><div class="an-stat-label">Active</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${rInProg}</div><div class="an-stat-label">In Progress</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:#a78bfa">${rReview}</div><div class="an-stat-label">In Review</div></div>
+      <div class="an-stat"><div class="an-stat-num" style="color:var(--muted)">${rOverdue > 0 ? '<span style="color:#ef4444">⚠ OVERDUE</span>' : '<span style="color:var(--green)">ON TRACK</span>'}</div><div class="an-stat-label">Status</div></div>
+    </div>
+    ${msTotal !== null ? `
+    <div style="border-top:1px solid var(--border);padding-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px">Team Contribution</span>
+        <span style="font-size:9px;font-weight:700;padding:2px 10px;border-radius:10px;background:var(--surface);color:${ciColor}">${ciLabel}${ci !== null ? ' · ' + ci + 'x' : ''}</span>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+          <span>Share of team tasks assigned/claimed</span>
+          <span style="color:var(--text)">${rTotal} of ${tTotal} · <strong>${msTotal}%</strong></span>
+        </div>
+        <div class="an-bar-track"><div class="an-bar-fill" style="width:${msTotal}%;background:#4fc3f7"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+          <span>Share of team tasks completed</span>
+          <span style="color:var(--text)">${rDone} of ${tDone} · <strong style="color:${ciColor}">${msDone !== null ? msDone + '%' : '—'}</strong></span>
+        </div>
+        <div class="an-bar-track"><div class="an-bar-fill" style="width:${msDone !== null ? msDone : 0}%;background:${ciColor}"></div></div>
+      </div>
+    </div>` : ''}
+  `;
+})();
 
 // Team online — filtered to project mates only
 const teamEl = el('homeTeamOnline');
