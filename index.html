@@ -238,7 +238,7 @@ body.light .theme-toggle::after{transform:translateX(16px);background:#fff}
 .cm-editor-wrap{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.5;background:var(--surface);color:var(--text);padding:8px;min-height:120px;border:none;outline:none;resize:vertical;width:100%;box-sizing:border-box;white-space:pre;overflow-x:auto}
 
 /* ── NOTIFICATIONS ── */
-.notif-list-wrap{display:flex;flex-direction:column}
+.notif-list-wrap{display:flex;flex-direction:column;flex:1;overflow-y:auto}
 .notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;cursor:pointer;transition:background .1s}
 .notif-item:hover{background:var(--surface)}
 .notif-item.unread{border-left:2px solid var(--orange)}
@@ -1400,12 +1400,12 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
   </div>
 
   <!-- NOTIFICATIONS -->
-  <div class="section" id="section-notifications">
+  <div class="section" id="section-notifications" style="display:flex;flex-direction:column;overflow:hidden">
     <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
       <span style="font-size:11px;color:var(--muted)"><span id="unreadNotifCount">0</span> unread</span>
       <button class="btn sm" onclick="markAllNotifsRead()">Mark all read</button>
     </div>
-    <div class="notif-list-wrap" id="notifListWrap">
+    <div class="notif-list-wrap" id="notifListWrap" style="flex:1;overflow-y:auto">
       <div class="loading"><div class="spinner"></div></div>
     </div>
   </div>
