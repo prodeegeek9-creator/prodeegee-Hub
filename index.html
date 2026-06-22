@@ -1362,6 +1362,7 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
         <span id="newSubProjectBtn" style="display:none"><button class="btn sm" onclick="openNewSubProjectModal()">+ Sub-project</button></span>
         <button class="btn sm" id="createTeamBtn" style="display:none" onclick="openCreateTeamModal()">+ Team</button>
         <button class="btn sm primary" id="newTaskBtn" style="display:none" onclick="openTaskModal()">+ Task</button>
+        <button class="btn sm" id="resourcesBtn" style="display:none" onclick="openProjectResources(activeProjectId)">📁 Resources</button>
         <button class="btn sm" id="projectSettingsBtn" style="display:none" onclick="openProjectSettingsModal(activeProjectId)">⚙ Settings</button>
       </div>
     </div>
@@ -1381,6 +1382,20 @@ input:focus,select:focus,textarea:focus,.form-control:focus{
       <div class="kanban-wrap" id="kanbanWrap" style="flex:1">
         <div class="loading"><div class="spinner"></div>Loading tasks...</div>
       </div>
+    </div>
+    <!-- Project Resources panel -->
+    <div id="resourcesWrap" style="flex:1;overflow:hidden;display:none;flex-direction:column">
+      <div style="padding:8px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="color:var(--orange);cursor:pointer;font-size:11px" onclick="backToTeamOverview()">← Teams</span>
+          <span style="font-size:12px;font-weight:600">📁 Resources</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="file" id="resourceFileInput" multiple style="display:none" onchange="onResourceFileSelect(this.files)">
+          <button class="btn sm primary" onclick="document.getElementById('resourceFileInput').click()">+ Upload</button>
+        </div>
+      </div>
+      <div id="resourcesContent" style="flex:1;overflow-y:auto;padding:16px"></div>
     </div>
   </div>
 
@@ -3483,6 +3498,7 @@ async function openProject(projectId, projectName) {
   document.getElementById('newSubProjectBtn').style.display = canManageProjects() ? 'inline' : 'none';
   document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
   document.getElementById('newTaskBtn').style.display = 'none';
+  document.getElementById('resourcesBtn').style.display = 'inline';
   document.getElementById('projectSettingsBtn').style.display = canManageProjects() ? 'inline' : 'none';
   // Switch view
   document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
@@ -3566,6 +3582,174 @@ async function loadTeamOverview(projectId) {
   }).join('');
 }
 
+// ════════════════════════════════════════════════
+// PROJECT RESOURCES
+// ════════════════════════════════════════════════
+const RESOURCE_TYPES = {
+  image: { label: 'Images',       icon: '🖼️',  exts: ['jpg','jpeg','png','gif','webp','svg','bmp','avif'] },
+  pdf:   { label: 'PDFs',         icon: '📄',  exts: ['pdf'] },
+  video: { label: 'Videos',       icon: '🎬',  exts: ['mp4','mov','avi','mkv','webm','m4v'] },
+  text:  { label: 'Text Files',   icon: '📝',  exts: ['txt','md','rtf','doc','docx'] },
+  csv:   { label: 'Spreadsheets', icon: '📊',  exts: ['csv','xls','xlsx','ods'] },
+  other: { label: 'Other Files',  icon: '📎',  exts: [] }
+};
+
+function getResourceType(fileName, mimeType) {
+  const ext = (fileName.split('.').pop() || '').toLowerCase();
+  if (['jpg','jpeg','png','gif','webp','svg','bmp','avif'].includes(ext) || mimeType.startsWith('image/')) return 'image';
+  if (ext === 'pdf' || mimeType === 'application/pdf') return 'pdf';
+  if (['mp4','mov','avi','mkv','webm','m4v'].includes(ext) || mimeType.startsWith('video/')) return 'video';
+  if (['txt','md','rtf','doc','docx'].includes(ext)) return 'text';
+  if (['csv','xls','xlsx','ods'].includes(ext)) return 'csv';
+  return 'other';
+}
+
+async function openProjectResources(projectId) {
+  document.getElementById('teamOverviewWrap').style.display = 'none';
+  document.getElementById('teamBoardWrap').style.display = 'none';
+  document.getElementById('resourcesWrap').style.display = 'flex';
+  document.getElementById('createTeamBtn').style.display = 'none';
+  document.getElementById('newTaskBtn').style.display = 'none';
+  document.getElementById('resourceFileInput').dataset.projectId = projectId;
+  await loadProjectResources(projectId);
+}
+
+async function loadProjectResources(projectId) {
+  const content = document.getElementById('resourcesContent');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const { data, error } = await sb.from('project_resources')
+    .select('*,profiles(full_name)')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+  if (error) { content.innerHTML = `<div style="color:var(--muted);padding:20px;font-size:11px">Failed to load resources</div>`; return; }
+  renderProjectResources(data || [], projectId);
+}
+
+function renderProjectResources(files, projectId) {
+  const content = document.getElementById('resourcesContent');
+  const groups = {};
+  Object.keys(RESOURCE_TYPES).forEach(t => { groups[t] = []; });
+  files.forEach(f => { (groups[f.resource_type] || groups['other']).push(f); });
+
+  content.innerHTML = Object.entries(RESOURCE_TYPES).map(([type, cfg]) => {
+    const items = groups[type] || [];
+    const folderId = `rf-${type}`;
+    return `<div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border:1px solid var(--border);cursor:pointer;user-select:none" onclick="toggleResourceFolder('${folderId}')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px">${cfg.icon}</span>
+          <span style="font-size:12px;font-weight:600">${cfg.label}</span>
+          <span style="font-size:9px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:1px 7px;border-radius:10px">${items.length}</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn sm" onclick="event.stopPropagation();triggerResourceUpload('${projectId}','${type}')">+ Add</button>
+          <span style="font-size:10px;color:var(--muted)" id="${folderId}-chevron">${items.length ? '▼' : '▶'}</span>
+        </div>
+      </div>
+      <div id="${folderId}" style="display:${items.length ? 'block' : 'none'};border:1px solid var(--border);border-top:none">
+        ${items.length
+          ? items.map(f => renderResourceItem(f)).join('')
+          : `<div style="font-size:10px;color:var(--muted);padding:10px 14px">No ${cfg.label.toLowerCase()} yet — click + Add to upload</div>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderResourceItem(f) {
+  const bytes = f.file_size || 0;
+  const size = bytes < 1024*1024 ? `${(bytes/1024).toFixed(1)} KB` : `${(bytes/(1024*1024)).toFixed(1)} MB`;
+  const uploader = f.profiles?.full_name || 'Unknown';
+  const date = new Date(f.created_at).toLocaleDateString();
+  return `<div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escHtml(f.file_name)}">${escHtml(f.file_name)}</div>
+      <div style="font-size:9px;color:var(--muted)">${size} · ${escHtml(uploader)} · ${date}</div>
+    </div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <button class="btn sm" onclick="downloadResource('${escHtml(f.file_path)}','${escHtml(f.file_name)}')">↓ Download</button>
+      <button class="btn sm" style="color:var(--red)" onclick="deleteResource('${f.id}','${escHtml(f.file_path)}')">✕</button>
+    </div>
+  </div>`;
+}
+
+function toggleResourceFolder(id) {
+  const el = document.getElementById(id);
+  const chevron = document.getElementById(id + '-chevron');
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  if (chevron) chevron.textContent = open ? '▼' : '▶';
+}
+
+let _resourceUploadType = null;
+function triggerResourceUpload(projectId, type) {
+  _resourceUploadType = type;
+  const input = document.getElementById('resourceFileInput');
+  input.dataset.projectId = projectId;
+  input.click();
+}
+
+async function onResourceFileSelect(files) {
+  const projectId = document.getElementById('resourceFileInput').dataset.projectId;
+  if (!projectId || !files.length) return;
+  for (const file of Array.from(files)) {
+    await uploadProjectResource(projectId, file, _resourceUploadType);
+  }
+  _resourceUploadType = null;
+  document.getElementById('resourceFileInput').value = '';
+  await loadProjectResources(projectId);
+}
+
+async function uploadProjectResource(projectId, file, forcedType = null) {
+  if (file.size > 50 * 1024 * 1024) { showToast(`${file.name} exceeds 50 MB limit`, 'error'); return; }
+  const token = cachedAccessToken || (await sb.auth.getSession()).data?.session?.access_token;
+  const safeName = file.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
+  const resourceType = forcedType || getResourceType(file.name, file.type || '');
+  const path = `${projectId}/${resourceType}/${Date.now()}-${safeName}`;
+  showToast(`Uploading ${file.name}…`);
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/project-resources/${path}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'apikey': SUPABASE_ANON_KEY,
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'false'
+    },
+    body: file
+  });
+  if (!res.ok) { const t = await res.text().catch(() => ''); showToast('Upload failed: ' + t, 'error'); return; }
+  const { error } = await sb.from('project_resources').insert({
+    project_id: projectId,
+    file_name: file.name,
+    file_path: path,
+    file_size: file.size,
+    mime_type: file.type || 'application/octet-stream',
+    resource_type: resourceType,
+    uploaded_by: currentUser.id
+  });
+  if (error) { showToast('Saved upload failed: ' + error.message, 'error'); return; }
+  showToast(`${file.name} uploaded ✓`);
+}
+
+async function downloadResource(path, fileName) {
+  const { data, error } = await sb.storage.from('project-resources').createSignedUrl(path, 3600);
+  if (error || !data?.signedUrl) { showToast('Download link failed', 'error'); return; }
+  const a = document.createElement('a');
+  a.href = data.signedUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function deleteResource(id, path) {
+  if (!confirm('Delete this file permanently?')) return;
+  await sb.storage.from('project-resources').remove([path]);
+  await sb.from('project_resources').delete().eq('id', id);
+  showToast('File deleted');
+  await loadProjectResources(activeProjectId);
+}
+
 function backToProjectOverview() {
   const proj = projectsCache.find(p => p.id === activeProjectId);
   if (proj) openProject(activeProjectId, proj.name);
@@ -3576,7 +3760,9 @@ function backToTeamOverview() {
   activeTeamId = null;
   document.getElementById('teamOverviewWrap').style.display = 'block';
   document.getElementById('teamBoardWrap').style.display = 'none';
+  document.getElementById('resourcesWrap').style.display = 'none';
   document.getElementById('newTaskBtn').style.display = 'none';
+  document.getElementById('resourcesBtn').style.display = 'inline';
   document.getElementById('createTeamBtn').style.display = canManageProjects() ? 'inline' : 'none';
   const proj = projectsCache.find(p => p.id === activeProjectId);
   loadTeamOverview(activeProjectId);
