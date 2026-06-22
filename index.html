@@ -3030,6 +3030,39 @@ async function sendThreadReply() {
 // INBOX — reads from Supabase received_emails
 // (populated by Cloudflare Email Worker, no token needed)
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════
+// MIME PARSER — extracts text/html and text/plain
+// from raw multipart email bodies
+// ════════════════════════════════════════════════
+function decodeQuotedPrintable(str) {
+  return str
+    .replace(/=\r\n/g, '').replace(/=\n/g, '')
+    .replace(/=([0-9A-Fa-f]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+
+function parseMimeBody(raw) {
+  if (!raw) return { text: '', html: '' };
+  // Detect boundary from Content-Type or first boundary line
+  const boundaryMatch = raw.match(/boundary="?([^"\r\n;]+)"?/i)
+    || raw.match(/^(----[^\r\n]+)/m);
+  if (!boundaryMatch) return { text: raw, html: '' };
+  const boundary = boundaryMatch[1].trim();
+  const parts = raw.split(new RegExp('--' + boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:--)?'));
+  let text = '', html = '';
+  for (const part of parts) {
+    const sep = part.indexOf('\r\n\r\n') !== -1 ? '\r\n\r\n' : '\n\n';
+    const sepIdx = part.indexOf(sep);
+    if (sepIdx === -1) continue;
+    const hdrs = part.slice(0, sepIdx).toLowerCase();
+    let body = part.slice(sepIdx + sep.length);
+    if (hdrs.includes('quoted-printable')) body = decodeQuotedPrintable(body);
+    body = body.replace(/\r\n$/, '').replace(/\n$/, '').trim();
+    if (hdrs.includes('text/html') && !html) html = body;
+    else if (hdrs.includes('text/plain') && !text) text = body;
+  }
+  return { text, html };
+}
+
 async function loadInbox() {
   document.getElementById('emailListItems').innerHTML = '<div class="loading" style="padding:30px 0"><div class="spinner"></div></div>';
   try {
@@ -3043,18 +3076,24 @@ async function loadInbox() {
       return;
     }
     // Normalise to the shape the rest of the UI expects
-    const normalised = emails.map(e => ({
-      id          : e.id,
-      from        : e.from_address || '',
-      to          : e.to_address  || '',
-      subject     : e.subject  || '(no subject)',
-      date        : e.received_at ? new Date(e.received_at).toLocaleString() : '',
-      body        : e.body_text || '',
-      snippet     : (e.body_text || '').slice(0, 120),
-      unread      : !e.is_read,
-      internalDate: e.received_at ? new Date(e.received_at).getTime() : 0,
-      _raw        : e,
-    }));
+    const normalised = emails.map(e => {
+      const mime = parseMimeBody(e.body_text || '');
+      const plainText = mime.text || e.body_text || '';
+      const bodyHtml  = mime.html || e.body_html || '';
+      return {
+        id          : e.id,
+        from        : e.from_address || '',
+        to          : e.to_address  || '',
+        subject     : e.subject  || '(no subject)',
+        date        : e.received_at ? new Date(e.received_at).toLocaleString() : '',
+        body        : plainText,
+        snippet     : plainText.replace(/<[^>]*>/g, '').slice(0, 120),
+        bodyHtml    : bodyHtml,
+        unread      : !e.is_read,
+        internalDate: e.received_at ? new Date(e.received_at).getTime() : 0,
+        _raw        : e,
+      };
+    });
     renderInboxList(normalised);
     unreadEmails = normalised.filter(e => e.unread).length;
     document.getElementById('statEmails').textContent = unreadEmails;
@@ -3105,7 +3144,7 @@ function showEmailDetail(i) {
     el.classList.toggle('active-email', idx === i);
     if (idx === i) el.classList.remove('unread');
   });
-  const bodyHtml = e._raw?.body_html || null;
+  const bodyHtml = e.bodyHtml || e._raw?.body_html || null;
   document.getElementById('emailDetail').innerHTML = `
     <div class="email-detail-subject">${escHtml(e.subject)}</div>
     <div class="email-meta">
@@ -3113,14 +3152,30 @@ function showEmailDetail(i) {
       <div>To: <span style="color:var(--green)">${escHtml(e.to)}</span></div>
       <div>Date: <span>${e.date}</span></div>
     </div>
-    <div class="email-body-content ${bodyHtml ? 'html-body' : ''}" id="emailBodyEl"></div>
+    <div id="emailBodyEl" class="email-body-content"></div>
     <div style="margin-top:16px;display:flex;gap:8px">
       <button class="btn sm" onclick="replyToEmail(${i})">↩ Reply</button>
     </div>`;
   const bodyEl = document.getElementById('emailBodyEl');
   if (bodyHtml) {
-    bodyEl.innerHTML = bodyHtml;
+    // Render HTML in a sandboxed iframe so email styles don't bleed into the hub
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;border:none;min-height:200px;background:#fff';
+    iframe.setAttribute('sandbox', 'allow-same-origin');
+    bodyEl.appendChild(iframe);
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(bodyHtml);
+    iframe.contentDocument.close();
+    // Auto-resize to content height
+    iframe.onload = () => {
+      iframe.style.height = iframe.contentDocument.body.scrollHeight + 32 + 'px';
+    };
+    setTimeout(() => {
+      if (iframe.contentDocument?.body)
+        iframe.style.height = iframe.contentDocument.body.scrollHeight + 32 + 'px';
+    }, 150);
   } else {
+    bodyEl.style.whiteSpace = 'pre-wrap';
     bodyEl.textContent = e.body || e.snippet || '';
   }
 }
