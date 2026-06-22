@@ -5180,6 +5180,15 @@ async function openMemberReport(memberId, memberName) {
     sbFetch(`hub_project_members?select=*,hub_projects(id,name,status)&user_id=eq.${memberId}`).catch(() => []),
   ]);
 
+  // Fetch all team tasks across the member's projects for contribution metrics
+  const projIds = (Array.isArray(projectMemberships) ? projectMemberships : [])
+    .map(p => p.hub_projects?.id).filter(Boolean);
+  let teamTasks = [];
+  if (projIds.length) {
+    teamTasks = await sbFetch(`hub_tasks?select=project_id,status,claimed_by,assigned_to&project_id=in.(${projIds.join(',')})`).catch(() => []);
+    if (!Array.isArray(teamTasks)) teamTasks = [];
+  }
+
   const allTasks  = Array.isArray(tasks) ? tasks : [];
   const acts      = Array.isArray(activity) ? activity : [];
   const teams     = Array.isArray(teamMemberships) ? teamMemberships : [];
@@ -5213,6 +5222,25 @@ async function openMemberReport(memberId, memberName) {
     if (t.status === 'Done') projMap[pname].done++;
   });
   const projRows = Object.entries(projMap).sort((a, b) => b[1].total - a[1].total);
+
+  // Team contribution metrics
+  const teamTotal = teamTasks.length;
+  const teamDone  = teamTasks.filter(t => t.status === 'Done').length;
+  const memberShareOfTotal = teamTotal ? Math.round(total / teamTotal * 100) : null;
+  const memberShareOfDone  = teamDone  ? Math.round(done  / teamDone  * 100) : null;
+  // Contribution index: ratio of done-share to task-share (>1 = pulling more than assigned share)
+  const contribIndex = (memberShareOfTotal && memberShareOfDone !== null)
+    ? (memberShareOfDone / memberShareOfTotal).toFixed(2) : null;
+  const contribLabel = contribIndex === null ? 'N/A'
+    : contribIndex >= 1.2 ? 'HIGH CONTRIBUTOR'
+    : contribIndex >= 0.8 ? 'BALANCED'
+    : contribIndex >= 0.4 ? 'BELOW SHARE'
+    : 'LOW CONTRIBUTION';
+  const contribColor = contribIndex === null ? 'var(--muted)'
+    : contribIndex >= 1.2 ? 'var(--green)'
+    : contribIndex >= 0.8 ? '#4fc3f7'
+    : contribIndex >= 0.4 ? '#f59e0b'
+    : '#ef4444';
 
   // Status breakdown
   const sc = { Queue: 0, Claimed: 0, 'In Progress': 0, Review: 0, Done: 0 };
@@ -5263,6 +5291,36 @@ async function openMemberReport(memberId, memberName) {
       <div class="an-stat"><div class="an-stat-num" style="color:#4fc3f7">${inProg}</div><div class="an-stat-label">In Progress</div></div>
       <div class="an-stat"><div class="an-stat-num" style="color:#a78bfa">${review}</div><div class="an-stat-label">In Review</div></div>
       <div class="an-stat"><div class="an-stat-num" style="color:var(--muted)">${avgDays !== null ? avgDays + 'd' : '—'}</div><div class="an-stat-label">Avg Completion</div></div>
+    </div>
+
+    <!-- Team Contribution -->
+    <div style="background:var(--panel);border:1px solid var(--border);padding:14px 16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px">Team Contribution</div>
+        <div style="font-size:9px;font-weight:700;padding:2px 10px;border-radius:10px;background:var(--surface);color:${contribColor}">${contribLabel}${contribIndex !== null ? ' · ' + contribIndex + 'x' : ''}</div>
+      </div>
+      ${memberShareOfTotal !== null ? `
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+          <span>Share of team tasks assigned/claimed</span>
+          <span style="color:var(--text)">${total} of ${teamTotal} · <strong>${memberShareOfTotal}%</strong></span>
+        </div>
+        <div class="an-bar-track">
+          <div class="an-bar-fill" style="width:${memberShareOfTotal}%;background:#4fc3f7"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px">
+          <span>Share of team tasks completed</span>
+          <span style="color:var(--text)">${done} of ${teamDone} · <strong style="color:${contribColor}">${memberShareOfDone !== null ? memberShareOfDone + '%' : '—'}</strong></span>
+        </div>
+        <div class="an-bar-track">
+          <div class="an-bar-fill" style="width:${memberShareOfDone !== null ? memberShareOfDone : 0}%;background:${contribColor}"></div>
+        </div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-top:8px">
+        ${contribIndex === null ? 'No data yet.' : parseFloat(contribIndex) >= 1.2 ? `Completing ${contribIndex}× their share — driving the team forward.` : parseFloat(contribIndex) >= 0.8 ? `Completing about their fair share of team tasks.` : parseFloat(contribIndex) >= 0.4 ? `Completing less than their assigned share — may need support or follow-up.` : `Low task completion relative to share — consider reviewing workload or blockers.`}
+      </div>` : '<div style="font-size:11px;color:var(--muted)">Not a member of any projects yet.</div>'}
     </div>
 
     <!-- Trend + Status pipeline -->
