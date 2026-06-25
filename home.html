@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Prodeegee Hub — All-in-One Workspace for Modern Teams</title>
 <meta name="description" content="Plan projects, track tasks, organize events, collaborate in real-time and get more done with Prodeegee Hub. Everything your team needs to succeed.">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -43,28 +43,34 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .btn-cta:hover{background:var(--orange-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,158,11,.4)}
 
 /* ── HERO ── */
-.hero{background:var(--bg-hero);padding:80px 40px 0;min-height:calc(100vh - 64px);display:flex;align-items:flex-start;justify-content:center}
-.hero-inner{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.hero-content{padding-bottom:80px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:100px;padding:5px 14px 5px 8px;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.hero{
+  background:linear-gradient(140deg,#eef2ff 0%,#f5f3ff 30%,#fdf4ff 60%,#f0fdf4 100%);
+  min-height:calc(100vh - 64px);
+  display:grid;
+  grid-template-columns:42fr 58fr;
+  overflow:hidden;
+}
+.hero-content{
+  padding:96px 48px 96px 64px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:100px;padding:5px 14px 5px 8px;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:28px;box-shadow:0 1px 6px rgba(0,0,0,.07);width:fit-content}
 .hero-badge i{color:var(--orange);font-size:14px}
-.hero-h1{font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:var(--text);margin-bottom:20px}
+.hero-h1{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-size:58px;font-weight:800;line-height:1.08;letter-spacing:-2px;color:var(--text);margin-bottom:22px}
 .hero-h1 span{color:var(--orange)}
-.hero-sub{font-size:17px;color:var(--text-muted);line-height:1.7;margin-bottom:36px;max-width:480px}
-.hero-btns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:36px}
-.btn-hero{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-size:15px;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none;transition:all .15s;box-shadow:0 4px 16px rgba(245,158,11,.35)}
-.btn-hero:hover{background:var(--orange-dark);transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.45)}
-.btn-demo{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--text);font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;border:1.5px solid var(--border);transition:all .15s}
+.hero-sub{font-size:17px;color:var(--text-muted);line-height:1.72;margin-bottom:36px;max-width:460px}
+.hero-btns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.btn-hero{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-size:15px;font-weight:600;padding:14px 28px;border-radius:10px;text-decoration:none;transition:all .15s;box-shadow:0 4px 20px rgba(245,158,11,.4)}
+.btn-hero:hover{background:var(--orange-dark);transform:translateY(-2px);box-shadow:0 6px 28px rgba(245,158,11,.5)}
+.btn-demo{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--text);font-size:15px;font-weight:600;padding:13px 24px;border-radius:10px;text-decoration:none;border:1.5px solid var(--border);transition:all .15s}
 .btn-demo:hover{border-color:#cbd5e1;box-shadow:var(--shadow);transform:translateY(-1px)}
 .hero-social{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .hero-avatars{display:flex;align-items:center}
-.hero-avatars .av{width:32px;height:32px;border-radius:50%;border:2.5px solid #fff;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.hero-avatars .av{width:32px;height:32px;border-radius:50%;border:2.5px solid #fff;margin-left:-9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
 .hero-avatars .av:first-child{margin-left:0}
-.av-1{background:#6366f1}
-.av-2{background:#ec4899}
-.av-3{background:#10b981}
-.av-4{background:#f59e0b}
-.av-more{background:#64748b;font-size:10px}
+.av-1{background:#6366f1}.av-2{background:#ec4899}.av-3{background:#10b981}.av-4{background:#f59e0b}.av-more{background:#64748b;font-size:10px}
 .hero-trust{font-size:13px;font-weight:500;color:var(--text-muted)}
 .hero-trust strong{color:var(--text)}
 .hero-rating{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:1.5px solid var(--border)}
@@ -72,15 +78,75 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .hero-rating-text{font-size:13px;font-weight:500;color:var(--text-muted)}
 .hero-rating-text strong{color:var(--text)}
 
-/* ── HERO MOCKUP ── */
-.hero-mockup{position:relative;padding-bottom:80px;display:flex;justify-content:center}
-.mockup-frame{width:100%;max-width:620px;background:#0d1321;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.28),0 8px 24px rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.08);position:relative}
+/* ── HERO VISUAL (3D mockup) ── */
+.hero-visual{
+  display:flex;
+  align-items:center;
+  padding:60px 0 60px 24px;
+  overflow:hidden;
+}
+.mockup-scene{
+  perspective:1600px;
+  perspective-origin:20% 50%;
+  width:100%;
+  max-width:900px;
+}
+.mockup-wrapper{
+  transform-style:preserve-3d;
+  position:relative;
+  animation:hero-float 5s ease-in-out infinite;
+  will-change:transform;
+}
+@keyframes hero-float{
+  0%,100%{transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg) translateY(0)}
+  50%{transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg) translateY(-14px)}
+}
+.mockup-wrapper.flip-fwd{
+  animation:hero-flip-fwd 1.4s cubic-bezier(.45,0,.55,1) forwards;
+}
+@keyframes hero-flip-fwd{
+  0%  {transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg)}
+  45% {transform:rotateX(2deg) rotateY(68deg) rotateZ(.5deg) scale(.94)}
+  100%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg)}
+}
+.mockup-wrapper.flip-back{
+  animation:hero-flip-back 1.4s cubic-bezier(.45,0,.55,1) forwards;
+}
+@keyframes hero-flip-back{
+  0%  {transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg)}
+  45% {transform:rotateX(2deg) rotateY(248deg) rotateZ(.5deg) scale(.94)}
+  100%{transform:rotateX(6deg) rotateY(338deg) rotateZ(1.5deg)}
+}
+.mockup-wrapper.idle-back{
+  animation:hero-float-back 5s ease-in-out infinite;
+}
+@keyframes hero-float-back{
+  0%,100%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg) translateY(0)}
+  50%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg) translateY(-14px)}
+}
+.mockup-face-front{
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.mockup-face-back{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform:rotateY(180deg);
+}
+.mockup-frame{
+  background:#0d1321;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.45),0 12px 32px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.08);
+}
 .mockup-chrome{background:#0a0f1a;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
 .mockup-dots{display:flex;gap:6px}
 .mockup-dot{width:10px;height:10px;border-radius:50%}
 .dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
 .mockup-url{flex:1;background:rgba(255,255,255,.06);border-radius:6px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.3);text-align:center}
-.mockup-body{display:grid;grid-template-columns:180px 1fr 160px;height:380px}
+.mockup-body{display:grid;grid-template-columns:180px 1fr 160px;height:420px}
 .m-sidebar{background:#0a0f1a;padding:12px 0;border-right:1px solid rgba(255,255,255,.05)}
 .m-brand{display:flex;align-items:center;gap:8px;padding:8px 14px 14px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:8px}
 .m-brand-icon{width:22px;height:22px;background:var(--orange);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff}
@@ -117,30 +183,43 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .m-event-title{font-size:9px;font-weight:600;color:#fff;margin-bottom:3px}
 .m-event-meta{font-size:7.5px;color:rgba(255,255,255,.4);display:flex;gap:4px;align-items:center}
 .m-event-badge{background:#22c55e;color:#fff;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;margin-top:4px;display:inline-block}
-.m-mini-cal{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:7px}
-.m-cal-head{display:flex;justify-content:space-between;align-items:center;font-size:8px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:5px}
-.m-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center}
-.m-cal-day{font-size:7px;color:rgba(255,255,255,.3);padding:2px 0}
-.m-cal-num{font-size:7px;color:rgba(255,255,255,.5);padding:2px 0;border-radius:3px;cursor:pointer}
-.m-cal-num.today{background:var(--orange);color:#fff;font-weight:700}
 .m-chat-msg{display:flex;gap:5px;margin-bottom:7px}
 .m-chat-av{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
 .m-chat-body{flex:1}
 .m-chat-name{font-size:7.5px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:1px}
 .m-chat-text{font-size:7.5px;color:rgba(255,255,255,.4);line-height:1.3}
-
-/* Floating badges on mockup */
-.mockup-float{position:absolute;background:#fff;border-radius:10px;box-shadow:var(--shadow-lg);padding:8px 12px;display:flex;align-items:center;gap:8px;pointer-events:none}
-.float-task{top:-20px;left:-30px;font-size:12px;border:1px solid var(--border)}
-.float-task-icon{width:28px;height:28px;background:#22c55e;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
-.float-task-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.2}
-.float-task-sub{font-size:10px;color:var(--text-muted)}
-.float-event{bottom:100px;right:-30px;font-size:12px;border:1px solid var(--border);flex-direction:column;align-items:flex-start;gap:4px;padding:10px 14px}
-.float-event-icon{width:28px;height:28px;background:#f59e0b;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
-.float-event-row{display:flex;align-items:center;gap:8px}
-.float-event-title{font-size:11px;font-weight:600;color:var(--text)}
-.float-event-meta{font-size:10px;color:var(--text-muted)}
-.float-event-badge{background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+/* Task panel (back face) */
+.m-task-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.m-task-title{font-size:11px;font-weight:700;color:#fff}
+.m-task-count{background:var(--orange);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px}
+.m-task-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.m-task-row:last-child{border-bottom:none}
+.m-task-check{width:13px;height:13px;border-radius:3px;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:8px}
+.m-task-check.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.m-task-check.prog{border-color:#3b82f6}
+.m-task-info{flex:1}
+.m-task-name{font-size:9px;font-weight:500;color:rgba(255,255,255,.85);margin-bottom:3px;line-height:1.3}
+.m-task-name.done{text-decoration:line-through;color:rgba(255,255,255,.35)}
+.m-task-tags{display:flex;gap:4px;flex-wrap:wrap}
+.m-tag{font-size:7px;font-weight:600;padding:1.5px 5px;border-radius:3px}
+.tag-orange{background:rgba(245,158,11,.15);color:#f59e0b}
+.tag-blue{background:rgba(59,130,246,.15);color:#60a5fa}
+.tag-green{background:rgba(34,197,94,.15);color:#22c55e}
+.tag-red{background:rgba(239,68,68,.15);color:#f87171}
+.tag-purple{background:rgba(139,92,246,.15);color:#a78bfa}
+.m-task-due{font-size:7px;color:rgba(255,255,255,.3);margin-top:2px}
+.m-task-av{width:18px;height:18px;border-radius:50%;font-size:7px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.m-progress-section{margin-top:14px}
+.m-progress-label{font-size:8.5px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px}
+.m-progress-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.m-progress-name{font-size:8px;color:rgba(255,255,255,.6);width:80px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-progress-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px}
+.m-progress-bar{height:100%;border-radius:2px}
+.m-progress-pct{font-size:7.5px;color:rgba(255,255,255,.4);width:24px;text-align:right;flex-shrink:0}
+/* View indicator dots */
+.view-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
+.view-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .3s}
+.view-dot.active{background:var(--orange)}
 
 /* ── BRANDS ── */
 .brands{background:#fff;border-top:1px solid var(--border);padding:28px 40px}
@@ -256,10 +335,20 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 .social-link:hover{background:rgba(255,255,255,.12);color:#fff}
 
 /* ── RESPONSIVE ── */
+@media(max-width:1200px){
+  .hero-h1{font-size:48px}
+  .hero-content{padding:80px 40px 80px 48px}
+}
 @media(max-width:1024px){
-  .hero-inner{grid-template-columns:1fr;gap:40px}
-  .hero-mockup{padding-bottom:0}
-  .mockup-frame{max-width:100%}
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-content{padding:72px 40px 48px;max-width:100%}
+  .hero-visual{padding:0 40px 72px;justify-content:center}
+  .mockup-scene{max-width:700px;margin:0 auto}
+  .mockup-wrapper{animation:hero-float-flat 5s ease-in-out infinite}
+  @keyframes hero-float-flat{
+    0%,100%{transform:rotateX(4deg) rotateY(-10deg) rotateZ(.5deg) translateY(0)}
+    50%{transform:rotateX(4deg) rotateY(-10deg) rotateZ(.5deg) translateY(-10px)}
+  }
   .features-grid{grid-template-columns:repeat(2,1fr)}
   .pricing-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:1fr 1fr;gap:28px}
@@ -267,8 +356,11 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 @media(max-width:768px){
   nav{padding:0 20px;gap:16px}
   .nav-links{display:none}
-  .hero{padding:48px 20px 0}
-  .hero-h1{font-size:36px}
+  .hero-content{padding:56px 20px 36px}
+  .hero-h1{font-size:36px;letter-spacing:-1px}
+  .hero-visual{padding:0 20px 56px}
+  .mockup-body{grid-template-columns:140px 1fr}
+  .m-panel{display:none}
   .highlights-inner{grid-template-columns:repeat(2,1fr)}
   .how-steps{grid-template-columns:1fr}
   .testi-grid{grid-template-columns:1fr}
@@ -276,9 +368,6 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .cta h2{font-size:32px}
   footer{padding:40px 20px 24px}
   .footer-top{grid-template-columns:1fr 1fr}
-  .mockup-body{grid-template-columns:140px 1fr}
-  .m-panel{display:none}
-  .float-event{display:none}
 }
 @media(max-width:480px){
   .highlights-inner{grid-template-columns:1fr}
@@ -313,176 +402,278 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-inner">
-    <div class="hero-content">
-      <div class="hero-badge"><i class="ri-star-line"></i> All-in-One Workspace for Modern Teams</div>
-      <h1 class="hero-h1">Manage Projects,<br><span>Tasks &amp; Teams</span><br>From One Workspace</h1>
-      <p class="hero-sub">Plan projects, track tasks, organize events, collaborate in real-time and get more done with Prodeegee Hub. Everything your team needs to succeed.</p>
-      <div class="hero-btns">
-        <a href="login.html" class="btn-hero"><i class="ri-rocket-line"></i> Start Free Trial</a>
-        <a href="#" class="btn-demo"><i class="ri-calendar-line"></i> Book a Demo</a>
-      </div>
-      <div class="hero-social">
-        <div class="hero-avatars">
-          <div class="av av-1">A</div>
-          <div class="av av-2">B</div>
-          <div class="av av-3">C</div>
-          <div class="av av-4">D</div>
-          <div class="av av-more">+2k</div>
-        </div>
-        <div class="hero-trust"><strong>Trusted by 2,000+ teams</strong><br>worldwide</div>
-        <div class="hero-rating">
-          <div>
-            <div class="stars">★★★★★</div>
-            <div class="hero-rating-text"><strong>4.9/5</strong> Based on 500+ reviews</div>
-          </div>
-        </div>
-      </div>
+  <!-- Left: content -->
+  <div class="hero-content">
+    <div class="hero-badge"><i class="ri-star-line"></i> All-in-One Workspace for Modern Teams</div>
+    <h1 class="hero-h1">Manage Projects,<br><span>Tasks &amp; Teams</span><br>From One Workspace</h1>
+    <p class="hero-sub">Plan projects, track tasks, organize events, collaborate in real-time and get more done with Prodeegee Hub. Everything your team needs to succeed.</p>
+    <div class="hero-btns">
+      <a href="login.html" class="btn-hero"><i class="ri-rocket-line"></i> Start Free Trial</a>
+      <a href="contact.html" class="btn-demo"><i class="ri-calendar-line"></i> Book a Demo</a>
     </div>
-
-    <div class="hero-mockup">
-      <!-- Floating badge: task completed -->
-      <div class="mockup-float float-task">
-        <div class="float-task-icon"><i class="ri-check-line"></i></div>
+    <div class="hero-social">
+      <div class="hero-avatars">
+        <div class="av av-1">A</div>
+        <div class="av av-2">B</div>
+        <div class="av av-3">C</div>
+        <div class="av av-4">D</div>
+        <div class="av av-more">+2k</div>
+      </div>
+      <div class="hero-trust"><strong>Trusted by 2,000+ teams</strong><br>worldwide</div>
+      <div class="hero-rating">
         <div>
-          <div class="float-task-title">Task Completed</div>
-          <div class="float-task-sub">Homepage Design • Completed by Sarah • 2m ago</div>
+          <div class="stars">★★★★★</div>
+          <div class="hero-rating-text"><strong>4.9/5</strong> Based on 500+ reviews</div>
         </div>
-      </div>
-
-      <!-- Dashboard mockup -->
-      <div class="mockup-frame">
-        <div class="mockup-chrome">
-          <div class="mockup-dots">
-            <div class="mockup-dot dot-r"></div>
-            <div class="mockup-dot dot-y"></div>
-            <div class="mockup-dot dot-g"></div>
-          </div>
-          <div class="mockup-url">hub.prodeegee.com</div>
-        </div>
-        <div class="mockup-body">
-          <!-- Sidebar -->
-          <div class="m-sidebar">
-            <div class="m-brand">
-              <div class="m-brand-icon">P</div>
-              <div class="m-brand-name">Prodeegee Hub</div>
-            </div>
-            <div class="m-nav">
-              <div class="m-nav-item active"><i class="ri-home-4-line"></i> Dashboard</div>
-              <div class="m-nav-item"><i class="ri-folder-line"></i> Projects</div>
-              <div class="m-nav-item"><i class="ri-task-line"></i> Tasks</div>
-              <div class="m-nav-item"><i class="ri-kanban-view"></i> Kanban Board</div>
-              <div class="m-nav-item"><i class="ri-chat-1-line"></i> Team Chat <span class="m-badge">4</span></div>
-              <div class="m-nav-item"><i class="ri-calendar-2-line"></i> Calendar</div>
-              <div class="m-nav-item"><i class="ri-mail-line"></i> Email Center <span class="m-badge">17</span></div>
-              <div class="m-nav-item"><i class="ri-group-line"></i> Members</div>
-              <div class="m-nav-item"><i class="ri-calendar-event-line"></i> Events</div>
-              <div class="m-nav-item"><i class="ri-archive-line"></i> Resources</div>
-              <div class="m-nav-item"><i class="ri-bar-chart-line"></i> Reports</div>
-              <div class="m-nav-item"><i class="ri-settings-3-line"></i> Settings</div>
-            </div>
-          </div>
-          <!-- Main content -->
-          <div class="m-main">
-            <div class="m-greeting">Good morning, Alex! 👋</div>
-            <div class="m-sub">Here's what's happening with your projects today.</div>
-            <div class="m-stats">
-              <div class="m-stat">
-                <div class="m-stat-num">24</div>
-                <div class="m-stat-lbl">Total Projects</div>
-                <div class="m-stat-up">↑ 12% this month</div>
-              </div>
-              <div class="m-stat">
-                <div class="m-stat-num">156</div>
-                <div class="m-stat-lbl">Tasks Completed</div>
-                <div class="m-stat-up">↑ 18% this week</div>
-              </div>
-              <div class="m-stat">
-                <div class="m-stat-num">18</div>
-                <div class="m-stat-lbl">Team Members</div>
-                <div class="m-stat-up">Active members</div>
-              </div>
-              <div class="m-stat">
-                <div class="m-stat-num">7</div>
-                <div class="m-stat-lbl">Events This Month</div>
-                <div class="m-stat-up">Upcoming events</div>
-              </div>
-            </div>
-            <div class="m-kanban-label">Project Overview</div>
-            <div class="m-kanban">
-              <div>
-                <div class="m-col-head todo-h">To Do <span>8</span></div>
-                <div class="m-card"><div class="m-card-title">Website Redesign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>UI/UX</span><span>May 24</span></div></div>
-                <div class="m-card"><div class="m-card-title">Marketing Campaign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>Content</span><span>May 26</span></div></div>
-              </div>
-              <div>
-                <div class="m-col-head doing-h">In Progress <span>6</span></div>
-                <div class="m-card"><div class="m-card-title">Mobile App Dev</div><div class="m-card-bar bar-60"></div><div class="m-card-meta"><span>Frontend</span><span>60%</span></div></div>
-                <div class="m-card"><div class="m-card-title">Product Launch</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Launch</span><span>79%</span></div></div>
-              </div>
-              <div>
-                <div class="m-col-head review-h">In Review <span>3</span></div>
-                <div class="m-card"><div class="m-card-title">Brand Guidelines</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>Design</span><span>90%</span></div></div>
-                <div class="m-card"><div class="m-card-title">API Integration</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Security</span><span>70%</span></div></div>
-              </div>
-              <div>
-                <div class="m-col-head done-h">Completed <span>12</span></div>
-                <div class="m-card"><div class="m-card-title">Project Kickoff</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
-                <div class="m-card"><div class="m-card-title">Wireframe Design</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
-              </div>
-            </div>
-          </div>
-          <!-- Right panel -->
-          <div class="m-panel">
-            <div class="m-panel-label">Upcoming Event</div>
-            <div class="m-event">
-              <div class="m-event-title">Product Launch Event</div>
-              <div class="m-event-meta"><i class="ri-calendar-line"></i> 24 May 2024 · 10:00 AM</div>
-              <div class="m-event-meta"><i class="ri-map-pin-line"></i> Conference Hall A</div>
-              <div class="m-event-badge">In 2 days</div>
-            </div>
-            <div class="m-panel-label" style="margin-top:10px">Team Chat</div>
-            <div class="m-chat-msg">
-              <div class="m-chat-av" style="background:#6366f1">E</div>
-              <div class="m-chat-body">
-                <div class="m-chat-name">Emma Wilson</div>
-                <div class="m-chat-text">Great progress on the mobile app! 🚀</div>
-              </div>
-            </div>
-            <div class="m-chat-msg">
-              <div class="m-chat-av" style="background:#ec4899">J</div>
-              <div class="m-chat-body">
-                <div class="m-chat-name">John Smith</div>
-                <div class="m-chat-text">New features are almost done.</div>
-              </div>
-            </div>
-            <div class="m-chat-msg">
-              <div class="m-chat-av" style="background:#f59e0b">Y</div>
-              <div class="m-chat-body">
-                <div class="m-chat-name">You</div>
-                <div class="m-chat-text">Let's review together this afternoon.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Floating badge: upcoming event -->
-      <div class="mockup-float float-event">
-        <div class="float-event-row">
-          <div class="float-event-icon"><i class="ri-calendar-event-line"></i></div>
-          <div>
-            <div class="float-event-title">Upcoming Event</div>
-            <div class="float-event-meta">Product Launch Event</div>
-          </div>
-        </div>
-        <div class="float-event-meta"><i class="ri-calendar-line"></i> 24 May 2024 · 10:00 AM</div>
-        <div class="float-event-meta"><i class="ri-map-pin-line"></i> Conference Hall A</div>
-        <div class="float-event-badge">In 2 days</div>
       </div>
     </div>
   </div>
+
+  <!-- Right: 3D rotating mockup -->
+  <div class="hero-visual">
+    <div class="mockup-scene">
+      <div class="mockup-wrapper" id="mockupWrapper">
+
+        <!-- FRONT FACE: Dashboard / Kanban view -->
+        <div class="mockup-face-front">
+          <div class="mockup-frame">
+            <div class="mockup-chrome">
+              <div class="mockup-dots">
+                <div class="mockup-dot dot-r"></div>
+                <div class="mockup-dot dot-y"></div>
+                <div class="mockup-dot dot-g"></div>
+              </div>
+              <div class="mockup-url">hub.prodeegee.com — Dashboard</div>
+            </div>
+            <div class="mockup-body">
+              <div class="m-sidebar">
+                <div class="m-brand">
+                  <div class="m-brand-icon">P</div>
+                  <div class="m-brand-name">Prodeegee Hub</div>
+                </div>
+                <div class="m-nav">
+                  <div class="m-nav-item active"><i class="ri-home-4-line"></i> Dashboard</div>
+                  <div class="m-nav-item"><i class="ri-folder-line"></i> Projects</div>
+                  <div class="m-nav-item"><i class="ri-task-line"></i> Tasks</div>
+                  <div class="m-nav-item"><i class="ri-kanban-view"></i> Kanban Board</div>
+                  <div class="m-nav-item"><i class="ri-chat-1-line"></i> Team Chat <span class="m-badge">4</span></div>
+                  <div class="m-nav-item"><i class="ri-calendar-2-line"></i> Calendar</div>
+                  <div class="m-nav-item"><i class="ri-mail-line"></i> Email Center <span class="m-badge">17</span></div>
+                  <div class="m-nav-item"><i class="ri-group-line"></i> Members</div>
+                  <div class="m-nav-item"><i class="ri-calendar-event-line"></i> Events</div>
+                  <div class="m-nav-item"><i class="ri-archive-line"></i> Resources</div>
+                  <div class="m-nav-item"><i class="ri-bar-chart-line"></i> Reports</div>
+                  <div class="m-nav-item"><i class="ri-settings-3-line"></i> Settings</div>
+                </div>
+              </div>
+              <div class="m-main">
+                <div class="m-greeting">Good morning, Alex! 👋</div>
+                <div class="m-sub">Here's what's happening with your projects today.</div>
+                <div class="m-stats">
+                  <div class="m-stat"><div class="m-stat-num">24</div><div class="m-stat-lbl">Total Projects</div><div class="m-stat-up">↑ 12% this month</div></div>
+                  <div class="m-stat"><div class="m-stat-num">156</div><div class="m-stat-lbl">Tasks Completed</div><div class="m-stat-up">↑ 18% this week</div></div>
+                  <div class="m-stat"><div class="m-stat-num">18</div><div class="m-stat-lbl">Team Members</div><div class="m-stat-up">Active members</div></div>
+                  <div class="m-stat"><div class="m-stat-num">7</div><div class="m-stat-lbl">Events This Month</div><div class="m-stat-up">Upcoming events</div></div>
+                </div>
+                <div class="m-kanban-label">Project Overview</div>
+                <div class="m-kanban">
+                  <div>
+                    <div class="m-col-head todo-h">To Do <span>8</span></div>
+                    <div class="m-card"><div class="m-card-title">Website Redesign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>UI/UX</span><span>May 24</span></div></div>
+                    <div class="m-card"><div class="m-card-title">Marketing Campaign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>Content</span><span>May 26</span></div></div>
+                  </div>
+                  <div>
+                    <div class="m-col-head doing-h">In Progress <span>6</span></div>
+                    <div class="m-card"><div class="m-card-title">Mobile App Dev</div><div class="m-card-bar bar-60"></div><div class="m-card-meta"><span>Frontend</span><span>60%</span></div></div>
+                    <div class="m-card"><div class="m-card-title">Product Launch</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Launch</span><span>79%</span></div></div>
+                  </div>
+                  <div>
+                    <div class="m-col-head review-h">In Review <span>3</span></div>
+                    <div class="m-card"><div class="m-card-title">Brand Guidelines</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>Design</span><span>90%</span></div></div>
+                    <div class="m-card"><div class="m-card-title">API Integration</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Security</span><span>70%</span></div></div>
+                  </div>
+                  <div>
+                    <div class="m-col-head done-h">Completed <span>12</span></div>
+                    <div class="m-card"><div class="m-card-title">Project Kickoff</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
+                    <div class="m-card"><div class="m-card-title">Wireframe Design</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="m-panel">
+                <div class="m-panel-label">Upcoming Event</div>
+                <div class="m-event">
+                  <div class="m-event-title">Product Launch Event</div>
+                  <div class="m-event-meta"><i class="ri-calendar-line"></i> 24 May 2024 · 10:00 AM</div>
+                  <div class="m-event-meta"><i class="ri-map-pin-line"></i> Conference Hall A</div>
+                  <div class="m-event-badge">In 2 days</div>
+                </div>
+                <div class="m-panel-label" style="margin-top:10px">Team Chat</div>
+                <div class="m-chat-msg"><div class="m-chat-av" style="background:#6366f1">E</div><div class="m-chat-body"><div class="m-chat-name">Emma Wilson</div><div class="m-chat-text">Great progress on the mobile app! 🚀</div></div></div>
+                <div class="m-chat-msg"><div class="m-chat-av" style="background:#ec4899">J</div><div class="m-chat-body"><div class="m-chat-name">John Smith</div><div class="m-chat-text">New features almost done.</div></div></div>
+                <div class="m-chat-msg"><div class="m-chat-av" style="background:#f59e0b">Y</div><div class="m-chat-body"><div class="m-chat-name">You</div><div class="m-chat-text">Let's review this afternoon.</div></div></div>
+              </div>
+            </div>
+            <div class="view-dots"><div class="view-dot active" id="dot0"></div><div class="view-dot" id="dot1"></div></div>
+          </div>
+        </div>
+
+        <!-- BACK FACE: Task panel view -->
+        <div class="mockup-face-back">
+          <div class="mockup-frame">
+            <div class="mockup-chrome">
+              <div class="mockup-dots">
+                <div class="mockup-dot dot-r"></div>
+                <div class="mockup-dot dot-y"></div>
+                <div class="mockup-dot dot-g"></div>
+              </div>
+              <div class="mockup-url">hub.prodeegee.com — Tasks</div>
+            </div>
+            <div class="mockup-body">
+              <div class="m-sidebar">
+                <div class="m-brand">
+                  <div class="m-brand-icon">P</div>
+                  <div class="m-brand-name">Prodeegee Hub</div>
+                </div>
+                <div class="m-nav">
+                  <div class="m-nav-item"><i class="ri-home-4-line"></i> Dashboard</div>
+                  <div class="m-nav-item"><i class="ri-folder-line"></i> Projects</div>
+                  <div class="m-nav-item active"><i class="ri-task-line"></i> Tasks</div>
+                  <div class="m-nav-item"><i class="ri-kanban-view"></i> Kanban Board</div>
+                  <div class="m-nav-item"><i class="ri-chat-1-line"></i> Team Chat <span class="m-badge">4</span></div>
+                  <div class="m-nav-item"><i class="ri-calendar-2-line"></i> Calendar</div>
+                  <div class="m-nav-item"><i class="ri-mail-line"></i> Email Center <span class="m-badge">17</span></div>
+                  <div class="m-nav-item"><i class="ri-group-line"></i> Members</div>
+                  <div class="m-nav-item"><i class="ri-calendar-event-line"></i> Events</div>
+                  <div class="m-nav-item"><i class="ri-archive-line"></i> Resources</div>
+                  <div class="m-nav-item"><i class="ri-bar-chart-line"></i> Reports</div>
+                  <div class="m-nav-item"><i class="ri-settings-3-line"></i> Settings</div>
+                </div>
+              </div>
+              <div class="m-main">
+                <div class="m-task-header">
+                  <div class="m-task-title">My Tasks</div>
+                  <div class="m-task-count">24 tasks</div>
+                </div>
+                <div class="m-task-row">
+                  <div class="m-task-check done">✓</div>
+                  <div class="m-task-info">
+                    <div class="m-task-name done">Design system audit</div>
+                    <div class="m-task-tags"><span class="m-tag tag-green">Done</span><span class="m-tag tag-purple">Design</span></div>
+                  </div>
+                  <div class="m-task-av" style="background:#6366f1">E</div>
+                </div>
+                <div class="m-task-row">
+                  <div class="m-task-check prog"></div>
+                  <div class="m-task-info">
+                    <div class="m-task-name">Mobile app onboarding flow</div>
+                    <div class="m-task-tags"><span class="m-tag tag-blue">In Progress</span><span class="m-tag tag-orange">High</span></div>
+                    <div class="m-task-due">Due May 28</div>
+                  </div>
+                  <div class="m-task-av" style="background:#ec4899">S</div>
+                </div>
+                <div class="m-task-row">
+                  <div class="m-task-check"></div>
+                  <div class="m-task-info">
+                    <div class="m-task-name">API rate limiting docs</div>
+                    <div class="m-task-tags"><span class="m-tag tag-red">Overdue</span><span class="m-tag tag-blue">Backend</span></div>
+                    <div class="m-task-due">Due May 22</div>
+                  </div>
+                  <div class="m-task-av" style="background:#10b981">M</div>
+                </div>
+                <div class="m-task-row">
+                  <div class="m-task-check"></div>
+                  <div class="m-task-info">
+                    <div class="m-task-name">Write Q2 marketing brief</div>
+                    <div class="m-task-tags"><span class="m-tag tag-orange">To Do</span><span class="m-tag tag-purple">Marketing</span></div>
+                    <div class="m-task-due">Due Jun 1</div>
+                  </div>
+                  <div class="m-task-av" style="background:#f59e0b">A</div>
+                </div>
+                <div class="m-task-row">
+                  <div class="m-task-check done">✓</div>
+                  <div class="m-task-info">
+                    <div class="m-task-name done">Set up CI/CD pipeline</div>
+                    <div class="m-task-tags"><span class="m-tag tag-green">Done</span><span class="m-tag tag-blue">DevOps</span></div>
+                  </div>
+                  <div class="m-task-av" style="background:#6366f1">J</div>
+                </div>
+                <div class="m-progress-section">
+                  <div class="m-progress-label">Team Progress</div>
+                  <div class="m-progress-row"><div class="m-progress-name">Website Redesign</div><div class="m-progress-bar-wrap"><div class="m-progress-bar" style="width:75%;background:#f59e0b"></div></div><div class="m-progress-pct">75%</div></div>
+                  <div class="m-progress-row"><div class="m-progress-name">Mobile App Dev</div><div class="m-progress-bar-wrap"><div class="m-progress-bar" style="width:60%;background:#3b82f6"></div></div><div class="m-progress-pct">60%</div></div>
+                  <div class="m-progress-row"><div class="m-progress-name">Brand Guidelines</div><div class="m-progress-bar-wrap"><div class="m-progress-bar" style="width:90%;background:#22c55e"></div></div><div class="m-progress-pct">90%</div></div>
+                </div>
+              </div>
+              <div class="m-panel">
+                <div class="m-panel-label">Task Stats</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px">
+                  <div class="m-stat"><div class="m-stat-num" style="color:#22c55e">12</div><div class="m-stat-lbl">Completed</div></div>
+                  <div class="m-stat"><div class="m-stat-num" style="color:#3b82f6">6</div><div class="m-stat-lbl">In Progress</div></div>
+                  <div class="m-stat"><div class="m-stat-num" style="color:#f59e0b">4</div><div class="m-stat-lbl">To Do</div></div>
+                  <div class="m-stat"><div class="m-stat-num" style="color:#ef4444">2</div><div class="m-stat-lbl">Overdue</div></div>
+                </div>
+                <div class="m-panel-label">Due Today</div>
+                <div class="m-chat-msg">
+                  <div class="m-chat-av" style="background:#f59e0b">!</div>
+                  <div class="m-chat-body"><div class="m-chat-name" style="color:#f59e0b">Product Launch prep</div><div class="m-chat-text">Assigned to Sarah</div></div>
+                </div>
+                <div class="m-chat-msg">
+                  <div class="m-chat-av" style="background:#3b82f6">✓</div>
+                  <div class="m-chat-body"><div class="m-chat-name">Review pull request</div><div class="m-chat-text">Assigned to you</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="view-dots"><div class="view-dot" id="dot0b"></div><div class="view-dot active" id="dot1b"></div></div>
+          </div>
+        </div>
+
+      </div><!-- /mockup-wrapper -->
+    </div><!-- /mockup-scene -->
+  </div><!-- /hero-visual -->
 </section>
+
+<script>
+(function(){
+  const wrapper = document.getElementById('mockupWrapper');
+  let showingBack = false;
+  let flipLocked = false;
+
+  function setDots(back){
+    ['dot0','dot1'].forEach((id,i)=>{
+      const el = document.getElementById(id);
+      if(el) el.className = 'view-dot' + (back ? (i===1?' active':'') : (i===0?' active':''));
+    });
+    ['dot0b','dot1b'].forEach((id,i)=>{
+      const el = document.getElementById(id);
+      if(el) el.className = 'view-dot' + (back ? (i===1?' active':'') : (i===0?' active':''));
+    });
+  }
+
+  function flip(){
+    if(flipLocked) return;
+    flipLocked = true;
+    if(!showingBack){
+      wrapper.className = 'flip-fwd';
+      setTimeout(()=>{
+        wrapper.className = 'idle-back';
+        showingBack = true;
+        setDots(true);
+        flipLocked = false;
+      }, 1400);
+    } else {
+      wrapper.className = 'flip-back';
+      setTimeout(()=>{
+        wrapper.className = '';
+        showingBack = false;
+        setDots(false);
+        flipLocked = false;
+      }, 1400);
+    }
+  }
+
+  setInterval(flip, 7000);
+})();
+</script>
 
 <!-- TRUSTED BRANDS -->
 <div class="brands">
