@@ -1957,7 +1957,7 @@ async function signOut() {
   await sb.auth.signOut();
   currentUser = null;
   currentProfile = null;
-  window.location.href = '/login.html';
+  window.location.href = '/home.html';
 }
 
 async function initApp(session) {
@@ -7041,7 +7041,7 @@ const { data: { session } } = await sb.auth.getSession();
 if (session) {
 await initApp(session);
 } else {
-window.location.href = '/login.html';
+window.location.href = '/home.html';
 }
 
 sb.auth.onAuthStateChange(async (event, session) => {
@@ -7052,7 +7052,7 @@ cachedAccessToken = session.access_token;
 cachedRefreshToken = session.refresh_token;
 cachedRefreshToken = session.refresh_token;
 } else if (event === 'SIGNED_OUT') {
-window.location.href = '/login.html';
+window.location.href = '/home.html';
 }
 });
 })();

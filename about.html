@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About Us — Prodeegee Hub</title>
+<meta name="description" content="Learn about Prodeegee Hub — the team, the mission, and the story behind the all-in-one workspace for modern teams.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#f59e0b;--orange-dark:#d97706;--orange-light:#fef3c7;
+  --text:#0f172a;--text-muted:#64748b;--text-light:#94a3b8;
+  --border:#e2e8f0;--bg:#ffffff;--bg-alt:#f8fafc;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;gap:32px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.nav-logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-link{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;transition:all .15s}
+.nav-link:hover{background:var(--bg-alt);color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+.btn-login{font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .15s}
+.btn-login:hover{color:var(--text);background:var(--bg-alt)}
+.btn-cta{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;font-size:14px;font-weight:600;padding:9px 20px;border-radius:9px;text-decoration:none;transition:all .15s}
+.btn-cta:hover{background:var(--orange-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,158,11,.4)}
+
+.page-hero{background:linear-gradient(135deg,#f8faff 0%,#f0f4ff 50%,#faf8ff 100%);padding:80px 40px;text-align:center;border-bottom:1px solid var(--border)}
+.page-hero .section-label{display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange-dark);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+.page-hero h1{font-size:48px;font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:16px;line-height:1.15}
+.page-hero h1 span{color:var(--orange)}
+.page-hero p{font-size:18px;color:var(--text-muted);max-width:580px;margin:0 auto;line-height:1.65}
+
+.section{padding:80px 40px}
+.section-inner{max-width:900px;margin:0 auto}
+.section-inner.wide{max-width:1200px}
+.section-label{display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange-dark);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+h2{font-size:36px;font-weight:800;letter-spacing:-1px;color:var(--text);margin-bottom:12px;line-height:1.2}
+.lead{font-size:17px;color:var(--text-muted);line-height:1.7;margin-bottom:28px}
+p{font-size:15px;color:var(--text-muted);line-height:1.75;margin-bottom:16px}
+p:last-child{margin-bottom:0}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px}
+.stat-block{text-align:center;padding:28px 20px;background:#fff;border:1.5px solid var(--border);border-radius:16px}
+.stat-num{font-size:40px;font-weight:800;color:var(--orange);letter-spacing:-1px;line-height:1}
+.stat-lbl{font-size:14px;font-weight:500;color:var(--text-muted);margin-top:6px}
+
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.value-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:28px;transition:all .2s}
+.value-card:hover{border-color:#cbd5e1;box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.value-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.vi-orange{background:#fff7ed;color:#ea580c}
+.vi-blue{background:#eff6ff;color:#2563eb}
+.vi-green{background:#f0fdf4;color:#16a34a}
+.vi-purple{background:#f5f3ff;color:#7c3aed}
+.vi-red{background:#fff1f2;color:#e11d48}
+.vi-yellow{background:#fffbeb;color:#d97706}
+.value-card h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px}
+.value-card p{font-size:14px;margin-bottom:0}
+
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px}
+.team-card{text-align:center}
+.team-av{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 14px}
+.team-name{font-size:15px;font-weight:700;color:var(--text)}
+.team-role{font-size:13px;color:var(--text-muted);margin-top:3px}
+
+.solutions-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}
+.solution-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:28px;display:flex;gap:16px;align-items:flex-start;transition:all .2s}
+.solution-card:hover{border-color:#cbd5e1;box-shadow:var(--shadow);transform:translateY(-1px)}
+.solution-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.solution-card h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.solution-card p{font-size:13.5px;margin-bottom:0}
+
+.cta-section{padding:80px 40px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)}
+.cta-inner{max-width:700px;margin:0 auto;text-align:center}
+.cta-inner h2{font-size:40px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.2;margin-bottom:14px}
+.cta-inner h2 span{color:var(--orange)}
+.cta-inner p{font-size:16px;color:rgba(255,255,255,.6);margin-bottom:32px}
+.cta-btns{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn-cta-hero{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-size:15px;font-weight:600;padding:13px 28px;border-radius:10px;text-decoration:none;transition:all .15s}
+.btn-cta-hero:hover{background:var(--orange-dark);transform:translateY(-2px)}
+.btn-cta-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;border:1.5px solid rgba(255,255,255,.15);transition:all .15s}
+.btn-cta-ghost:hover{background:rgba(255,255,255,.14)}
+
+footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.footer-brand p{font-size:13.5px;color:rgba(255,255,255,.4);line-height:1.65;margin-top:12px;max-width:260px}
+.footer-col h4{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:9px}
+.footer-col a{font-size:13.5px;color:rgba(255,255,255,.55);text-decoration:none;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-copy{font-size:12.5px;color:rgba(255,255,255,.3)}
+.footer-social{display:flex;gap:12px}
+.social-link{width:32px;height:32px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none;font-size:14px;transition:all .15s}
+.social-link:hover{background:rgba(255,255,255,.12);color:#fff}
+
+@media(max-width:1024px){.footer-top{grid-template-columns:1fr 1fr;gap:28px}.team-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){nav{padding:0 20px}.nav-links{display:none}.page-hero h1{font-size:34px}.stats-row{grid-template-columns:repeat(2,1fr)}.values-grid{grid-template-columns:1fr}.solutions-grid{grid-template-columns:1fr}.section{padding:56px 20px}.page-hero{padding:56px 20px}.cta-section{padding:56px 20px}footer{padding:40px 20px 24px}.footer-top{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr}.team-grid{grid-template-columns:repeat(2,1fr)}.footer-top{grid-template-columns:1fr}.page-hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="home.html" class="nav-logo">
+    <div class="nav-logo-icon">P</div>
+    <span class="nav-logo-text">Prodeegee Hub</span>
+  </a>
+  <div class="nav-links">
+    <a href="home.html#features" class="nav-link">Features</a>
+    <a href="home.html#pricing" class="nav-link">Pricing</a>
+    <a href="about.html" class="nav-link" style="color:var(--text)">About Us</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn-login">Log in</a>
+    <a href="login.html" class="btn-cta">Start Free Trial</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="section-label"><i class="ri-heart-line"></i> Our Story</div>
+  <h1>Built for teams that<br><span>move fast</span></h1>
+  <p>We believe great teams deserve great tools — not a dozen apps duct-taped together. Prodeegee Hub is the workspace we always wished we had.</p>
+</div>
+
+<!-- MISSION -->
+<section class="section" style="background:var(--bg)">
+  <div class="section-inner">
+    <div class="section-label"><i class="ri-flag-line"></i> Our Mission</div>
+    <h2>One workspace.<br>Zero friction.</h2>
+    <p class="lead">Prodeegee Hub was born from a simple frustration: modern teams were spending more time managing tools than doing actual work. Switching between project trackers, chat apps, email clients, and calendars was killing productivity.</p>
+    <p>We set out to build a single, beautifully designed workspace that brings projects, tasks, team communication, email, calendars, and analytics together — with real-time collaboration baked in from day one.</p>
+    <p>Today, thousands of teams across startups, agencies, and enterprises rely on Prodeegee Hub to plan smarter, move faster, and deliver better results together.</p>
+
+    <div class="stats-row">
+      <div class="stat-block">
+        <div class="stat-num">2,000+</div>
+        <div class="stat-lbl">Teams worldwide</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">50k+</div>
+        <div class="stat-lbl">Tasks completed daily</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">4.9/5</div>
+        <div class="stat-lbl">Average rating</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num">99.9%</div>
+        <div class="stat-lbl">Uptime SLA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="section" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-inner wide">
+    <div style="text-align:center">
+      <div class="section-label" style="display:inline-flex"><i class="ri-star-line"></i> What We Stand For</div>
+      <h2 style="margin-top:0">Our values</h2>
+      <p class="lead" style="max-width:560px;margin:0 auto 0">The principles that shape every decision we make — from product design to customer support.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon vi-orange"><i class="ri-focus-3-line"></i></div>
+        <h3>Simplicity First</h3>
+        <p>We ruthlessly remove complexity. Every feature earns its place by making teams more productive, not just adding to the feature count.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon vi-blue"><i class="ri-group-2-line"></i></div>
+        <h3>Teams Over Individuals</h3>
+        <p>The best work happens when teams are aligned. We build every feature to improve visibility, reduce silos, and keep everyone on the same page.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon vi-green"><i class="ri-speed-line"></i></div>
+        <h3>Speed Matters</h3>
+        <p>Slow tools kill momentum. We obsess over performance — from page load times to the speed of Supabase real-time updates in your inbox.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon vi-purple"><i class="ri-lock-line"></i></div>
+        <h3>Privacy by Design</h3>
+        <p>Your team's data is yours. We build with security and privacy as foundations, not afterthoughts. No selling data, ever.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon vi-red"><i class="ri-customer-service-2-line"></i></div>
+        <h3>Customer Obsession</h3>
+        <p>Every piece of feedback makes the product better. We listen, we ship, we iterate — and we treat support as a product feature.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon vi-yellow"><i class="ri-open-source-line"></i></div>
+        <h3>Transparency</h3>
+        <p>We publish our roadmap, communicate changes clearly, and give teams the visibility they need to plan around our platform confidently.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="section" style="background:var(--bg)">
+  <div class="section-inner wide">
+    <div style="text-align:center">
+      <div class="section-label" style="display:inline-flex"><i class="ri-team-line"></i> The Team</div>
+      <h2 style="margin-top:0">The people behind<br>Prodeegee Hub</h2>
+      <p class="lead" style="max-width:500px;margin:0 auto">A small, focused team of designers, engineers, and product thinkers building the workspace we always wanted.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-av" style="background:#6366f1">A</div>
+        <div class="team-name">Alex Prodeegee</div>
+        <div class="team-role">Founder & CEO</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av" style="background:#ec4899">S</div>
+        <div class="team-name">Sarah Chen</div>
+        <div class="team-role">Head of Product</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av" style="background:#10b981">M</div>
+        <div class="team-name">Marcus Lee</div>
+        <div class="team-role">Lead Engineer</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av" style="background:#f59e0b">A</div>
+        <div class="team-name">Aisha Okonkwo</div>
+        <div class="team-role">Head of Design</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTIONS -->
+<section class="section" id="startups" style="background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="section-inner wide">
+    <div style="text-align:center">
+      <div class="section-label" style="display:inline-flex"><i class="ri-building-line"></i> Solutions</div>
+      <h2 style="margin-top:0">Built for every kind of team</h2>
+      <p class="lead" style="max-width:520px;margin:0 auto">Whether you're a two-person startup or a 500-person enterprise, Prodeegee Hub adapts to how you work.</p>
+    </div>
+    <div class="solutions-grid">
+      <div class="solution-card" id="startups">
+        <div class="solution-icon" style="background:#fff7ed;color:#ea580c"><i class="ri-rocket-line"></i></div>
+        <div>
+          <h3>For Startups</h3>
+          <p>Move fast without breaking things. Get your whole team aligned from day one with shared projects, real-time chat, and visual task tracking — all free for small teams.</p>
+        </div>
+      </div>
+      <div class="solution-card" id="agencies">
+        <div class="solution-icon" style="background:#eff6ff;color:#2563eb"><i class="ri-pen-nib-line"></i></div>
+        <div>
+          <h3>For Agencies</h3>
+          <p>Manage multiple clients and projects without juggling tools. Separate workspaces, resource management, and client-ready reporting keep every engagement organized.</p>
+        </div>
+      </div>
+      <div class="solution-card" id="enterprise">
+        <div class="solution-icon" style="background:#f5f3ff;color:#7c3aed"><i class="ri-building-2-line"></i></div>
+        <div>
+          <h3>For Enterprise</h3>
+          <p>Enterprise-grade security, SSO, custom roles, and priority support. Prodeegee Hub scales with you and meets your compliance requirements out of the box.</p>
+        </div>
+      </div>
+      <div class="solution-card" id="remote">
+        <div class="solution-icon" style="background:#f0fdf4;color:#16a34a"><i class="ri-global-line"></i></div>
+        <div>
+          <h3>For Remote Teams</h3>
+          <p>Bridge time zones and keep distributed teams connected. Real-time collaboration, async messaging, and live presence indicators make remote work feel effortless.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to build<br>something <span>great together?</span></h2>
+    <p>Join 2,000+ teams who use Prodeegee Hub to plan smarter, collaborate faster, and ship better products.</p>
+    <div class="cta-btns">
+      <a href="login.html" class="btn-cta-hero"><i class="ri-rocket-line"></i> Start Free Trial</a>
+      <a href="contact.html" class="btn-cta-ghost"><i class="ri-mail-line"></i> Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-col footer-brand">
+        <a href="home.html" class="nav-logo" style="margin-bottom:4px">
+          <div class="nav-logo-icon">P</div>
+          <span class="nav-logo-text" style="color:#fff">Prodeegee Hub</span>
+        </a>
+        <p>The all-in-one workspace for modern teams. Plan, collaborate, and ship — all from one place.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="home.html#features">Features</a></li>
+          <li><a href="home.html#pricing">Pricing</a></li>
+          <li><a href="home.html#how">How it works</a></li>
+          <li><a href="login.html">Log in</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Solutions</h4>
+        <ul>
+          <li><a href="#startups">For Startups</a></li>
+          <li><a href="#agencies">For Agencies</a></li>
+          <li><a href="#enterprise">For Enterprise</a></li>
+          <li><a href="#remote">Remote Teams</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="contact.html">Support</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Prodeegee Hub. All rights reserved.</div>
+      <div class="footer-social">
+        <a href="#" class="social-link"><i class="ri-twitter-x-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-linkedin-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-github-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-youtube-line"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

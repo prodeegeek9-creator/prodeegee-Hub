@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy — Prodeegee Hub</title>
+<meta name="description" content="Prodeegee Hub Privacy Policy — how we collect, use, and protect your data.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#f59e0b;--orange-dark:#d97706;--orange-light:#fef3c7;
+  --text:#0f172a;--text-muted:#64748b;--text-light:#94a3b8;
+  --border:#e2e8f0;--bg:#ffffff;--bg-alt:#f8fafc;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;gap:32px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.nav-logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-link{padding:6px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;transition:all .15s}
+.nav-link:hover{background:var(--bg-alt);color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+.btn-login{font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .15s}
+.btn-login:hover{color:var(--text);background:var(--bg-alt)}
+.btn-cta{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;font-size:14px;font-weight:600;padding:9px 20px;border-radius:9px;text-decoration:none;transition:all .15s}
+.btn-cta:hover{background:var(--orange-dark)}
+
+.page-hero{background:linear-gradient(135deg,#f8faff 0%,#f0f4ff 50%,#faf8ff 100%);padding:72px 40px 56px;text-align:center;border-bottom:1px solid var(--border)}
+.page-hero .chip{display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange-dark);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+.page-hero h1{font-size:44px;font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:12px}
+.page-hero .meta{font-size:14px;color:var(--text-muted)}
+
+.doc-layout{max-width:800px;margin:0 auto;padding:64px 40px}
+.toc{background:var(--bg-alt);border:1.5px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:48px}
+.toc h3{font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.toc ol{padding-left:18px}
+.toc li{margin-bottom:7px}
+.toc a{font-size:13.5px;color:var(--orange);text-decoration:none;font-weight:500}
+.toc a:hover{text-decoration:underline}
+
+.doc-section{margin-bottom:48px}
+.doc-section h2{font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid var(--border)}
+.doc-section h3{font-size:16px;font-weight:600;color:var(--text);margin:20px 0 8px}
+.doc-section p{font-size:15px;color:var(--text-muted);line-height:1.75;margin-bottom:14px}
+.doc-section p:last-child{margin-bottom:0}
+.doc-section ul,.doc-section ol{padding-left:22px;margin-bottom:14px}
+.doc-section li{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:6px}
+.doc-section a{color:var(--orange)}
+
+.highlight-box{background:var(--orange-light);border-left:4px solid var(--orange);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:20px}
+.highlight-box p{color:#92400e;margin-bottom:0;font-size:14px}
+
+footer{background:#0f172a;padding:48px 40px 28px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:0}
+.footer-copy{font-size:12.5px;color:rgba(255,255,255,.3)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12.5px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:#fff}
+
+@media(max-width:768px){nav{padding:0 20px}.nav-links{display:none}.page-hero{padding:52px 20px 40px}.page-hero h1{font-size:32px}.doc-layout{padding:40px 20px}footer{padding:32px 20px 20px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="home.html" class="nav-logo">
+    <div class="nav-logo-icon">P</div>
+    <span class="nav-logo-text">Prodeegee Hub</span>
+  </a>
+  <div class="nav-links">
+    <a href="home.html#features" class="nav-link">Features</a>
+    <a href="home.html#pricing" class="nav-link">Pricing</a>
+    <a href="about.html" class="nav-link">About Us</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn-login">Log in</a>
+    <a href="login.html" class="btn-cta">Start Free Trial</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="chip"><i class="ri-shield-check-line"></i> Legal</div>
+  <h1>Privacy Policy</h1>
+  <div class="meta">Last updated: June 2024 &nbsp;·&nbsp; Effective: June 1, 2024</div>
+</div>
+
+<div class="doc-layout">
+  <div class="highlight-box">
+    <p><strong>The short version:</strong> We collect only what we need to run Prodeegee Hub, we never sell your data, and you remain in control of your information at all times.</p>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#info-we-collect">Information We Collect</a></li>
+      <li><a href="#how-we-use">How We Use Your Information</a></li>
+      <li><a href="#sharing">Sharing of Information</a></li>
+      <li><a href="#data-storage">Data Storage & Security</a></li>
+      <li><a href="#cookies">Cookies & Tracking</a></li>
+      <li><a href="#your-rights">Your Rights</a></li>
+      <li><a href="#retention">Data Retention</a></li>
+      <li><a href="#children">Children's Privacy</a></li>
+      <li><a href="#changes">Changes to This Policy</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="info-we-collect">
+    <h2>1. Information We Collect</h2>
+    <h3>Account Information</h3>
+    <p>When you create an account or are invited to a workspace, we collect your name, email address, and password (stored as a secure hash). Your email is used as your unique identifier within Prodeegee Hub.</p>
+    <h3>Workspace Content</h3>
+    <p>We store the content you create and share within Prodeegee Hub, including tasks, project details, messages, calendar events, and any files or resources you upload. This content is associated with your account and your organization's workspace.</p>
+    <h3>Usage Data</h3>
+    <p>We collect information about how you interact with Prodeegee Hub, including features accessed, actions performed (task created, message sent, etc.), session duration, and error logs. This helps us improve the product.</p>
+    <h3>Device & Connection Information</h3>
+    <p>We may collect your IP address, browser type, operating system, and device identifiers when you access Prodeegee Hub. This is used for security, fraud prevention, and debugging.</p>
+  </div>
+
+  <div class="doc-section" id="how-we-use">
+    <h2>2. How We Use Your Information</h2>
+    <p>We use the information we collect to:</p>
+    <ul>
+      <li>Provide, maintain, and improve Prodeegee Hub</li>
+      <li>Authenticate your identity and keep your account secure</li>
+      <li>Send notifications related to your workspace activity (tasks, mentions, events)</li>
+      <li>Send transactional emails (password resets, invitations, account alerts)</li>
+      <li>Respond to support requests and troubleshoot issues</li>
+      <li>Analyze usage patterns to improve features and performance</li>
+      <li>Enforce our Terms of Service and applicable laws</li>
+    </ul>
+    <p>We do <strong>not</strong> use your content to train AI models, serve advertising, or sell to third parties.</p>
+  </div>
+
+  <div class="doc-section" id="sharing">
+    <h2>3. Sharing of Information</h2>
+    <p>We do not sell, rent, or trade your personal information. We share data only in the following circumstances:</p>
+    <h3>Within Your Organization</h3>
+    <p>Your name, avatar, role, and online status are visible to other members of your Prodeegee Hub workspace. Content you create (tasks, messages, events) is shared with teammates as intended by the product.</p>
+    <h3>Service Providers</h3>
+    <p>We use trusted third-party providers to operate Prodeegee Hub, including Supabase (database and authentication), Cloudflare (hosting and CDN), and Resend (transactional email). These providers process data on our behalf under strict data processing agreements.</p>
+    <h3>Legal Requirements</h3>
+    <p>We may disclose information if required by law, court order, or government request, or when necessary to protect the rights, property, or safety of Prodeegee Hub, our users, or the public.</p>
+    <h3>Business Transfers</h3>
+    <p>In the event of a merger, acquisition, or sale of assets, your data may be transferred as part of that transaction. We will notify you before your data is subject to a different privacy policy.</p>
+  </div>
+
+  <div class="doc-section" id="data-storage">
+    <h2>4. Data Storage & Security</h2>
+    <p>Your data is stored on Supabase infrastructure, which uses industry-standard encryption at rest (AES-256) and in transit (TLS 1.2+). We implement access controls, regular security audits, and follow security best practices to protect your information.</p>
+    <p>While we take security seriously, no system is completely immune to breaches. In the event of a data breach affecting your personal information, we will notify you within 72 hours in accordance with applicable data protection laws.</p>
+  </div>
+
+  <div class="doc-section" id="cookies">
+    <h2>5. Cookies & Tracking</h2>
+    <p>Prodeegee Hub uses cookies and similar technologies to maintain your session (keeping you logged in), remember preferences, and analyze usage. We use:</p>
+    <ul>
+      <li><strong>Essential cookies:</strong> Required for authentication and core functionality. Cannot be disabled.</li>
+      <li><strong>Analytics cookies:</strong> Help us understand how the product is used so we can improve it.</li>
+    </ul>
+    <p>We do not use advertising cookies or third-party tracking cookies that follow you across the web.</p>
+  </div>
+
+  <div class="doc-section" id="your-rights">
+    <h2>6. Your Rights</h2>
+    <p>Depending on your location, you may have the following rights regarding your personal data:</p>
+    <ul>
+      <li><strong>Access:</strong> Request a copy of the personal data we hold about you.</li>
+      <li><strong>Correction:</strong> Update or correct inaccurate information in your profile.</li>
+      <li><strong>Deletion:</strong> Request that we delete your account and associated personal data.</li>
+      <li><strong>Portability:</strong> Receive your data in a machine-readable format.</li>
+      <li><strong>Objection:</strong> Object to certain types of processing, such as analytics.</li>
+    </ul>
+    <p>To exercise any of these rights, contact us at <a href="mailto:privacy@prodeegee.com">privacy@prodeegee.com</a>. We will respond within 30 days.</p>
+  </div>
+
+  <div class="doc-section" id="retention">
+    <h2>7. Data Retention</h2>
+    <p>We retain your data for as long as your account is active or as needed to provide services. If you delete your account, we will delete or anonymize your personal data within 30 days, except where we are required to retain it by law (e.g., financial records for tax purposes).</p>
+    <p>Workspace content (tasks, messages, projects) may be retained for the duration of your organization's subscription plus a 30-day grace period to allow for recovery.</p>
+  </div>
+
+  <div class="doc-section" id="children">
+    <h2>8. Children's Privacy</h2>
+    <p>Prodeegee Hub is not directed at children under the age of 16. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will delete it promptly.</p>
+  </div>
+
+  <div class="doc-section" id="changes">
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we make significant changes, we will notify you via email or a prominent notice within Prodeegee Hub at least 14 days before the changes take effect. Continued use of the service after that date constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="doc-section" id="contact">
+    <h2>10. Contact Us</h2>
+    <p>If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:</p>
+    <ul>
+      <li>Email: <a href="mailto:privacy@prodeegee.com">privacy@prodeegee.com</a></li>
+      <li>General: <a href="contact.html">Contact page</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Prodeegee Hub. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
