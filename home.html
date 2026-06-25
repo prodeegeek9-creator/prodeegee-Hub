@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prodeegee Hub — All-in-One Workspace for Modern Teams</title>
+<meta name="description" content="Plan projects, track tasks, organize events, collaborate in real-time and get more done with Prodeegee Hub. Everything your team needs to succeed.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#f59e0b;
+  --orange-dark:#d97706;
+  --orange-light:#fef3c7;
+  --text:#0f172a;
+  --text-muted:#64748b;
+  --text-light:#94a3b8;
+  --border:#e2e8f0;
+  --bg:#ffffff;
+  --bg-alt:#f8fafc;
+  --bg-hero:linear-gradient(135deg,#f8faff 0%,#f0f4ff 50%,#faf8ff 100%);
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;gap:32px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;letter-spacing:-1px}
+.nav-logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-link{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:none;font-family:inherit}
+.nav-link:hover{background:var(--bg-alt);color:var(--text)}
+.nav-link i{font-size:12px;opacity:.7}
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+.btn-login{font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .15s}
+.btn-login:hover{color:var(--text);background:var(--bg-alt)}
+.btn-cta{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;font-size:14px;font-weight:600;padding:9px 20px;border-radius:9px;text-decoration:none;transition:all .15s;border:none;cursor:pointer;font-family:inherit}
+.btn-cta:hover{background:var(--orange-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(245,158,11,.4)}
+
+/* ── HERO ── */
+.hero{background:var(--bg-hero);padding:80px 40px 0;min-height:calc(100vh - 64px);display:flex;align-items:flex-start;justify-content:center}
+.hero-inner{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-content{padding-bottom:80px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:100px;padding:5px 14px 5px 8px;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.hero-badge i{color:var(--orange);font-size:14px}
+.hero-h1{font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:var(--text);margin-bottom:20px}
+.hero-h1 span{color:var(--orange)}
+.hero-sub{font-size:17px;color:var(--text-muted);line-height:1.7;margin-bottom:36px;max-width:480px}
+.hero-btns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:36px}
+.btn-hero{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-size:15px;font-weight:600;padding:13px 26px;border-radius:10px;text-decoration:none;transition:all .15s;box-shadow:0 4px 16px rgba(245,158,11,.35)}
+.btn-hero:hover{background:var(--orange-dark);transform:translateY(-2px);box-shadow:0 6px 24px rgba(245,158,11,.45)}
+.btn-demo{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--text);font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;border:1.5px solid var(--border);transition:all .15s}
+.btn-demo:hover{border-color:#cbd5e1;box-shadow:var(--shadow);transform:translateY(-1px)}
+.hero-social{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hero-avatars{display:flex;align-items:center}
+.hero-avatars .av{width:32px;height:32px;border-radius:50%;border:2.5px solid #fff;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.hero-avatars .av:first-child{margin-left:0}
+.av-1{background:#6366f1}
+.av-2{background:#ec4899}
+.av-3{background:#10b981}
+.av-4{background:#f59e0b}
+.av-more{background:#64748b;font-size:10px}
+.hero-trust{font-size:13px;font-weight:500;color:var(--text-muted)}
+.hero-trust strong{color:var(--text)}
+.hero-rating{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:1.5px solid var(--border)}
+.stars{color:var(--orange);font-size:13px;letter-spacing:-1px}
+.hero-rating-text{font-size:13px;font-weight:500;color:var(--text-muted)}
+.hero-rating-text strong{color:var(--text)}
+
+/* ── HERO MOCKUP ── */
+.hero-mockup{position:relative;padding-bottom:80px;display:flex;justify-content:center}
+.mockup-frame{width:100%;max-width:620px;background:#0d1321;border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.28),0 8px 24px rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.08);position:relative}
+.mockup-chrome{background:#0a0f1a;padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.mockup-dots{display:flex;gap:6px}
+.mockup-dot{width:10px;height:10px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.mockup-url{flex:1;background:rgba(255,255,255,.06);border-radius:6px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.3);text-align:center}
+.mockup-body{display:grid;grid-template-columns:180px 1fr 160px;height:380px}
+.m-sidebar{background:#0a0f1a;padding:12px 0;border-right:1px solid rgba(255,255,255,.05)}
+.m-brand{display:flex;align-items:center;gap:8px;padding:8px 14px 14px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+.m-brand-icon{width:22px;height:22px;background:var(--orange);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff}
+.m-brand-name{font-size:11px;font-weight:700;color:#fff}
+.m-nav{padding:4px 0}
+.m-nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:10px;color:rgba(255,255,255,.5);cursor:pointer}
+.m-nav-item.active{background:rgba(245,158,11,.12);color:var(--orange)}
+.m-nav-item i{font-size:11px;width:12px}
+.m-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px}
+.m-main{padding:14px;overflow:hidden}
+.m-greeting{font-size:11px;font-weight:600;color:#fff;margin-bottom:2px}
+.m-sub{font-size:9px;color:rgba(255,255,255,.4);margin-bottom:12px}
+.m-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.m-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:6px 8px}
+.m-stat-num{font-size:13px;font-weight:700;color:#fff;line-height:1}
+.m-stat-lbl{font-size:8px;color:rgba(255,255,255,.35);margin-top:2px}
+.m-stat-up{font-size:7.5px;color:#22c55e;margin-top:1px}
+.m-kanban-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.m-kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.m-col-head{font-size:8px;font-weight:600;color:rgba(255,255,255,.5);padding:4px 6px;border-radius:4px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.m-col-head span{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff}
+.todo-h span{background:#64748b}.doing-h span{background:#3b82f6}.review-h span{background:#f59e0b}.done-h span{background:#22c55e}
+.m-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:5px 6px;margin-bottom:4px}
+.m-card-title{font-size:8.5px;font-weight:500;color:rgba(255,255,255,.8);margin-bottom:3px;line-height:1.2}
+.m-card-bar{height:2.5px;border-radius:2px;margin-bottom:3px}
+.bar-40{background:linear-gradient(90deg,#f59e0b 40%,rgba(255,255,255,.08) 40%)}
+.bar-60{background:linear-gradient(90deg,#3b82f6 60%,rgba(255,255,255,.08) 60%)}
+.bar-90{background:linear-gradient(90deg,#22c55e 90%,rgba(255,255,255,.08) 90%)}
+.bar-75{background:linear-gradient(90deg,#22c55e 75%,rgba(255,255,255,.08) 75%)}
+.m-card-meta{font-size:7px;color:rgba(255,255,255,.3);display:flex;justify-content:space-between}
+.m-panel{background:#0f1928;border-left:1px solid rgba(255,255,255,.05);padding:12px;overflow:hidden}
+.m-panel-label{font-size:9px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.m-event{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:7px 8px;margin-bottom:8px}
+.m-event-title{font-size:9px;font-weight:600;color:#fff;margin-bottom:3px}
+.m-event-meta{font-size:7.5px;color:rgba(255,255,255,.4);display:flex;gap:4px;align-items:center}
+.m-event-badge{background:#22c55e;color:#fff;font-size:7px;font-weight:700;padding:2px 5px;border-radius:4px;margin-top:4px;display:inline-block}
+.m-mini-cal{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:7px}
+.m-cal-head{display:flex;justify-content:space-between;align-items:center;font-size:8px;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:5px}
+.m-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center}
+.m-cal-day{font-size:7px;color:rgba(255,255,255,.3);padding:2px 0}
+.m-cal-num{font-size:7px;color:rgba(255,255,255,.5);padding:2px 0;border-radius:3px;cursor:pointer}
+.m-cal-num.today{background:var(--orange);color:#fff;font-weight:700}
+.m-chat-msg{display:flex;gap:5px;margin-bottom:7px}
+.m-chat-av{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
+.m-chat-body{flex:1}
+.m-chat-name{font-size:7.5px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:1px}
+.m-chat-text{font-size:7.5px;color:rgba(255,255,255,.4);line-height:1.3}
+
+/* Floating badges on mockup */
+.mockup-float{position:absolute;background:#fff;border-radius:10px;box-shadow:var(--shadow-lg);padding:8px 12px;display:flex;align-items:center;gap:8px;pointer-events:none}
+.float-task{top:-20px;left:-30px;font-size:12px;border:1px solid var(--border)}
+.float-task-icon{width:28px;height:28px;background:#22c55e;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.float-task-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.2}
+.float-task-sub{font-size:10px;color:var(--text-muted)}
+.float-event{bottom:100px;right:-30px;font-size:12px;border:1px solid var(--border);flex-direction:column;align-items:flex-start;gap:4px;padding:10px 14px}
+.float-event-icon{width:28px;height:28px;background:#f59e0b;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.float-event-row{display:flex;align-items:center;gap:8px}
+.float-event-title{font-size:11px;font-weight:600;color:var(--text)}
+.float-event-meta{font-size:10px;color:var(--text-muted)}
+.float-event-badge{background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+
+/* ── BRANDS ── */
+.brands{background:#fff;border-top:1px solid var(--border);padding:28px 40px}
+.brands-inner{max-width:1200px;margin:0 auto}
+.brands-label{text-align:center;font-size:13px;color:var(--text-light);font-weight:500;margin-bottom:20px}
+.brands-logos{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
+.brand-logo-item{display:flex;align-items:center;gap:6px;color:var(--text-light);font-size:13px;font-weight:600;opacity:.7;transition:opacity .2s}
+.brand-logo-item:hover{opacity:1}
+.brand-logo-item i{font-size:15px}
+
+/* ── FEATURE HIGHLIGHTS ── */
+.highlights{background:var(--bg-alt);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px 40px}
+.highlights-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.highlight{display:flex;align-items:flex-start;gap:12px}
+.highlight-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hi-purple{background:#ede9fe;color:#7c3aed}
+.hi-blue{background:#dbeafe;color:#2563eb}
+.hi-green{background:#d1fae5;color:#059669}
+.hi-red{background:#fee2e2;color:#dc2626}
+.highlight-label{font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
+.highlight-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px}
+
+/* ── FEATURES ── */
+.features{padding:80px 40px}
+.features-inner{max-width:1200px;margin:0 auto}
+.section-label{display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange-dark);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+.section-h2{font-size:40px;font-weight:800;letter-spacing:-1px;color:var(--text);margin-bottom:12px;line-height:1.15}
+.section-sub{font-size:16px;color:var(--text-muted);max-width:560px;line-height:1.65;margin-bottom:52px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.feature-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:28px;transition:all .2s;cursor:pointer}
+.feature-card:hover{border-color:#cbd5e1;box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.feature-card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px}
+.fc-orange{background:#fff7ed;color:#ea580c}
+.fc-green{background:#f0fdf4;color:#16a34a}
+.fc-purple{background:#f5f3ff;color:#7c3aed}
+.fc-blue{background:#eff6ff;color:#2563eb}
+.fc-red{background:#fff1f2;color:#e11d48}
+.fc-yellow{background:#fffbeb;color:#d97706}
+.feature-card h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px}
+.feature-card p{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:18px}
+.feature-link{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--orange);text-decoration:none;transition:gap .15s}
+.feature-link:hover{gap:10px}
+
+/* ── HOW IT WORKS ── */
+.how{padding:80px 40px;background:var(--bg-alt)}
+.how-inner{max-width:1200px;margin:0 auto}
+.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:52px}
+.how-step{text-align:center}
+.step-num{width:48px;height:48px;border-radius:50%;background:var(--orange);color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.step-h{font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px}
+.step-p{font-size:14px;color:var(--text-muted);line-height:1.65}
+
+/* ── TESTIMONIALS ── */
+.testimonials{padding:80px 40px;background:#fff}
+.testimonials-inner{max-width:1200px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:52px}
+.testi-card{background:var(--bg-alt);border:1.5px solid var(--border);border-radius:16px;padding:24px}
+.testi-stars{color:var(--orange);font-size:14px;margin-bottom:14px;letter-spacing:-1px}
+.testi-text{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:20px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.testi-name{font-size:14px;font-weight:600;color:var(--text)}
+.testi-role{font-size:12px;color:var(--text-muted)}
+
+/* ── PRICING ── */
+.pricing{padding:80px 40px;background:var(--bg-alt)}
+.pricing-inner{max-width:1100px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:52px}
+.price-card{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:32px;transition:all .2s}
+.price-card.featured{border-color:var(--orange);box-shadow:0 0 0 4px rgba(245,158,11,.1)}
+.price-badge{background:var(--orange);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;margin-bottom:16px;display:inline-block}
+.price-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.price-desc{font-size:13.5px;color:var(--text-muted);margin-bottom:20px}
+.price-amount{font-size:40px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1}
+.price-amount sup{font-size:20px;font-weight:700;vertical-align:top;margin-top:8px;margin-right:2px}
+.price-period{font-size:13px;color:var(--text-muted);margin-top:4px;margin-bottom:24px}
+.price-features{list-style:none;margin-bottom:28px}
+.price-features li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-muted);padding:7px 0;border-bottom:1px solid var(--border)}
+.price-features li:last-child{border-bottom:none}
+.price-features li i{color:var(--orange);font-size:15px;flex-shrink:0}
+.btn-price{display:block;text-align:center;padding:12px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s;border:1.5px solid var(--border);color:var(--text)}
+.btn-price:hover{border-color:#cbd5e1;background:var(--bg-alt)}
+.btn-price.featured{background:var(--orange);color:#fff;border-color:var(--orange)}
+.btn-price.featured:hover{background:var(--orange-dark)}
+
+/* ── CTA ── */
+.cta{padding:80px 40px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)}
+.cta-inner{max-width:700px;margin:0 auto;text-align:center}
+.cta h2{font-size:44px;font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.15;margin-bottom:16px}
+.cta h2 span{color:var(--orange)}
+.cta p{font-size:17px;color:rgba(255,255,255,.6);margin-bottom:36px;line-height:1.65}
+.cta-btns{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn-cta-hero{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-size:15px;font-weight:600;padding:13px 28px;border-radius:10px;text-decoration:none;transition:all .15s}
+.btn-cta-hero:hover{background:var(--orange-dark);transform:translateY(-2px)}
+.btn-cta-ghost{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-weight:600;padding:12px 24px;border-radius:10px;text-decoration:none;border:1.5px solid rgba(255,255,255,.15);transition:all .15s}
+.btn-cta-ghost:hover{background:rgba(255,255,255,.14)}
+.cta-note{margin-top:20px;font-size:13px;color:rgba(255,255,255,.35)}
+
+/* ── FOOTER ── */
+footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.footer-brand p{font-size:13.5px;color:rgba(255,255,255,.4);line-height:1.65;margin-top:12px;max-width:260px}
+.footer-col h4{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:9px}
+.footer-col a{font-size:13.5px;color:rgba(255,255,255,.55);text-decoration:none;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-copy{font-size:12.5px;color:rgba(255,255,255,.3)}
+.footer-social{display:flex;gap:12px}
+.social-link{width:32px;height:32px;background:rgba(255,255,255,.06);border-radius:8px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none;font-size:14px;transition:all .15s}
+.social-link:hover{background:rgba(255,255,255,.12);color:#fff}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .hero-mockup{padding-bottom:0}
+  .mockup-frame{max-width:100%}
+  .features-grid{grid-template-columns:repeat(2,1fr)}
+  .pricing-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr;gap:28px}
+}
+@media(max-width:768px){
+  nav{padding:0 20px;gap:16px}
+  .nav-links{display:none}
+  .hero{padding:48px 20px 0}
+  .hero-h1{font-size:36px}
+  .highlights-inner{grid-template-columns:repeat(2,1fr)}
+  .how-steps{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr}
+  .cta h2{font-size:32px}
+  footer{padding:40px 20px 24px}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .mockup-body{grid-template-columns:140px 1fr}
+  .m-panel{display:none}
+  .float-event{display:none}
+}
+@media(max-width:480px){
+  .highlights-inner{grid-template-columns:1fr}
+  .hero-h1{font-size:30px}
+  .section-h2{font-size:28px}
+  .hero-badge{font-size:11.5px}
+  .brands-logos{gap:20px}
+  .footer-top{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">P</div>
+    <span class="nav-logo-text">Prodeegee Hub</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link">Features <i class="ri-arrow-down-s-line"></i></button>
+    <button class="nav-link">Solutions <i class="ri-arrow-down-s-line"></i></button>
+    <button class="nav-link">Resources <i class="ri-arrow-down-s-line"></i></button>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#" class="nav-link">About Us</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn-login">Log in</a>
+    <a href="login.html" class="btn-cta">Start Free Trial</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge"><i class="ri-star-line"></i> All-in-One Workspace for Modern Teams</div>
+      <h1 class="hero-h1">Manage Projects,<br><span>Tasks &amp; Teams</span><br>From One Workspace</h1>
+      <p class="hero-sub">Plan projects, track tasks, organize events, collaborate in real-time and get more done with Prodeegee Hub. Everything your team needs to succeed.</p>
+      <div class="hero-btns">
+        <a href="login.html" class="btn-hero"><i class="ri-rocket-line"></i> Start Free Trial</a>
+        <a href="#" class="btn-demo"><i class="ri-calendar-line"></i> Book a Demo</a>
+      </div>
+      <div class="hero-social">
+        <div class="hero-avatars">
+          <div class="av av-1">A</div>
+          <div class="av av-2">B</div>
+          <div class="av av-3">C</div>
+          <div class="av av-4">D</div>
+          <div class="av av-more">+2k</div>
+        </div>
+        <div class="hero-trust"><strong>Trusted by 2,000+ teams</strong><br>worldwide</div>
+        <div class="hero-rating">
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="hero-rating-text"><strong>4.9/5</strong> Based on 500+ reviews</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-mockup">
+      <!-- Floating badge: task completed -->
+      <div class="mockup-float float-task">
+        <div class="float-task-icon"><i class="ri-check-line"></i></div>
+        <div>
+          <div class="float-task-title">Task Completed</div>
+          <div class="float-task-sub">Homepage Design • Completed by Sarah • 2m ago</div>
+        </div>
+      </div>
+
+      <!-- Dashboard mockup -->
+      <div class="mockup-frame">
+        <div class="mockup-chrome">
+          <div class="mockup-dots">
+            <div class="mockup-dot dot-r"></div>
+            <div class="mockup-dot dot-y"></div>
+            <div class="mockup-dot dot-g"></div>
+          </div>
+          <div class="mockup-url">hub.prodeegee.com</div>
+        </div>
+        <div class="mockup-body">
+          <!-- Sidebar -->
+          <div class="m-sidebar">
+            <div class="m-brand">
+              <div class="m-brand-icon">P</div>
+              <div class="m-brand-name">Prodeegee Hub</div>
+            </div>
+            <div class="m-nav">
+              <div class="m-nav-item active"><i class="ri-home-4-line"></i> Dashboard</div>
+              <div class="m-nav-item"><i class="ri-folder-line"></i> Projects</div>
+              <div class="m-nav-item"><i class="ri-task-line"></i> Tasks</div>
+              <div class="m-nav-item"><i class="ri-kanban-view"></i> Kanban Board</div>
+              <div class="m-nav-item"><i class="ri-chat-1-line"></i> Team Chat <span class="m-badge">4</span></div>
+              <div class="m-nav-item"><i class="ri-calendar-2-line"></i> Calendar</div>
+              <div class="m-nav-item"><i class="ri-mail-line"></i> Email Center <span class="m-badge">17</span></div>
+              <div class="m-nav-item"><i class="ri-group-line"></i> Members</div>
+              <div class="m-nav-item"><i class="ri-calendar-event-line"></i> Events</div>
+              <div class="m-nav-item"><i class="ri-archive-line"></i> Resources</div>
+              <div class="m-nav-item"><i class="ri-bar-chart-line"></i> Reports</div>
+              <div class="m-nav-item"><i class="ri-settings-3-line"></i> Settings</div>
+            </div>
+          </div>
+          <!-- Main content -->
+          <div class="m-main">
+            <div class="m-greeting">Good morning, Alex! 👋</div>
+            <div class="m-sub">Here's what's happening with your projects today.</div>
+            <div class="m-stats">
+              <div class="m-stat">
+                <div class="m-stat-num">24</div>
+                <div class="m-stat-lbl">Total Projects</div>
+                <div class="m-stat-up">↑ 12% this month</div>
+              </div>
+              <div class="m-stat">
+                <div class="m-stat-num">156</div>
+                <div class="m-stat-lbl">Tasks Completed</div>
+                <div class="m-stat-up">↑ 18% this week</div>
+              </div>
+              <div class="m-stat">
+                <div class="m-stat-num">18</div>
+                <div class="m-stat-lbl">Team Members</div>
+                <div class="m-stat-up">Active members</div>
+              </div>
+              <div class="m-stat">
+                <div class="m-stat-num">7</div>
+                <div class="m-stat-lbl">Events This Month</div>
+                <div class="m-stat-up">Upcoming events</div>
+              </div>
+            </div>
+            <div class="m-kanban-label">Project Overview</div>
+            <div class="m-kanban">
+              <div>
+                <div class="m-col-head todo-h">To Do <span>8</span></div>
+                <div class="m-card"><div class="m-card-title">Website Redesign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>UI/UX</span><span>May 24</span></div></div>
+                <div class="m-card"><div class="m-card-title">Marketing Campaign</div><div class="m-card-bar bar-40"></div><div class="m-card-meta"><span>Content</span><span>May 26</span></div></div>
+              </div>
+              <div>
+                <div class="m-col-head doing-h">In Progress <span>6</span></div>
+                <div class="m-card"><div class="m-card-title">Mobile App Dev</div><div class="m-card-bar bar-60"></div><div class="m-card-meta"><span>Frontend</span><span>60%</span></div></div>
+                <div class="m-card"><div class="m-card-title">Product Launch</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Launch</span><span>79%</span></div></div>
+              </div>
+              <div>
+                <div class="m-col-head review-h">In Review <span>3</span></div>
+                <div class="m-card"><div class="m-card-title">Brand Guidelines</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>Design</span><span>90%</span></div></div>
+                <div class="m-card"><div class="m-card-title">API Integration</div><div class="m-card-bar bar-75"></div><div class="m-card-meta"><span>Security</span><span>70%</span></div></div>
+              </div>
+              <div>
+                <div class="m-col-head done-h">Completed <span>12</span></div>
+                <div class="m-card"><div class="m-card-title">Project Kickoff</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
+                <div class="m-card"><div class="m-card-title">Wireframe Design</div><div class="m-card-bar bar-90"></div><div class="m-card-meta"><span>✓ Done</span></div></div>
+              </div>
+            </div>
+          </div>
+          <!-- Right panel -->
+          <div class="m-panel">
+            <div class="m-panel-label">Upcoming Event</div>
+            <div class="m-event">
+              <div class="m-event-title">Product Launch Event</div>
+              <div class="m-event-meta"><i class="ri-calendar-line"></i> 24 May 2024 · 10:00 AM</div>
+              <div class="m-event-meta"><i class="ri-map-pin-line"></i> Conference Hall A</div>
+              <div class="m-event-badge">In 2 days</div>
+            </div>
+            <div class="m-panel-label" style="margin-top:10px">Team Chat</div>
+            <div class="m-chat-msg">
+              <div class="m-chat-av" style="background:#6366f1">E</div>
+              <div class="m-chat-body">
+                <div class="m-chat-name">Emma Wilson</div>
+                <div class="m-chat-text">Great progress on the mobile app! 🚀</div>
+              </div>
+            </div>
+            <div class="m-chat-msg">
+              <div class="m-chat-av" style="background:#ec4899">J</div>
+              <div class="m-chat-body">
+                <div class="m-chat-name">John Smith</div>
+                <div class="m-chat-text">New features are almost done.</div>
+              </div>
+            </div>
+            <div class="m-chat-msg">
+              <div class="m-chat-av" style="background:#f59e0b">Y</div>
+              <div class="m-chat-body">
+                <div class="m-chat-name">You</div>
+                <div class="m-chat-text">Let's review together this afternoon.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating badge: upcoming event -->
+      <div class="mockup-float float-event">
+        <div class="float-event-row">
+          <div class="float-event-icon"><i class="ri-calendar-event-line"></i></div>
+          <div>
+            <div class="float-event-title">Upcoming Event</div>
+            <div class="float-event-meta">Product Launch Event</div>
+          </div>
+        </div>
+        <div class="float-event-meta"><i class="ri-calendar-line"></i> 24 May 2024 · 10:00 AM</div>
+        <div class="float-event-meta"><i class="ri-map-pin-line"></i> Conference Hall A</div>
+        <div class="float-event-badge">In 2 days</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUSTED BRANDS -->
+<div class="brands">
+  <div class="brands-inner">
+    <div class="brands-label">Trusted by teams from startups to enterprises</div>
+    <div class="brands-logos">
+      <div class="brand-logo-item"><i class="ri-building-2-line"></i> TechCorp</div>
+      <div class="brand-logo-item"><i class="ri-lightbulb-line"></i> innovateX</div>
+      <div class="brand-logo-item"><i class="ri-pen-nib-line"></i> creativeforge</div>
+      <div class="brand-logo-item"><i class="ri-code-box-line"></i> NextGen</div>
+      <div class="brand-logo-item"><i class="ri-brain-line"></i> Brainwave</div>
+      <div class="brand-logo-item"><i class="ri-cloud-line"></i> CloudScale</div>
+      <div class="brand-logo-item"><i class="ri-eye-line"></i> visionary</div>
+      <div class="brand-logo-item"><i class="ri-line-chart-line"></i> PeakFlow</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURE HIGHLIGHTS BAR -->
+<div class="highlights">
+  <div class="highlights-inner">
+    <div class="highlight">
+      <div class="highlight-icon hi-purple"><i class="ri-layout-grid-line"></i></div>
+      <div>
+        <div class="highlight-label">All-in-One Workspace</div>
+        <div class="highlight-sub">Everything in one place</div>
+      </div>
+    </div>
+    <div class="highlight">
+      <div class="highlight-icon hi-blue"><i class="ri-group-2-line"></i></div>
+      <div>
+        <div class="highlight-label">Real-time Collaboration</div>
+        <div class="highlight-sub">Work together seamlessly</div>
+      </div>
+    </div>
+    <div class="highlight">
+      <div class="highlight-icon hi-green"><i class="ri-settings-4-line"></i></div>
+      <div>
+        <div class="highlight-label">Smart Automation</div>
+        <div class="highlight-sub">Save time, boost productivity</div>
+      </div>
+    </div>
+    <div class="highlight">
+      <div class="highlight-icon hi-red"><i class="ri-shield-check-line"></i></div>
+      <div>
+        <div class="highlight-label">Secure &amp; Reliable</div>
+        <div class="highlight-sub">Enterprise-grade security</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="section-label"><i class="ri-star-line"></i> Everything You Need</div>
+    <h2 class="section-h2">Powerful tools for<br>modern teams</h2>
+    <p class="section-sub">From project planning to team communication, Prodeegee Hub brings all your work into one unified workspace.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card-icon fc-orange"><i class="ri-folder-open-line"></i></div>
+        <h3>Project Management</h3>
+        <p>Plan, organize and track projects from start to finish. Set milestones, assign tasks, and monitor progress with visual dashboards.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon fc-green"><i class="ri-checkbox-circle-line"></i></div>
+        <h3>Task Management</h3>
+        <p>Create tasks, set priorities and track progress effortlessly. Kanban boards, list views, and due date tracking keep everyone on track.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon fc-purple"><i class="ri-chat-4-line"></i></div>
+        <h3>Team Collaboration</h3>
+        <p>Chat, share files and collaborate in real-time with your team. Channels, direct messages, and threaded conversations keep communication organized.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon fc-blue"><i class="ri-calendar-2-line"></i></div>
+        <h3>Calendar &amp; Events</h3>
+        <p>Schedule meetings, manage events and never miss a date. Sync across your team with shared calendars and automated reminders.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon fc-red"><i class="ri-mail-open-line"></i></div>
+        <h3>Email Workspace</h3>
+        <p>Manage all your emails in one place and stay organized. Integrated email with team visibility so nothing falls through the cracks.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon fc-yellow"><i class="ri-archive-drawer-line"></i></div>
+        <h3>Resource Management</h3>
+        <p>Store, organize and share resources with your team. Centralized docs, files, and links so your team always has what they need.</p>
+        <a href="login.html" class="feature-link">Learn more <i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="section-label"><i class="ri-play-circle-line"></i> How It Works</div>
+    <h2 class="section-h2">Up and running<br>in minutes</h2>
+    <p class="section-sub">Getting your team on Prodeegee Hub is fast and simple. No lengthy onboarding, no complex setup.</p>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <div class="step-h">Create Your Workspace</div>
+        <p class="step-p">Sign up and set up your team workspace in under 2 minutes. Invite your team members with a simple email link.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <div class="step-h">Set Up Your Projects</div>
+        <p class="step-p">Create projects, add tasks, and organize your work into boards, lists, or timelines — whichever fits your workflow.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <div class="step-h">Collaborate &amp; Ship</div>
+        <p class="step-p">Chat with your team, track progress in real-time, and get things done faster than ever before.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+  <div class="testimonials-inner">
+    <div class="section-label"><i class="ri-heart-line"></i> What Teams Say</div>
+    <h2 class="section-h2">Loved by teams<br>worldwide</h2>
+    <p class="section-sub">Join thousands of teams who've transformed the way they work with Prodeegee Hub.</p>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Prodeegee Hub replaced five different tools for us. Our team is more focused, more aligned, and ships faster than ever. It's the workspace we always wanted."</p>
+        <div class="testi-author">
+          <div class="testi-av" style="background:#6366f1">S</div>
+          <div>
+            <div class="testi-name">Sarah Chen</div>
+            <div class="testi-role">CTO, TechCorp</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"The kanban boards and real-time collaboration have transformed how our remote team works. We've cut our project delivery time by 35% since switching."</p>
+        <div class="testi-author">
+          <div class="testi-av" style="background:#ec4899">M</div>
+          <div>
+            <div class="testi-name">Marcus Lee</div>
+            <div class="testi-role">Product Lead, innovateX</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Finally, a tool that actually fits how creative teams work. The email integration alone saves us hours every week. Our whole studio runs on Prodeegee Hub now."</p>
+        <div class="testi-author">
+          <div class="testi-av" style="background:#10b981">A</div>
+          <div>
+            <div class="testi-name">Aisha Okonkwo</div>
+            <div class="testi-role">Creative Director, creativeforge</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-label"><i class="ri-price-tag-3-line"></i> Simple Pricing</div>
+    <h2 class="section-h2">Plans for every<br>team size</h2>
+    <p class="section-sub">No hidden fees. No surprises. Start free and scale as your team grows.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Starter</div>
+        <div class="price-desc">Perfect for small teams just getting started.</div>
+        <div class="price-amount"><sup>$</sup>0</div>
+        <div class="price-period">Free forever · up to 5 members</div>
+        <ul class="price-features">
+          <li><i class="ri-check-line"></i> Up to 5 team members</li>
+          <li><i class="ri-check-line"></i> 3 projects</li>
+          <li><i class="ri-check-line"></i> Task management</li>
+          <li><i class="ri-check-line"></i> Team chat</li>
+          <li><i class="ri-check-line"></i> 1 GB storage</li>
+        </ul>
+        <a href="login.html" class="btn-price">Get started free</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-desc">For growing teams that need more power.</div>
+        <div class="price-amount"><sup>$</sup>12</div>
+        <div class="price-period">per user / month · billed annually</div>
+        <ul class="price-features">
+          <li><i class="ri-check-line"></i> Unlimited team members</li>
+          <li><i class="ri-check-line"></i> Unlimited projects</li>
+          <li><i class="ri-check-line"></i> Advanced analytics</li>
+          <li><i class="ri-check-line"></i> Email workspace</li>
+          <li><i class="ri-check-line"></i> Calendar &amp; events</li>
+          <li><i class="ri-check-line"></i> 50 GB storage</li>
+        </ul>
+        <a href="login.html" class="btn-price featured">Start free trial</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name">Enterprise</div>
+        <div class="price-desc">For large organizations with custom needs.</div>
+        <div class="price-amount" style="font-size:32px;letter-spacing:0">Custom</div>
+        <div class="price-period">Contact us for pricing</div>
+        <ul class="price-features">
+          <li><i class="ri-check-line"></i> Everything in Pro</li>
+          <li><i class="ri-check-line"></i> SSO &amp; SAML</li>
+          <li><i class="ri-check-line"></i> Custom roles &amp; permissions</li>
+          <li><i class="ri-check-line"></i> Priority support</li>
+          <li><i class="ri-check-line"></i> Unlimited storage</li>
+        </ul>
+        <a href="#" class="btn-price">Contact sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-inner">
+    <h2>Ready to transform<br>how your <span>team works?</span></h2>
+    <p>Join 2,000+ teams who use Prodeegee Hub to plan smarter, collaborate faster, and ship better products.</p>
+    <div class="cta-btns">
+      <a href="login.html" class="btn-cta-hero"><i class="ri-rocket-line"></i> Start Free Trial</a>
+      <a href="#" class="btn-cta-ghost"><i class="ri-calendar-line"></i> Book a Demo</a>
+    </div>
+    <div class="cta-note">No credit card required · Free 14-day trial · Cancel anytime</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-col footer-brand">
+        <a href="#" class="nav-logo" style="margin-bottom:4px">
+          <div class="nav-logo-icon">P</div>
+          <span class="nav-logo-text" style="color:#fff">Prodeegee Hub</span>
+        </a>
+        <p>The all-in-one workspace for modern teams. Plan, collaborate, and ship — all from one place.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Roadmap</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Solutions</h4>
+        <ul>
+          <li><a href="#">For Startups</a></li>
+          <li><a href="#">For Agencies</a></li>
+          <li><a href="#">For Enterprise</a></li>
+          <li><a href="#">Remote Teams</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Community</a></li>
+          <li><a href="#">Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Prodeegee Hub. All rights reserved.</div>
+      <div class="footer-social">
+        <a href="#" class="social-link"><i class="ri-twitter-x-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-linkedin-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-github-line"></i></a>
+        <a href="#" class="social-link"><i class="ri-youtube-line"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
