@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Terms of Service — Prodeegee Hub</title>
+<meta name="description" content="Prodeegee Hub Terms of Service — the rules for using our platform.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#f59e0b;--orange-dark:#d97706;--orange-light:#fef3c7;
+  --text:#0f172a;--text-muted:#64748b;--border:#e2e8f0;--bg:#ffffff;--bg-alt:#f8fafc;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;gap:32px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.nav-logo-text{font-size:16px;font-weight:700;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-link{padding:6px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;transition:all .15s}
+.nav-link:hover{background:var(--bg-alt);color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:12px;margin-left:auto}
+.btn-login{font-size:14px;font-weight:500;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:8px;transition:all .15s}
+.btn-login:hover{color:var(--text);background:var(--bg-alt)}
+.btn-cta{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;font-size:14px;font-weight:600;padding:9px 20px;border-radius:9px;text-decoration:none;transition:all .15s}
+.btn-cta:hover{background:var(--orange-dark)}
+
+.page-hero{background:linear-gradient(135deg,#f8faff 0%,#f0f4ff 50%,#faf8ff 100%);padding:72px 40px 56px;text-align:center;border-bottom:1px solid var(--border)}
+.page-hero .chip{display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange-dark);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+.page-hero h1{font-size:44px;font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:12px}
+.page-hero .meta{font-size:14px;color:var(--text-muted)}
+
+.doc-layout{max-width:800px;margin:0 auto;padding:64px 40px}
+.toc{background:var(--bg-alt);border:1.5px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:48px}
+.toc h3{font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.toc ol{padding-left:18px}
+.toc li{margin-bottom:7px}
+.toc a{font-size:13.5px;color:var(--orange);text-decoration:none;font-weight:500}
+.toc a:hover{text-decoration:underline}
+
+.doc-section{margin-bottom:48px}
+.doc-section h2{font-size:22px;font-weight:700;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid var(--border)}
+.doc-section h3{font-size:16px;font-weight:600;color:var(--text);margin:20px 0 8px}
+.doc-section p{font-size:15px;color:var(--text-muted);line-height:1.75;margin-bottom:14px}
+.doc-section p:last-child{margin-bottom:0}
+.doc-section ul,.doc-section ol{padding-left:22px;margin-bottom:14px}
+.doc-section li{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:6px}
+.doc-section a{color:var(--orange)}
+
+.highlight-box{background:var(--orange-light);border-left:4px solid var(--orange);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:20px}
+.highlight-box p{color:#92400e;margin-bottom:0;font-size:14px}
+
+footer{background:#0f172a;padding:48px 40px 28px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between}
+.footer-copy{font-size:12.5px;color:rgba(255,255,255,.3)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12.5px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:#fff}
+
+@media(max-width:768px){nav{padding:0 20px}.nav-links{display:none}.page-hero{padding:52px 20px 40px}.page-hero h1{font-size:32px}.doc-layout{padding:40px 20px}footer{padding:32px 20px 20px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="home.html" class="nav-logo">
+    <div class="nav-logo-icon">P</div>
+    <span class="nav-logo-text">Prodeegee Hub</span>
+  </a>
+  <div class="nav-links">
+    <a href="home.html#features" class="nav-link">Features</a>
+    <a href="home.html#pricing" class="nav-link">Pricing</a>
+    <a href="about.html" class="nav-link">About Us</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+  </div>
+  <div class="nav-actions">
+    <a href="login.html" class="btn-login">Log in</a>
+    <a href="login.html" class="btn-cta">Start Free Trial</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="chip"><i class="ri-file-text-line"></i> Legal</div>
+  <h1>Terms of Service</h1>
+  <div class="meta">Last updated: June 2024 &nbsp;·&nbsp; Effective: June 1, 2024</div>
+</div>
+
+<div class="doc-layout">
+  <div class="highlight-box">
+    <p><strong>Please read carefully.</strong> By using Prodeegee Hub you agree to these terms. They govern your access to and use of our platform, so understanding them matters.</p>
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#acceptance">Acceptance of Terms</a></li>
+      <li><a href="#account">Your Account</a></li>
+      <li><a href="#use">Acceptable Use</a></li>
+      <li><a href="#content">Your Content</a></li>
+      <li><a href="#ip">Intellectual Property</a></li>
+      <li><a href="#payment">Payments & Subscriptions</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+      <li><a href="#availability">Service Availability</a></li>
+      <li><a href="#termination">Termination</a></li>
+      <li><a href="#liability">Limitation of Liability</a></li>
+      <li><a href="#disputes">Dispute Resolution</a></li>
+      <li><a href="#changes">Changes to These Terms</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="acceptance">
+    <h2>1. Acceptance of Terms</h2>
+    <p>By accessing or using Prodeegee Hub ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you are using Prodeegee Hub on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.</p>
+    <p>If you do not agree with any part of these Terms, you must not use the Service.</p>
+  </div>
+
+  <div class="doc-section" id="account">
+    <h2>2. Your Account</h2>
+    <h3>Registration</h3>
+    <p>Access to Prodeegee Hub is by invitation only or through an approved registration process. You must provide accurate, complete, and current information when creating your account.</p>
+    <h3>Account Security</h3>
+    <p>You are responsible for maintaining the confidentiality of your password and for all activities that occur under your account. Notify us immediately at <a href="mailto:security@prodeegee.com">security@prodeegee.com</a> if you suspect unauthorized access to your account.</p>
+    <h3>One Account Per Person</h3>
+    <p>Each account is for individual use. You may not share your account credentials with others or create multiple accounts for the same person.</p>
+  </div>
+
+  <div class="doc-section" id="use">
+    <h2>3. Acceptable Use</h2>
+    <p>You agree to use Prodeegee Hub only for lawful purposes and in accordance with these Terms. You must not:</p>
+    <ul>
+      <li>Use the Service to transmit spam, malware, or other harmful content</li>
+      <li>Attempt to gain unauthorized access to any part of the Service or its related systems</li>
+      <li>Reverse engineer, decompile, or disassemble any part of the Service</li>
+      <li>Use the Service to infringe any third party's intellectual property rights</li>
+      <li>Harass, abuse, or harm other users</li>
+      <li>Use automated bots or scrapers to access or extract data from the Service</li>
+      <li>Resell or sublicense access to the Service without written permission</li>
+      <li>Post or store content that is illegal, defamatory, or violates third-party rights</li>
+    </ul>
+    <p>We reserve the right to suspend or terminate accounts that violate these rules without prior notice.</p>
+  </div>
+
+  <div class="doc-section" id="content">
+    <h2>4. Your Content</h2>
+    <h3>Ownership</h3>
+    <p>You retain ownership of all content you create, upload, or share within Prodeegee Hub ("Your Content"). These Terms do not transfer any intellectual property rights from you to us.</p>
+    <h3>License to Us</h3>
+    <p>By using Prodeegee Hub, you grant us a limited, non-exclusive, worldwide license to store, display, and process Your Content solely for the purpose of providing and improving the Service. We do not use Your Content for marketing or third-party purposes.</p>
+    <h3>Responsibility</h3>
+    <p>You are solely responsible for Your Content and the consequences of sharing it. You represent that you have all rights necessary to grant the license above and that Your Content does not violate any law or third-party rights.</p>
+  </div>
+
+  <div class="doc-section" id="ip">
+    <h2>5. Intellectual Property</h2>
+    <p>Prodeegee Hub and all its components (design, code, trademarks, logos, and content created by us) are owned by Prodeegee and protected by intellectual property laws. Nothing in these Terms grants you any right to use our trademarks, trade names, or logos without our written consent.</p>
+  </div>
+
+  <div class="doc-section" id="payment">
+    <h2>6. Payments & Subscriptions</h2>
+    <h3>Free Plan</h3>
+    <p>The Starter plan is free for up to 5 team members with the features described on our <a href="home.html#pricing">pricing page</a>. We reserve the right to modify free plan limits with 30 days' notice.</p>
+    <h3>Paid Plans</h3>
+    <p>Paid subscriptions are billed in advance on a monthly or annual basis. All fees are non-refundable except as expressly stated herein or required by applicable law.</p>
+    <h3>Cancellation</h3>
+    <p>You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. You will retain access to paid features until that date.</p>
+    <h3>Price Changes</h3>
+    <p>We may change pricing with 30 days' advance notice. Continued use of the Service after a price change constitutes acceptance of the new pricing.</p>
+  </div>
+
+  <div class="doc-section" id="privacy">
+    <h2>7. Privacy</h2>
+    <p>Your use of Prodeegee Hub is also governed by our <a href="privacy.html">Privacy Policy</a>, which is incorporated into these Terms by reference. By using the Service, you consent to our collection and use of data as described in the Privacy Policy.</p>
+  </div>
+
+  <div class="doc-section" id="availability">
+    <h2>8. Service Availability</h2>
+    <p>We strive for 99.9% uptime but do not guarantee uninterrupted access to the Service. We may temporarily suspend the Service for maintenance, security updates, or other operational reasons. We will provide advance notice where possible.</p>
+    <p>The Service is provided "as is" and "as available." We disclaim all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+  </div>
+
+  <div class="doc-section" id="termination">
+    <h2>9. Termination</h2>
+    <h3>By You</h3>
+    <p>You may stop using the Service and delete your account at any time by contacting us or using the account deletion feature in settings.</p>
+    <h3>By Us</h3>
+    <p>We may suspend or terminate your access to the Service immediately, without prior notice or liability, if you breach these Terms or if we determine that continued access poses a risk to other users or the platform.</p>
+    <h3>Effect of Termination</h3>
+    <p>Upon termination, your right to use the Service ceases immediately. We will delete Your Content in accordance with our <a href="privacy.html#retention">data retention policy</a>.</p>
+  </div>
+
+  <div class="doc-section" id="liability">
+    <h2>10. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by law, Prodeegee and its team shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or goodwill, arising from your use of or inability to use the Service.</p>
+    <p>Our total liability to you for any claim arising out of or relating to these Terms or the Service shall not exceed the amount you paid us in the 12 months preceding the claim, or $100 USD if you are on a free plan.</p>
+  </div>
+
+  <div class="doc-section" id="disputes">
+    <h2>11. Dispute Resolution</h2>
+    <p>We encourage you to contact us first if you have a dispute. Most issues can be resolved quickly and informally. For formal disputes, these Terms shall be governed by the laws of the applicable jurisdiction, without regard to conflict of law principles.</p>
+    <p>You agree to resolve disputes through binding arbitration rather than court proceedings, except where prohibited by law or where you seek injunctive relief to protect intellectual property rights.</p>
+  </div>
+
+  <div class="doc-section" id="changes">
+    <h2>12. Changes to These Terms</h2>
+    <p>We may update these Terms from time to time. When we make material changes, we will notify you by email or via a prominent notice in Prodeegee Hub at least 14 days before the changes take effect. Your continued use of the Service after changes become effective constitutes your acceptance of the new Terms.</p>
+  </div>
+
+  <div class="doc-section" id="contact">
+    <h2>13. Contact</h2>
+    <p>If you have questions about these Terms, please reach out:</p>
+    <ul>
+      <li>Email: <a href="mailto:legal@prodeegee.com">legal@prodeegee.com</a></li>
+      <li>General: <a href="contact.html">Contact page</a></li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Prodeegee Hub. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

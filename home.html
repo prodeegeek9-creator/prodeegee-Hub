@@ -737,36 +737,33 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
           <li><a href="#features">Features</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="#how">How it works</a></li>
-          <li><a href="#">Changelog</a></li>
-          <li><a href="#">Roadmap</a></li>
+          <li><a href="login.html">Log in</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Solutions</h4>
         <ul>
-          <li><a href="#">For Startups</a></li>
-          <li><a href="#">For Agencies</a></li>
-          <li><a href="#">For Enterprise</a></li>
-          <li><a href="#">Remote Teams</a></li>
+          <li><a href="about.html#startups">For Startups</a></li>
+          <li><a href="about.html#agencies">For Agencies</a></li>
+          <li><a href="about.html#enterprise">For Enterprise</a></li>
+          <li><a href="about.html#remote">Remote Teams</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
         <ul>
-          <li><a href="#">Documentation</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">Community</a></li>
-          <li><a href="#">Support</a></li>
+          <li><a href="contact.html">Support</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Company</h4>
         <ul>
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+          <li><a href="contact.html">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -782,5 +779,14 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async () => {
+  const { createClient } = supabase;
+  const sb = createClient('https://twpkuntxvlkuqjmyfjlf.supabase.co', 'sb_publishable_6d3dbk0DK1_cIGtY310TWw_Db7hWk6e');
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.replace('/index.html');
+})();
+</script>
 </body>
 </html>
