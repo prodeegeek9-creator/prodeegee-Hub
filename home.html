@@ -193,6 +193,40 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .view-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);transition:background .3s}
 .view-dot.active{background:var(--orange)}
 
+/* ── PHONE MOCKUP (mobile hero) ── */
+.phone-scene{display:none;width:100%;align-items:center;justify-content:center;perspective:800px;perspective-origin:50% 50%}
+.phone-wrapper{transform-style:preserve-3d;will-change:transform;animation:phone-float 4s ease-in-out infinite}
+@keyframes phone-float{
+  0%,100%{transform:rotateX(8deg) rotateY(-6deg) rotateZ(1deg) translateY(0)}
+  50%{transform:rotateX(8deg) rotateY(-6deg) rotateZ(1deg) translateY(-8px)}
+}
+.phone-frame{width:164px;background:#0d1321;border-radius:30px;border:2px solid rgba(255,255,255,.12);box-shadow:0 28px 64px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);overflow:hidden;position:relative}
+.ph-pill{width:52px;height:10px;background:#000;border-radius:10px;margin:8px auto 0}
+.ph-status{display:flex;justify-content:space-between;align-items:center;padding:5px 12px 0;font-size:7.5px;color:rgba(255,255,255,.7);font-weight:600}
+.ph-status .ph-icons{display:flex;gap:3px;font-size:9px}
+.ph-screen{padding:8px 10px 0}
+.ph-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ph-greeting{font-size:7.5px;color:rgba(255,255,255,.4)}
+.ph-name{font-size:12px;font-weight:700;color:#fff;line-height:1.2}
+.ph-avatar{width:24px;height:24px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.ph-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.ph-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:6px 7px}
+.ph-stat-hot{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)}
+.ph-stat-num{font-size:13px;font-weight:700;color:#fff;line-height:1}
+.ph-stat-lbl{font-size:7px;color:rgba(255,255,255,.35);margin-top:2px}
+.ph-section-label{font-size:7.5px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.ph-tasks{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.ph-task{display:flex;align-items:center;gap:6px}
+.ph-task-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ph-task-info{flex:1;min-width:0}
+.ph-task-name{font-size:7.5px;color:rgba(255,255,255,.8);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-task-bar{height:2.5px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.ph-task-bar div{height:100%;border-radius:2px}
+.ph-task-pct{font-size:7px;color:rgba(255,255,255,.35);width:20px;text-align:right;flex-shrink:0}
+.ph-nav{display:flex;justify-content:space-around;align-items:center;border-top:1px solid rgba(255,255,255,.07);padding:8px 4px 12px;margin:0 -10px}
+.ph-nav-item{font-size:14px;color:rgba(255,255,255,.3);cursor:pointer}
+.ph-nav-item.active{color:#f59e0b}
+
 /* ── BRANDS ── */
 .brands{background:#fff;border-top:1px solid var(--border);padding:28px 40px}
 .brands-inner{max-width:1200px;margin:0 auto}
@@ -342,11 +376,10 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .hero-rating{padding-left:8px;gap:5px}
   .stars{font-size:10px;letter-spacing:0}
   .hero-rating-text{font-size:10px}
-  /* Mockup: restore mobile order/padding, zoom uniformly, clip overflow */
-  .hero-visual{order:2;overflow:hidden;padding:20px 0 20px 4px;align-items:flex-start}
-  .mockup-scene{width:900px;max-width:none;zoom:0.52;perspective-origin:20% 50%}
-  .mockup-body{grid-template-columns:140px 1fr}
-  .m-panel{display:none}
+  /* Hero visual: restore mobile order, show phone mockup instead of desktop */
+  .hero-visual{order:2;padding:16px 8px;align-items:center;justify-content:center}
+  .mockup-scene{display:none}
+  .phone-scene{display:flex}
   /* Sections */
   .brands{padding:20px 20px}
   .brands-logos{gap:16px}
@@ -373,7 +406,6 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .btn-demo{display:none}
   .hero-rating{display:none}
   .hero-btns{margin-bottom:10px}
-  .mockup-scene{zoom:0.4}
   .highlights-inner{grid-template-columns:1fr}
   .section-h2{font-size:28px}
   .brands-logos{gap:12px}
@@ -630,6 +662,84 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 
       </div><!-- /mockup-wrapper -->
     </div><!-- /mockup-scene -->
+
+    <!-- Phone mockup: shown on mobile only -->
+    <div class="phone-scene">
+      <div class="phone-wrapper">
+        <div class="phone-frame">
+          <div class="ph-pill"></div>
+          <div class="ph-status">
+            <span>9:41</span>
+            <div class="ph-icons">
+              <i class="ri-wifi-fill"></i>
+              <i class="ri-battery-charge-fill"></i>
+            </div>
+          </div>
+          <div class="ph-screen">
+            <div class="ph-header">
+              <div>
+                <div class="ph-greeting">Good morning 👋</div>
+                <div class="ph-name">Alex</div>
+              </div>
+              <div class="ph-avatar">A</div>
+            </div>
+            <div class="ph-stats">
+              <div class="ph-stat">
+                <div class="ph-stat-num">24</div>
+                <div class="ph-stat-lbl">Projects</div>
+              </div>
+              <div class="ph-stat ph-stat-hot">
+                <div class="ph-stat-num" style="color:#f59e0b">7</div>
+                <div class="ph-stat-lbl">Due Today</div>
+              </div>
+              <div class="ph-stat">
+                <div class="ph-stat-num">156</div>
+                <div class="ph-stat-lbl">Tasks Done</div>
+              </div>
+              <div class="ph-stat">
+                <div class="ph-stat-num">18</div>
+                <div class="ph-stat-lbl">Members</div>
+              </div>
+            </div>
+            <div class="ph-section-label">Active Tasks</div>
+            <div class="ph-tasks">
+              <div class="ph-task">
+                <div class="ph-task-dot" style="background:#3b82f6"></div>
+                <div class="ph-task-info">
+                  <div class="ph-task-name">Mobile app onboarding</div>
+                  <div class="ph-task-bar"><div style="width:60%;background:#3b82f6"></div></div>
+                </div>
+                <div class="ph-task-pct">60%</div>
+              </div>
+              <div class="ph-task">
+                <div class="ph-task-dot" style="background:#f59e0b"></div>
+                <div class="ph-task-info">
+                  <div class="ph-task-name">Website redesign</div>
+                  <div class="ph-task-bar"><div style="width:75%;background:#f59e0b"></div></div>
+                </div>
+                <div class="ph-task-pct">75%</div>
+              </div>
+              <div class="ph-task">
+                <div class="ph-task-dot" style="background:#22c55e"></div>
+                <div class="ph-task-info">
+                  <div class="ph-task-name">Brand guidelines</div>
+                  <div class="ph-task-bar"><div style="width:90%;background:#22c55e"></div></div>
+                </div>
+                <div class="ph-task-pct">90%</div>
+              </div>
+            </div>
+            <div class="ph-nav">
+              <div class="ph-nav-item active"><i class="ri-home-4-fill"></i></div>
+              <div class="ph-nav-item"><i class="ri-task-line"></i></div>
+              <div class="ph-nav-item"><i class="ri-chat-1-line"></i></div>
+              <div class="ph-nav-item"><i class="ri-calendar-2-line"></i></div>
+              <div class="ph-nav-item"><i class="ri-user-line"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /hero-visual -->
 </section>
 
