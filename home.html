@@ -44,11 +44,10 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 
 /* ── HERO ── */
 .hero{
-  background:linear-gradient(140deg,#eef2ff 0%,#f5f3ff 30%,#fdf4ff 60%,#f0fdf4 100%);
+  background:linear-gradient(150deg,#eef2ff 0%,#f5f3ff 30%,#fdf4ff 60%,#ffffff 100%);
   min-height:calc(100vh - 64px);
   display:grid;
   grid-template-columns:42fr 58fr;
-  overflow:hidden;
 }
 .hero-content{
   padding:96px 48px 96px 64px;
@@ -83,7 +82,6 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
   display:flex;
   align-items:center;
   padding:60px 0 60px 24px;
-  overflow:hidden;
 }
 .mockup-scene{
   perspective:1600px;
@@ -94,35 +92,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 .mockup-wrapper{
   transform-style:preserve-3d;
   position:relative;
-  animation:hero-float 5s ease-in-out infinite;
   will-change:transform;
-}
-@keyframes hero-float{
-  0%,100%{transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg) translateY(0)}
-  50%{transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg) translateY(-14px)}
-}
-.mockup-wrapper.flip-fwd{
-  animation:hero-flip-fwd 1.4s cubic-bezier(.45,0,.55,1) forwards;
-}
-@keyframes hero-flip-fwd{
-  0%  {transform:rotateX(6deg) rotateY(-22deg) rotateZ(1.5deg)}
-  45% {transform:rotateX(2deg) rotateY(68deg) rotateZ(.5deg) scale(.94)}
-  100%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg)}
-}
-.mockup-wrapper.flip-back{
-  animation:hero-flip-back 1.4s cubic-bezier(.45,0,.55,1) forwards;
-}
-@keyframes hero-flip-back{
-  0%  {transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg)}
-  45% {transform:rotateX(2deg) rotateY(248deg) rotateZ(.5deg) scale(.94)}
-  100%{transform:rotateX(6deg) rotateY(338deg) rotateZ(1.5deg)}
-}
-.mockup-wrapper.idle-back{
-  animation:hero-float-back 5s ease-in-out infinite;
-}
-@keyframes hero-float-back{
-  0%,100%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg) translateY(0)}
-  50%{transform:rotateX(6deg) rotateY(158deg) rotateZ(1.5deg) translateY(-14px)}
 }
 .mockup-face-front{
   backface-visibility:hidden;
@@ -344,11 +314,6 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .hero-content{padding:72px 40px 48px;max-width:100%}
   .hero-visual{padding:0 40px 72px;justify-content:center}
   .mockup-scene{max-width:700px;margin:0 auto}
-  .mockup-wrapper{animation:hero-float-flat 5s ease-in-out infinite}
-  @keyframes hero-float-flat{
-    0%,100%{transform:rotateX(4deg) rotateY(-10deg) rotateZ(.5deg) translateY(0)}
-    50%{transform:rotateX(4deg) rotateY(-10deg) rotateZ(.5deg) translateY(-10px)}
-  }
   .features-grid{grid-template-columns:repeat(2,1fr)}
   .pricing-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:1fr 1fr;gap:28px}
@@ -635,42 +600,53 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 <script>
 (function(){
   const wrapper = document.getElementById('mockupWrapper');
+  if(!wrapper) return;
   let showingBack = false;
   let flipLocked = false;
+  let floatPhase = 0;
+
+  function getRotY(){ return showingBack ? 158 : -22; }
+
+  function applyTransform(floatY, rotY){
+    wrapper.style.transform = 'rotateX(6deg) rotateY('+rotY+'deg) rotateZ(1.5deg) translateY('+floatY+'px)';
+  }
 
   function setDots(back){
     ['dot0','dot1'].forEach((id,i)=>{
-      const el = document.getElementById(id);
-      if(el) el.className = 'view-dot' + (back ? (i===1?' active':'') : (i===0?' active':''));
+      const el=document.getElementById(id);
+      if(el) el.className='view-dot'+((!back&&i===0)||(back&&i===1)?' active':'');
     });
     ['dot0b','dot1b'].forEach((id,i)=>{
-      const el = document.getElementById(id);
-      if(el) el.className = 'view-dot' + (back ? (i===1?' active':'') : (i===0?' active':''));
+      const el=document.getElementById(id);
+      if(el) el.className='view-dot'+((!back&&i===0)||(back&&i===1)?' active':'');
     });
+  }
+
+  function floatLoop(){
+    if(!flipLocked){
+      floatPhase += 0.007;
+      applyTransform(Math.sin(floatPhase)*12, getRotY());
+    }
+    requestAnimationFrame(floatLoop);
   }
 
   function flip(){
     if(flipLocked) return;
     flipLocked = true;
-    if(!showingBack){
-      wrapper.className = 'flip-fwd';
-      setTimeout(()=>{
-        wrapper.className = 'idle-back';
-        showingBack = true;
-        setDots(true);
-        flipLocked = false;
-      }, 1400);
-    } else {
-      wrapper.className = 'flip-back';
-      setTimeout(()=>{
-        wrapper.className = '';
-        showingBack = false;
-        setDots(false);
-        flipLocked = false;
-      }, 1400);
-    }
+    const targetRotY = showingBack ? 338 : 158;
+    wrapper.style.transition = 'transform 1.4s cubic-bezier(0.45,0,0.55,1)';
+    applyTransform(0, targetRotY);
+    setTimeout(()=>{
+      showingBack = !showingBack;
+      floatPhase = 0;
+      wrapper.style.transition = '';
+      flipLocked = false;
+      setDots(showingBack);
+    }, 1400);
   }
 
+  applyTransform(0, getRotY());
+  floatLoop();
   setInterval(flip, 7000);
 })();
 </script>
