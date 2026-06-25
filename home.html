@@ -47,10 +47,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
   background:linear-gradient(150deg,#eef2ff 0%,#f5f3ff 30%,#fdf4ff 60%,#ffffff 100%);
   min-height:calc(100vh - 64px);
   display:grid;
-  grid-template-columns:42fr 58fr;
+  grid-template-columns:58fr 42fr;
 }
 .hero-content{
-  padding:96px 48px 96px 64px;
+  order:2;
+  padding:96px 64px 96px 48px;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -79,13 +80,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-
 
 /* ── HERO VISUAL (3D mockup) ── */
 .hero-visual{
+  order:1;
   display:flex;
   align-items:center;
-  padding:60px 0 60px 24px;
+  padding:60px 24px 60px 0;
 }
 .mockup-scene{
   perspective:1600px;
-  perspective-origin:20% 50%;
+  perspective-origin:80% 50%;
   width:100%;
   max-width:900px;
 }
@@ -307,11 +309,11 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
 /* ── RESPONSIVE ── */
 @media(max-width:1200px){
   .hero-h1{font-size:48px}
-  .hero-content{padding:80px 32px 80px 48px}
+  .hero-content{padding:80px 48px 80px 32px}
 }
 @media(max-width:1024px){
   .hero{min-height:auto}
-  .hero-content{padding:64px 24px 64px 40px}
+  .hero-content{padding:64px 40px 64px 24px}
   .hero-h1{font-size:38px;letter-spacing:-1px}
   .hero-sub{font-size:15px}
   .features-grid{grid-template-columns:repeat(2,1fr)}
@@ -324,9 +326,9 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .nav-links{display:none}
   .btn-login{display:none}
   .btn-cta{font-size:12px;padding:7px 14px}
-  /* HERO – keep side by side, scale everything down */
-  .hero{min-height:auto}
-  .hero-content{padding:28px 10px 28px 16px}
+  /* HERO – keep side by side, restore original left-text/right-mockup order */
+  .hero{min-height:auto;grid-template-columns:42fr 58fr}
+  .hero-content{order:1;padding:28px 10px 28px 16px}
   .hero-badge{font-size:10px;padding:3px 9px;gap:4px;margin-bottom:10px}
   .hero-badge i{font-size:11px}
   .hero-h1{font-size:20px;letter-spacing:-0.5px;margin-bottom:10px;line-height:1.18}
@@ -340,9 +342,9 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   .hero-rating{padding-left:8px;gap:5px}
   .stars{font-size:10px;letter-spacing:0}
   .hero-rating-text{font-size:10px}
-  /* Mockup: fixed wide width, zoom uniformly, clip overflow */
-  .hero-visual{overflow:hidden;padding:20px 0 20px 4px;align-items:flex-start}
-  .mockup-scene{width:900px;max-width:none;zoom:0.52}
+  /* Mockup: restore mobile order/padding, zoom uniformly, clip overflow */
+  .hero-visual{order:2;overflow:hidden;padding:20px 0 20px 4px;align-items:flex-start}
+  .mockup-scene{width:900px;max-width:none;zoom:0.52;perspective-origin:20% 50%}
   .mockup-body{grid-template-columns:140px 1fr}
   .m-panel{display:none}
   /* Sections */
@@ -639,10 +641,13 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   let flipLocked = false;
   let floatPhase = 0;
 
-  function getRotY(){ return showingBack ? 158 : -22; }
+  function isMobile(){ return window.innerWidth <= 768; }
+  function baseAngle(){ return isMobile() ? -22 : 22; }
+  function rotZ(){ return isMobile() ? 1.5 : -1.5; }
+  function getRotY(){ return showingBack ? baseAngle() + 180 : baseAngle(); }
 
   function applyTransform(floatY, rotY){
-    wrapper.style.transform = 'rotateX(6deg) rotateY('+rotY+'deg) rotateZ(1.5deg) translateY('+floatY+'px)';
+    wrapper.style.transform = 'rotateX(6deg) rotateY('+rotY+'deg) rotateZ('+rotZ()+'deg) translateY('+floatY+'px)';
   }
 
   function setDots(back){
@@ -667,7 +672,8 @@ footer{background:#0f172a;padding:60px 40px 32px;border-top:1px solid rgba(255,2
   function flip(){
     if(flipLocked) return;
     flipLocked = true;
-    const targetRotY = showingBack ? 338 : 158;
+    const base = baseAngle();
+    const targetRotY = showingBack ? base + 360 : base + 180;
     wrapper.style.transition = 'transform 1.4s cubic-bezier(0.45,0,0.55,1)';
     applyTransform(0, targetRotY);
     setTimeout(()=>{
