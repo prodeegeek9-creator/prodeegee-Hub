@@ -15,7 +15,7 @@
     style.textContent =
       '.housefly{position:fixed;top:0;left:0;font-size:18px;line-height:1;' +
       'pointer-events:none;z-index:2147483000;will-change:transform;' +
-      'transition:transform .35s ease-in-out;}' +
+      'transition:transform .4s ease-out;}' +
       '.housefly-body{display:inline-block;animation:housefly-wiggle .15s ease-in-out infinite;}' +
       '@keyframes housefly-wiggle{0%,100%{transform:rotate(-6deg) scale(1);}50%{transform:rotate(6deg) scale(.94);}}';
     document.head.appendChild(style);
@@ -59,28 +59,57 @@
       scheduleNext();
     }
 
-    var safety = setTimeout(remove, 20000);
+    var safety = setTimeout(remove, 22000);
 
+    // fly in and land
     setTimeout(function () {
+      if (removed) return;
       var landX = rand(margin, vw - margin);
       var landY = rand(margin, vh - margin);
+      fly.style.transition = 'transform .5s ease-out';
       setPos(fly, landX, landY, landX < x);
       x = landX; y = landY;
 
-      var steps = Math.floor(rand(4, 9));
-      var i = 0;
+      setTimeout(walk, rand(150, 400));
+    }, 500);
+
+    // wander around like a real fly: short quick steps in a
+    // semi-persistent heading, punctuated by little pauses (grooming)
+    function walk() {
+      if (removed) return;
+      var heading = rand(0, Math.PI * 2);
+      var stepsLeft = Math.floor(rand(16, 30));
+
       (function step() {
         if (removed) return;
-        if (i >= steps) { flyAway(); return; }
-        i++;
-        var dx = rand(-18, 18);
-        var dy = rand(-18, 18);
-        x = clamp(x + dx, margin, vw - margin);
-        y = clamp(y + dy, margin, vh - margin);
-        setPos(fly, x, y, dx < 0);
-        setTimeout(step, rand(250, 700));
+        if (stepsLeft <= 0) { flyAway(); return; }
+        stepsLeft--;
+
+        // occasional pause, as if grooming or looking around
+        if (Math.random() < 0.25) {
+          setTimeout(step, rand(400, 950));
+          return;
+        }
+
+        heading += rand(-0.7, 0.7);
+        var dist = rand(4, 11);
+        var dx = Math.cos(heading) * dist;
+        var dy = Math.sin(heading) * dist;
+
+        var nx = clamp(x + dx, margin, vw - margin);
+        var ny = clamp(y + dy, margin, vh - margin);
+        // bounce heading off the walls instead of getting stuck on an edge
+        if (nx === margin || nx === vw - margin) heading = Math.PI - heading;
+        if (ny === margin || ny === vh - margin) heading = -heading;
+        x = nx; y = ny;
+
+        var stepDuration = rand(220, 420);
+        fly.style.transition = 'transform ' + stepDuration + 'ms linear';
+        setPos(fly, x, y, Math.cos(heading) < 0);
+
+        setTimeout(step, stepDuration + rand(80, 220));
       })();
-    }, 500);
+    }
 
     function flyAway() {
       if (removed) return;
